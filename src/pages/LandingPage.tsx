@@ -1,0 +1,147 @@
+import React from 'react';
+import { Sparkles, ArrowRight, Globe, Users, Zap } from 'lucide-react';
+import { AuthPage } from '../types/auth';
+
+interface LandingPageProps {
+  onPageChange: (page: AuthPage) => void;
+}
+
+const LandingPage: React.FC<LandingPageProps> = ({ onPageChange }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 overflow-hidden">
+      {/* Hero Section */}
+      <div className="relative min-h-screen flex items-center">
+        {/* Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          {/* Floating orbs */}
+          <div className="absolute top-20 left-10 w-32 h-32 bg-teal-200/30 rounded-full blur-xl animate-float"></div>
+          <div className="absolute top-40 right-20 w-24 h-24 bg-purple-200/30 rounded-full blur-xl animate-float animation-delay-1000"></div>
+          <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-blue-200/20 rounded-full blur-xl animate-float animation-delay-500"></div>
+          
+          {/* Grid pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8882_1px,transparent_1px),linear-gradient(to_bottom,#8882_1px,transparent_1px)] bg-[size:14px_24px] opacity-20"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left Side - Content */}
+            <div className="space-y-8 animate-fade-in-up">
+              {/* Badge */}
+              <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-teal-200/50 rounded-full px-4 py-2 shadow-lg animate-fade-in-up animation-delay-200">
+                <Sparkles className="w-4 h-4 text-teal-600" />
+                <span className="text-sm font-medium text-slate-700">Join the Adventure</span>
+              </div>
+
+              {/* Main Headline */}
+              <div className="space-y-4">
+                <h1 className="text-5xl lg:text-7xl font-bold text-slate-900 leading-tight animate-fade-in-up animation-delay-400">
+                  Universe,
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600">
+                    let's change
+                  </span>
+                  <br />
+                  together
+                </h1>
+                
+                <p className="text-xl text-slate-600 leading-relaxed max-w-lg animate-fade-in-up animation-delay-500">
+                  Embark on extraordinary journeys, discover hidden gems, and create unforgettable memories with fellow adventurers around the globe.
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
+                <button
+                  onClick={() => onPageChange('signup')}
+                  className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                  <span>Join Us</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+                
+                <button
+                  onClick={() => onPageChange('login')}
+                  className="inline-flex items-center justify-center px-8 py-4 bg-white/80 backdrop-blur-sm text-slate-700 font-semibold rounded-xl border border-slate-200 hover:bg-white hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  Login
+                </button>
+              </div>
+
+              {/* Stats */}
+              <div className="flex items-center space-x-8 pt-8 animate-fade-in-up animation-delay-700">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-900">50K+</div>
+                  <div className="text-sm text-slate-600">Adventurers</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-900">200+</div>
+                  <div className="text-sm text-slate-600">Destinations</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-slate-900">4.9★</div>
+                  <div className="text-sm text-slate-600">Rating</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Illustration */}
+            <div className="relative animate-fade-in-right animation-delay-800">
+              {/* Main Image Container */}
+              <div className="relative">
+                {/* Background Image */}
+                <div className="relative w-full h-96 lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
+                  <img
+                    src="https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    alt="Adventure landscape"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/20 to-transparent"></div>
+                </div>
+
+                {/* Floating Cards */}
+                <div className="absolute -top-6 -left-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl animate-float">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-teal-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-900">Global Reach</div>
+                      <div className="text-sm text-slate-600">Worldwide adventures</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-6 -right-6 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl animate-float animation-delay-1000">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Users className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-900">Community</div>
+                      <div className="text-sm text-slate-600">Connect & explore</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="absolute top-1/2 -right-4 bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-xl animate-float animation-delay-500">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <Zap className="w-5 h-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-slate-900">Instant</div>
+                      <div className="text-sm text-slate-600">Quick booking</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LandingPage;
