@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
-import type { User } from '../types/auth';
 import CookieManager from '../utils/cookies';
+import { User } from 'types/resource';
 
 type AuthContextValue = {
   user: User | null;

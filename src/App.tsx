@@ -1,11 +1,16 @@
 import { useState } from 'react';
-import { AuthPage } from './types/auth';
-import Navigation from './components/Navigation';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/auth/LoginPage';
-import SignupPage from './pages/auth/SignupPage';
-import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import InternshipsList from '@pages/internships/InternshipsList';import InternshipDetail from '@pages/internships/InternshipDetail';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import NotFoundPage from '@pages/NotFoundPage';
+import Navigation from '@components/Navigation';
+import LandingPage from '@pages/LandingPage';
+import LoginPage from '@pages/auth/LoginPage';
+import SignupPage from '@pages/auth/SignupPage';
+import VerifyEmailPage from '@pages/auth/VerifyEmailPage';
+import ForgotPassword from '@pages/auth/ForgotPassword';
+import { PublicRoute } from '@components/PublicRoute';
+import { ProtectedRoute } from '@components/ProtectedRoute';
 
 // Dashboard component for authenticated users
 function Dashboard() {
@@ -39,27 +44,19 @@ function Dashboard() {
 
 // Main app content component
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
-  const [currentPage, setCurrentPage] = useState<AuthPage>('landing');
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [userEmail, setUserEmail] = useState<string>('');
-
-  const handlePageChange = (page: AuthPage) => {
-    setCurrentPage(page);
-  };
 
   const handleSignupSuccess = (email: string) => {
     setUserEmail(email);
-    setCurrentPage('verify');
+    navigate('/verify-email');
   };
 
-  // Show loading spinner while checking authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600"></div>
-      </div>
-    );
-  }
+  const handleIntershipClick = () => {
+    navigate('/internships/1');
+  };
 
   // Show dashboard if authenticated
   if (isAuthenticated) {
@@ -69,27 +66,91 @@ function AppContent() {
   // Show auth pages if not authenticated
   return (
     <div className="relative">
-      <Navigation currentPage={currentPage} onPageChange={handlePageChange} />
-      <div className="pt-16">
-        {currentPage === 'landing' ? (
-          <LandingPage onPageChange={handlePageChange} />
-        ) : currentPage === 'login' ? (
-          <LoginPage onPageChange={handlePageChange} />
-        ) : currentPage === 'signup' ? (
-          <SignupPage onPageChange={handlePageChange} onSignupSuccess={handleSignupSuccess} />
-        ) : (
-          <VerifyEmailPage onPageChange={handlePageChange} userEmail={userEmail} />
-        )}
-      </div>
+      <Navigation currentPage={location.pathname} />
+      
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Auth Routes - redirect if already logged in */}
+          <Route 
+            path="/login" 
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/signup" 
+            element={
+              <PublicRoute>
+                <SignupPage onSignupSuccess={handleSignupSuccess}/>
+              </PublicRoute>
+            } 
+          />
+
+          {/* Password Reset */}         
+          <Route 
+            path="/password-reset" 
+            element={
+              <PublicRoute>
+                <ForgotPassword />
+              </PublicRoute>
+            } 
+          />
+
+          {/* Email Verification */}
+          <Route 
+            path="/verify-email" 
+            element={
+              <ProtectedRoute requireVerified={false}>
+                <VerifyEmailPage userEmail={userEmail} />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Protected Routes - require authentication */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Semi-public routes - anyone can view, but enhanced for logged-in users */}
+          <Route path="/internships" element={<InternshipsList onInternshipClick={handleIntershipClick}/>} />
+          <Route path="/internships/:id" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
+
+          {/* Admin-only Routes */}
+          {/* <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute requiredRoles={['admin']}>
+                <AdminPanel />
+              </ProtectedRoute>
+            } 
+          /> */}
+
+          {/* Error Routes */}
+          {/* <Route path="/unauthorized" element={<UnauthorizedPage />} /> */}
+          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate to="/404" replace />} />
+        </Routes>
+      
     </div>
   );
 }
 
 function App() {
   return (
+    <BrowserRouter>
     <AuthProvider>
       <AppContent />
     </AuthProvider>
+    </BrowserRouter>
   );
 }
 

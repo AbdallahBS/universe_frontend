@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
-import { LoginFormData, AuthPage } from '../../types/auth';
+import React, { useEffect, useState } from 'react';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { LoginFormData } from 'types/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginPageProps {
-  onPageChange: (page: AuthPage) => void;
 }
 
-const LoginPage: React.FC<LoginPageProps> = ({ onPageChange }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ }) => {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
@@ -17,6 +18,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onPageChange }) => {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+   document.title = 'Universe | Auth';
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +148,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onPageChange }) => {
               <button
                 type="button"
                 className="text-sm text-teal-600 hover:text-teal-800 font-medium transition-colors"
+                onClick={() => navigate('/password-reset')}
               >
                 Forgot password?
               </button>
@@ -187,7 +193,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onPageChange }) => {
                 Don't have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => onPageChange('signup')}
+                  onClick={() => navigate('/signup')}
                   className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
                 >
                   Sign up

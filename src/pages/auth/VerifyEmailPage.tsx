@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { AuthPage } from '../../types/auth';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { verifyEmail, requestEmailVerification } from '../../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 interface VerifyEmailPageProps {
-  onPageChange: (page: AuthPage) => void;
   userEmail?: string;
 }
 
-const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ onPageChange, userEmail }) => {
+const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
+  const navigate = useNavigate();
   const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -19,6 +19,8 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ onPageChange, userEma
 
   // Countdown timer for resend button
   useEffect(() => {
+    document.title = 'Universe | Auth';
+
     if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
       return () => clearTimeout(timer);
@@ -34,7 +36,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ onPageChange, userEma
       await verifyEmail({ code: verificationCode });
       setSuccess(true);
       setTimeout(() => {
-        onPageChange('login');
+         navigate('/login')
       }, 2000);
     } catch (err: any) {
       setError(err?.message || 'Verification failed');
@@ -193,7 +195,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ onPageChange, userEma
                 Wrong email?{' '}
                 <button
                   type="button"
-                  onClick={() => onPageChange('signup')}
+                  onClick={() =>  navigate('/signup')}
                   className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
                 >
                   Go back to signup

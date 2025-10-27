@@ -9,6 +9,7 @@ interface InputFieldProps {
   onChange: (value: string) => void;
   placeholder?: string;
   required?: boolean;
+  maxLength?: number;
   className?: string;
   error?: string;
 }
@@ -21,6 +22,7 @@ const InputField: React.FC<InputFieldProps> = ({
   onChange,
   placeholder,
   required = false,
+  maxLength,
   className = '',
   error
 }) => {
@@ -41,6 +43,7 @@ const InputField: React.FC<InputFieldProps> = ({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
+          maxLength={maxLength}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={`

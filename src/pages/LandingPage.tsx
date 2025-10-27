@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Sparkles, ArrowRight, Globe, Users, Zap } from 'lucide-react';
-import { AuthPage } from '../types/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface LandingPageProps {
-  onPageChange: (page: AuthPage) => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onPageChange }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ }) => {
+  useEffect(() => {
+     document.title = 'Universe';
+    }, []);
+    const navigate = useNavigate()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 overflow-hidden">
       {/* Hero Section */}
@@ -53,7 +57,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onPageChange }) => {
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-600">
                 <button
-                  onClick={() => onPageChange('signup')}
+                  onClick={() => navigate('/signup')}
                   className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
                   <span>Join Us</span>
@@ -61,7 +65,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onPageChange }) => {
                 </button>
                 
                 <button
-                  onClick={() => onPageChange('login')}
+                  onClick={() => navigate('/login')}
                   className="inline-flex items-center justify-center px-8 py-4 bg-white/80 backdrop-blur-sm text-slate-700 font-semibold rounded-xl border border-slate-200 hover:bg-white hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
                   Login

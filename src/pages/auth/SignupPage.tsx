@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
-import { SignupFormData, AuthPage, SignupPayload, TokensResponse } from '../../types/auth';
+import React, { useEffect, useState } from 'react';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { SignupSchema } from '../../utils/validators';
 import { signup as signupService } from '../../services/authService';
+import { SignupFormData, SignupPayload } from 'types/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface SignupPageProps {
-  onPageChange: (page: AuthPage) => void;
   onSignupSuccess?: (email: string) => void;
 }
 
-const SignupPage: React.FC<SignupPageProps> = ({ onPageChange, onSignupSuccess }) => {
+const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<SignupFormData>({
     firstname: '',
     lastname: '',
@@ -22,6 +23,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onPageChange, onSignupSuccess }
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
   const [serverError, setServerError] = useState<string | null>(null);
+
+  useEffect(() => {
+     document.title = 'Universe | Auth';
+    }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +57,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onPageChange, onSignupSuccess }
       };
       await signupService(payload);
       onSignupSuccess?.(formData.email);
-      onPageChange('verify');
+      navigate('/verify-email')
     } catch (err: any) {
       setServerError(err?.message || 'Signup failed');
     } finally {
@@ -240,7 +245,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onPageChange, onSignupSuccess }
                 Already have an account?{' '}
                 <button
                   type="button"
-                  onClick={() => onPageChange('login')}
+                  onClick={() => navigate('/login')}
                   className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
                 >
                   Sign in
