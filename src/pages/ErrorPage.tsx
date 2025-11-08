@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AlertCircle, Home, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-interface NotFoundProps {
+interface ErrorPageProps {
+  errorCode: String,
+  errorText: String,
+  errorDescription: String
 }
 
-const NotFound: React.FC<NotFoundProps> = ({ }) => {
+const ErrorPage: React.FC<ErrorPageProps> = ({errorCode, errorText, errorDescription }) => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+         document.title = `Universe | ${errorCode}`;
+        }, []);
+        
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 flex items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden">
@@ -25,13 +33,13 @@ const NotFound: React.FC<NotFoundProps> = ({ }) => {
 
           <div className="space-y-4">
             <h1 className="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 animate-fade-in-up animation-delay-200">
-              404
+              {errorCode}
             </h1>
             <h2 className="text-4xl font-bold text-slate-900 animate-fade-in-up animation-delay-300">
-              Page Not Found
+              {errorText}
             </h2>
             <p className="text-xl text-slate-600 max-w-md mx-auto animate-fade-in-up animation-delay-400">
-              Oops! The page you're looking for seems to have wandered off on its own adventure.
+              {errorDescription}
             </p>
           </div>
 
@@ -52,30 +60,10 @@ const NotFound: React.FC<NotFoundProps> = ({ }) => {
               <span>Back to Home</span>
             </button>
           </div>
-
-          <div className="pt-8 animate-fade-in-up animation-delay-600">
-            <p className="text-sm text-slate-500">
-              Lost? Try navigating back to our{' '}
-              <button
-                onClick={() => navigate('/')}
-                className="text-teal-600 hover:text-teal-700 font-medium underline"
-              >
-                homepage
-              </button>
-              {' '}or check out our{' '}
-              <button
-                onClick={() => navigate('/internships')}
-                className="text-teal-600 hover:text-teal-700 font-medium underline"
-              >
-                internships
-              </button>
-              .
-            </p>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default NotFound;
+export default ErrorPage;

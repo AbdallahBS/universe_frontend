@@ -6,9 +6,7 @@ interface NavigationProps {
   currentPage: String;
 }
 
-const Navigation: React.FC<NavigationProps> = ({
-  currentPage,
-}) => {
+const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -28,14 +26,18 @@ const Navigation: React.FC<NavigationProps> = ({
             onClick={() => handleNavClick("/")}
             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900`}
           >
-            <div className="flex-shrink-0">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">U</span>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex-shrink-0">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+                      <span className="text-xl text-white font-bold">U</span>
+                    </div>
+                    <span className="text-2xl font-bold text-slate-800">
+                      NIVERSE
+                    </span>
+                  </div>
                 </div>
-                <span className="text-xl font-bold text-slate-800">
-                  UNIVERSE
-                </span>
               </div>
             </div>
           </button>

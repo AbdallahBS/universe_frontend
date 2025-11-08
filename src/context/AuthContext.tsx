@@ -4,35 +4,32 @@ import { User } from 'types/resource';
 
 type AuthContextValue = {
   user: User | null;
-  accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
-  setAccessToken: (token: string | null) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const isAuthenticated = useMemo(() => !!user && !!accessToken, [user, accessToken]);
+  const isAuthenticated = useMemo(() => !!user, [user]);
 
   // Initialize auth state from cookies on mount
   useEffect(() => {
-    const initializeAuth = () => {
+    const initializeAuth = async () => {
       try {
-        const isAuth = CookieManager.isAuthenticated();
-        const user = CookieManager.getUser();
+        const isAuth = await CookieManager.isAuthenticated();
+        const CookieUser = CookieManager.getUser();
         
-        if (isAuth && user) {
-          setAccessToken('cookie-based'); // We don't need to store the actual token
-          setUser(user);
+        if (isAuth && CookieUser) {
+          setUser(CookieUser);
         }
+
       } catch (error) {
         console.error('Failed to initialize auth state:', error);
         // Clear invalid data
@@ -55,7 +52,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
       }
-      setAccessToken('cookie-based');
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -72,20 +68,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Clear cookies and local state
       CookieManager.clearAuth();
       setUser(null);
-      setAccessToken(null);
     }
   };
 
   const value = useMemo(() => ({
     user,
-    accessToken,
     isAuthenticated,
     isLoading,
     login,
     logout,
-    setUser,
-    setAccessToken
-  }), [user, accessToken, isAuthenticated, isLoading]);
+    setUser
+  }), [user, isAuthenticated, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

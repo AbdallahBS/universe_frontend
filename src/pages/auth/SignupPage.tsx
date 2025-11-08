@@ -70,7 +70,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex mt-10">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-teal-900 via-slate-800 to-slate-900 overflow-hidden">
         {/* Background Pattern */}

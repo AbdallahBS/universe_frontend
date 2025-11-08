@@ -1,24 +1,22 @@
 import { apiFetch } from './api';
-import type { SignupPayload, TokensResponse } from '../types/auth';
+import { TokensResponse } from 'types/network';
+import { SignupPayload } from 'types/auth';
+import { Thumbmark } from '@thumbmarkjs/thumbmarkjs';
 
-function getOrCreateDeviceUUID(): string {
+export async function getOrCreateDeviceUUID(): Promise<string> {
+  const thumbmark = new Thumbmark();
+
   try {
-    const key = 'deviceUUID';
-    const existing = localStorage.getItem(key);
-    if (existing) return existing;
-    // Prefer crypto.randomUUID when available
-    // Fallback to timestamp-random
-    const generated = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
-    localStorage.setItem(key, generated);
-    return generated;
-  } catch {
-    // In environments without localStorage
-    return (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`);
+    const res = await thumbmark.get();
+    
+    return String(res.thumbmark);
+  } catch (err: any) {
+    throw new Error(String(err));
   }
 }
 
 export async function signup(payload: SignupPayload): Promise<TokensResponse> {
-  const UUID = getOrCreateDeviceUUID();
+  const UUID = await getOrCreateDeviceUUID();
   try {
     const data = await apiFetch<TokensResponse>('/v1/auth/signup', {
       method: 'POST',
@@ -60,7 +58,8 @@ export async function requestEmailVerification(): Promise<{ message: string }> {
 }
 
 export async function login(payload: { email: string; password: string; UUID?: string }): Promise<TokensResponse> {
-  const UUID = payload.UUID || getOrCreateDeviceUUID();
+  const UUID = payload.UUID || await getOrCreateDeviceUUID();
+  
   try {
     const data = await apiFetch<TokensResponse>('/v1/auth/login', {
       method: 'POST',
@@ -88,20 +87,3 @@ export async function logout(): Promise<{ message: string }> {
     throw new Error(message);
   }
 }
-
-export async function refreshToken(): Promise<TokensResponse> {
-  try {
-    // No need to send refresh token - backend will read it from cookies
-    const data = await apiFetch<TokensResponse>('/v1/auth/refresh', {
-      method: 'POST',
-      json: {}, // Empty body - backend reads refresh token from cookies
-      requireAuth: false,
-    });
-    return data;
-  } catch (err: any) {
-    const message = typeof err?.message === 'string' ? err.message : 'Token refresh failed';
-    throw new Error(message);
-  }
-}
-
-

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import InternshipsList from '@pages/internships/InternshipsList';import InternshipDetail from '@pages/internships/InternshipDetail';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import NotFoundPage from '@pages/NotFoundPage';
+import ErrorPage from '@pages/ErrorPage';
 import Navigation from '@components/Navigation';
 import LandingPage from '@pages/LandingPage';
 import LoginPage from '@pages/auth/LoginPage';
@@ -11,42 +11,12 @@ import VerifyEmailPage from '@pages/auth/VerifyEmailPage';
 import ForgotPassword from '@pages/auth/ForgotPassword';
 import { PublicRoute } from '@components/PublicRoute';
 import { ProtectedRoute } from '@components/ProtectedRoute';
-
-// Dashboard component for authenticated users
-function Dashboard() {
-  const { user, logout } = useAuth();
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg p-8">
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                Welcome back, {user?.firstname}!
-              </h1>
-              <p className="text-gray-600 mb-6">
-                You are successfully logged in to your account.
-              </p>
-              <button
-                onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+import Dashboard from '@pages/Dashboard';
 
 // Main app content component
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
   const [userEmail, setUserEmail] = useState<string>('');
 
   const handleSignupSuccess = (email: string) => {
@@ -54,14 +24,10 @@ function AppContent() {
     navigate('/verify-email');
   };
 
+  // test purpose
   const handleIntershipClick = () => {
     navigate('/internships/1');
   };
-
-  // Show dashboard if authenticated
-  if (isAuthenticated) {
-    return <Dashboard />;
-  }
 
   // Show auth pages if not authenticated
   return (
@@ -70,7 +36,14 @@ function AppContent() {
       
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
+          <Route 
+            path="/" 
+            element={
+              <PublicRoute>
+                <LandingPage />
+              </PublicRoute>
+            } 
+          />
           
           {/* Auth Routes - redirect if already logged in */}
           <Route 
@@ -115,6 +88,7 @@ function AppContent() {
             path="/dashboard" 
             element={
               <ProtectedRoute>
+                {/* Dashboard component for authenticated users */}
                 <Dashboard />
               </ProtectedRoute>
             } 
@@ -135,8 +109,8 @@ function AppContent() {
           /> */}
 
           {/* Error Routes */}
-          {/* <Route path="/unauthorized" element={<UnauthorizedPage />} /> */}
-          <Route path="/404" element={<NotFoundPage />} />
+          <Route path="/401" element={<ErrorPage errorCode="401" errorText="Unauthorized" errorDescription="You are not authorized to access this page." />} />
+          <Route path="/404" element={<ErrorPage errorCode="404" errorText="Page Not Found" errorDescription="The page you are looking for does not exist." />} />
           <Route path="*" element={<Navigate to="/404" replace />} />
         </Routes>
       

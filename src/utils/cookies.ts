@@ -1,5 +1,8 @@
 // Cookie utility functions for authentication
 
+import { data } from "react-router-dom";
+import { apiFetch } from "../services/api";
+
 export class CookieManager {
   // Get a cookie value by name
   static get(name: string): string | null {
@@ -31,8 +34,14 @@ export class CookieManager {
   }
 
   // Check if user is authenticated (has access token cookie)
-  static isAuthenticated(): boolean {
-    return !!this.get('accessToken');
+  static async isAuthenticated(): Promise<boolean> {
+    try {
+        const data = await apiFetch<any>('/v1/auth/me');
+        return !!data;
+      } catch (err: any) {
+        const message = typeof err?.message === 'string' ? err.message : 'Login failed';
+        throw new Error(message);
+      }
   }
 
   // Get user data from cookies (if stored there)
@@ -50,8 +59,8 @@ export class CookieManager {
 
   // Clear all auth cookies
   static clearAuth(): void {
-    this.delete('accessToken');
-    this.delete('refreshToken');
+    // this.delete('accessToken');  ** removed from the backend **
+    // this.delete('refreshToken');
     this.delete('user');
   }
 }

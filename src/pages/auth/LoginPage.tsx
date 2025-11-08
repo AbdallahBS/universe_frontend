@@ -32,6 +32,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
       await login(formData.email, formData.password);
       // Login successful - the AuthContext will handle the state update
       // You might want to redirect to a dashboard or home page here
+      navigate('/dashboard');
       console.log('Login successful');
     } catch (err: any) {
       console.error('Login error:', err.message);
@@ -46,7 +47,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex mt-10">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 overflow-hidden">
         {/* Background Pattern */}
