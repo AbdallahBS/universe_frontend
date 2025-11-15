@@ -1,101 +1,68 @@
 import React, { useEffect, useState } from 'react';
 import { Briefcase, MapPin, Clock, ArrowRight } from 'lucide-react';
 import LoadingSpinner from "@components/ui/LoadingSpinner";
-
-interface Internship {
-  id: string;
-  title: string;
-  company: string;
-  description: string;
-  location: string;
-  duration: string;
-  thumbnail_icon: string;
-}
+import PaginationPage from "@components/Pagination";
+import { useAuth } from '@context/AuthContext';
+import { getInternships } from '@services/internshipService';
+import { LinkedInPost, Pagination } from 'types/resource';
+import ScrollDownButton from '@components/ui/ScrollDownButton';
+import { timeAgo } from '@utils/helpers';
 
 interface InternshipsListProps {
   onInternshipClick: (id: string) => void;
 }
 
 const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) => {
-  const [internships, setInternships] = useState<Internship[]>([]);
+  const [internships, setInternships] = useState<LinkedInPost[]>([]);
+
+  const [Pagination, setPagination] = useState<Pagination>();
+  const [currentPage, setCurrentPage] = useState<number>();
+  const [totalPages, setTotalPages] = useState<number>();
+
   const [loading, setLoading] = useState(true);
+
+  const {isLoading, isAuthenticated} = useAuth();
 
   useEffect(() => {
     document.title = 'Universe | Internships';
+    setLoading(isLoading);
     fetchInternships();
-  }, []);
+  }, [isLoading]);
 
-  const fetchInternships = async () => {
+  const fetchInternships = async (page: string = "1", limit: string = "10") => {
     try {
-      /*const { data, error } = await supabase
-        .from('internships')
-        .select('id, title, company, description, location, duration, thumbnail_icon')
-        .order('created_at', { ascending: false });
+      setLoading(true);
+      const response = await getInternships(page, limit);
+      console.log(response);
+      
+      if (response.success) {
+        setInternships(response.data.internships);
+        setPagination(response.data.pagination);
 
-      if (error) throw error;*/
-      const data = [
-    {
-        "id": "e12a84cb-2758-4d0c-9515-2f6116e44074",
-        "title": "Frontend Developer Intern",
-        "company": "TechCorp Solutions",
-        "description": "Join our dynamic team to build modern web applications using React and TypeScript. Perfect for students looking to gain real-world experience.",
-        "location": "San Francisco, CA (Hybrid)",
-        "duration": "3-6 months",
-        "thumbnail_icon": "Code"
-    },
-    {
-        "id": "76b5d51f-6b76-42ff-b8b5-b8b7d31e3252",
-        "title": "UX/UI Design Intern",
-        "company": "Creative Studios Inc",
-        "description": "Work with our award-winning design team to create intuitive and beautiful user experiences for web and mobile applications.",
-        "location": "New York, NY (Remote)",
-        "duration": "4 months",
-        "thumbnail_icon": "Palette"
-    },
-    {
-        "id": "187d51be-e7d8-431d-963e-e59da750a85b",
-        "title": "Data Science Intern",
-        "company": "DataMinds Analytics",
-        "description": "Dive into the world of data science and machine learning. Work on exciting projects involving big data analysis and predictive modeling.",
-        "location": "Austin, TX (On-site)",
-        "duration": "6 months",
-        "thumbnail_icon": "BarChart"
-    },
-    {
-        "id": "737a263f-db81-43e3-8fd6-10b684a52d3a",
-        "title": "Marketing Intern",
-        "company": "BrandBoost Marketing",
-        "description": "Help us create compelling marketing campaigns and grow brand awareness for exciting startups and established companies.",
-        "location": "Los Angeles, CA (Hybrid)",
-        "duration": "3 months",
-        "thumbnail_icon": "Megaphone"
-    },
-    {
-        "id": "11f0c106-0462-4744-b218-e814054b7e49",
-        "title": "Software Engineering Intern",
-        "company": "CloudTech Systems",
-        "description": "Build scalable cloud-based solutions and work with cutting-edge technologies. Great opportunity for aspiring full-stack developers.",
-        "location": "Seattle, WA (Remote)",
-        "duration": "5 months",
-        "thumbnail_icon": "Cloud"
-    }
-]
-      setTimeout(() => {
-        setInternships(data || []);
-        setLoading(false);
-      }, 500);
+        setCurrentPage(response.data.pagination.page);
+        setTotalPages(response.data.pagination.pages);
+      }
     } catch (error) {
       console.error('Error fetching internships:', error);
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
-  const getIcon = (iconName: string) => {
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchInternships(page.toString());
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getIcon = (iconName: string | null | undefined) => {
     return <Briefcase className="w-12 h-12 text-teal-600" />;
   };
 
   return (
+    <>
+    <ScrollDownButton />
+    
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 pt-24 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="space-y-8 animate-fade-in-up">
@@ -117,31 +84,31 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
             <div className="space-y-4">
               {internships.map((internship, index) => (
                 <div
-                  key={internship.id}
-                  onClick={() => onInternshipClick(internship.id)}
+                  key={internship.urn}
+                  onClick={() => onInternshipClick(internship.urn)}
                   className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-6 cursor-pointer transform hover:scale-[1.02] hover:shadow-xl transition-all duration-300 animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
                   <div className="flex items-center gap-6">
                     <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-teal-100 to-blue-100 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                      {getIcon(internship.thumbnail_icon)}
+                      {getIcon(internship.media?.thumbnail)}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-300">
-                        {internship.title}
+                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-300 truncate">
+                        {internship.text ?? internship.reshared_post?.text}
                       </h3>
-                      <p className="text-lg text-slate-700 font-medium mt-1">{internship.company}</p>
-                      <p className="text-slate-600 mt-2 line-clamp-2">{internship.description}</p>
+                      <p className="text-lg text-slate-700 font-medium mt-1">{internship.author.first_name ?? internship.reshared_post?.author.first_name} {internship.author.last_name ?? internship.reshared_post?.author.last_name}</p>
+                      <p className="text-slate-600 mt-2 line-clamp-2">{internship.text ?? internship.reshared_post?.text}</p>
 
                       <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
-                          <span>{internship.location}</span>
+                          <span>{internship.post_type}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <span>{internship.duration}</span>
+                          <span>{timeAgo(internship.posted_at.timestamp, Date.now())} - {new Date(internship.posted_at.date).toDateString().replace(/ /g, ' / ')}</span>
                         </div>
                       </div>
                     </div>
@@ -162,11 +129,16 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
                   <p className="text-slate-500 mt-2">Check back soon for new opportunities!</p>
                 </div>
               )}
+
+              {internships.length > 0 && Pagination!.pages > 1 && (
+                <PaginationPage currentPage={currentPage ?? 0} totalPages={totalPages ?? 0} onPageChange={handlePageChange} />
+              )}
             </div>
           )}
         </div>
       </div>
     </div>
+    </>
   );
 };
 

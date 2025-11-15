@@ -11,7 +11,9 @@
       "@context/*": ["context/*"],
       "@components/*": ["components/*"],
       "@ui/*": ["components/ui/*"],
-      "@pages/*": ["pages/*"]
+      "@pages/*": ["pages/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"]
     },
 
     /* Bundler mode */

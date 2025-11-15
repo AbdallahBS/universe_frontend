@@ -6,3 +6,70 @@ export interface User {
   isVerified?: boolean;
   roles?: string[];
 }
+
+/** internship object **/
+export interface Author {
+  first_name: string;
+  last_name: string;
+  headline: string | null;
+  username: string | null;
+  profile_picture: string | null;
+}
+
+export interface MediaImage {
+  url: string;
+  width: number;
+  height: number;
+}
+
+export interface Media {
+  type: "image" | "video" | "document" | string;
+  url: string;
+  thumbnail: string | null;
+  images: MediaImage[];
+}
+
+export interface PostedAt {
+  date: string; // e.g. "2025-08-22 18:41:54"
+  relative: string; // e.g. "4 months ago • Visible to anyone on or off LinkedIn"
+  timestamp: number;
+}
+
+export interface Stats {
+  total_reactions: number;
+  like: number;
+  support: number;
+  love: number;
+  insight: number;
+  celebrate: number;
+  funny: number;
+  comments: number;
+  reposts: number;
+}
+
+export interface LinkedInPost {
+  _id: string;
+  urn: string;
+  __v?: number;
+  author: Author;
+  createdAt: string;
+  updatedAt: string;
+  document: string | null;
+  full_urn: string;
+  media: Media | null;
+  post_type: string;
+  posted_at: PostedAt;
+  profile_input: string;
+  reshared_post: LinkedInPost | null;
+  stats: Stats;
+  text: string;
+  url: string;
+}
+
+/** Pagination object **/
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}

@@ -1,6 +1,5 @@
 // Cookie utility functions for authentication
 
-import { data } from "react-router-dom";
 import { apiFetch } from "../services/api";
 
 export class CookieManager {

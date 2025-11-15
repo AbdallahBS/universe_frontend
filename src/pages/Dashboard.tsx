@@ -1,6 +1,5 @@
 import { useAuth } from '@context/AuthContext';
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface DashboardProps {
 }
@@ -9,7 +8,6 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
   useEffect(() => {
      document.title = 'Universe | Dashboard';
     }, []);
-    const navigate = useNavigate()
     const { user, logout } = useAuth();
 
   return (

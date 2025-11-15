@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import InternshipsList from '@pages/internships/InternshipsList';import InternshipDetail from '@pages/internships/InternshipDetail';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ErrorPage from '@pages/ErrorPage';
@@ -25,8 +25,8 @@ function AppContent() {
   };
 
   // test purpose
-  const handleIntershipClick = () => {
-    navigate('/internships/1');
+  const handleIntershipClick = (id: string) => {
+    navigate(`/internships/${id}`);
   };
 
   // Show auth pages if not authenticated
@@ -96,7 +96,7 @@ function AppContent() {
 
           {/* Semi-public routes - anyone can view, but enhanced for logged-in users */}
           <Route path="/internships" element={<InternshipsList onInternshipClick={handleIntershipClick}/>} />
-          <Route path="/internships/:id" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
+          <Route path="/internships/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
 
           {/* Admin-only Routes */}
           {/* <Route 

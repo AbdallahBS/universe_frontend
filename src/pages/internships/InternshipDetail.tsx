@@ -8,8 +8,13 @@ import {
   Sparkles,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@context/AuthContext";
+import ScrollDownButton from "@components/ui/ScrollDownButton";
+import { getInternship } from "@services/internshipService";
+import { set } from "zod";
+import { LinkedInPost } from "types/resource";
+import { timeAgo } from "@utils/helpers";
 
 interface InternshipDetails {
   id: string;
@@ -28,65 +33,34 @@ interface InternshipDetailProps {}
 
 const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
   const navigate = useNavigate();
+  const {urn} = useParams();
   const { user, isLoading } = useAuth();
 
-  const [internship, setInternship] = useState<InternshipDetails | null>(null);
+  const [internship, setInternship] = useState<LinkedInPost>();
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
     document.title = "Universe | Internships";
-
+    setLoading(isLoading);
     fetchInternshipDetails();
-  }, []);
+  }, [isLoading]);
 
   const fetchInternshipDetails = async () => {
     try {
-      /*const { data, error } = await supabase
-        .from('internships')
-        .select('*')
-        .eq('id', internshipId)
-        .maybeSingle();
+      setLoading(true);
+      if (urn) {
+        const response = await getInternship(urn);
+        console.log(response);
 
-      if (error) throw error;*/
-      const data = {
-        id: "e12a84cb-2758-4d0c-9515-2f6116e44074",
-        title: "Frontend Developer Intern",
-        company: "TechCorp Solutions",
-        description:
-          "Join our dynamic team to build modern web applications using React and TypeScript. Perfect for students looking to gain real-world experience.",
-        full_description:
-          "We are looking for a passionate Frontend Developer Intern to join our growing team. You will work alongside experienced developers to create beautiful, responsive web applications that serve millions of users worldwide.\n\nDuring this internship, you will:\n- Collaborate with designers and backend developers to implement new features\n- Write clean, maintainable code using React and TypeScript\n- Participate in code reviews and team meetings\n- Learn industry best practices and modern development workflows\n- Contribute to real projects that impact our users\n\nThis is a fantastic opportunity to kickstart your career in web development and gain hands-on experience with cutting-edge technologies.",
-        location: "San Francisco, CA (Hybrid)",
-        duration: "3-6 months",
-        requirements: [
-          "Currently pursuing a degree in Computer Science or related field",
-          "Basic knowledge of HTML, CSS, and JavaScript",
-          "Familiarity with React or other modern frontend frameworks",
-          "Strong problem-solving skills and attention to detail",
-          "Good communication and teamwork abilities",
-          "Eagerness to learn and take on new challenges",
-        ],
-        benefits: [
-          "Competitive monthly stipend",
-          "Mentorship from senior engineers",
-          "Flexible working hours",
-          "Access to learning resources and courses",
-          "Opportunity for full-time conversion",
-          "Collaborative and inclusive work environment",
-        ],
-        thumbnail_icon: "Code",
-        created_at: "2025-10-23T23:16:40.748766+00:00",
-      } as InternshipDetails;
-
-      setTimeout(() => {
-        setInternship(data);
-        setLoading(false);
-      }, 1500);
+        if (response.success) {
+          setInternship(response.data);
+        }
+      }
     } catch (error) {
       console.error("Error fetching internship details:", error);
     } finally {
-      // setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -146,18 +120,18 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                 <Briefcase className="w-10 h-10 text-teal-600" />
               </div>
               <div className="flex-1 text-white">
-                <h1 className="text-4xl font-bold mb-2">{internship.title}</h1>
+                <h1 className="text-4xl font-bold mb-2 truncate">{internship.text}</h1>
                 <p className="text-xl text-teal-50 mb-4">
-                  {internship.company}
+                  {internship.author.first_name} {internship.author.last_name}
                 </p>
                 <div className="flex items-center gap-4 text-teal-50">
                   <div className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
-                    <span>{internship.location}</span>
+                    <span>{internship.post_type}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>{internship.duration}</span>
+                    <span>{timeAgo(internship.posted_at.timestamp, Date.now())} - {new Date(internship.posted_at.date).toDateString().replace(/ /g, ' / ')}</span>
                   </div>
                 </div>
               </div>
@@ -170,27 +144,27 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                 About this Internship
               </h2>
               <p className="text-slate-600 leading-relaxed whitespace-pre-line">
-                {internship.full_description}
+                {internship.text}
               </p>
             </div>
 
-            {internship.requirements && internship.requirements.length > 0 && (
+            {internship.stats && (
               <div className="space-y-4 animate-fade-in-up animation-delay-500">
                 <h2 className="text-2xl font-bold text-slate-900">
-                  Requirements
+                  Stats
                 </h2>
                 <ul className="space-y-3">
-                  {internship.requirements.map((req, index) => (
-                    <li key={index} className="flex items-start gap-3">
+                  {internship.stats &&
+                    <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-600">{req}</span>
+                      <span className="text-slate-600">{internship.stats.total_reactions} Reactions</span>
                     </li>
-                  ))}
+                  }
                 </ul>
               </div>
             )}
 
-            {internship.benefits && internship.benefits.length > 0 && (
+            {/* {internship.benefits && internship.benefits.length > 0 && (
               <div className="space-y-4 animate-fade-in-up animation-delay-600">
                 <h2 className="text-2xl font-bold text-slate-900">Benefits</h2>
                 <ul className="space-y-3">
@@ -202,7 +176,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                   ))}
                 </ul>
               </div>
-            )}
+            )} */}
 
             <div className="pt-6 animate-fade-in-up animation-delay-700">
               <button
@@ -234,6 +208,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
           </div>
         </div>
       </div>
+      <ScrollDownButton />
     </div>
   );
 };
