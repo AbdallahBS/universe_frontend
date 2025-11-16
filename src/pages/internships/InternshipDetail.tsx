@@ -12,22 +12,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@context/AuthContext";
 import ScrollDownButton from "@components/ui/ScrollDownButton";
 import { getInternship } from "@services/internshipService";
-import { set } from "zod";
 import { LinkedInPost } from "types/resource";
 import { timeAgo } from "@utils/helpers";
-
-interface InternshipDetails {
-  id: string;
-  title: string;
-  company: string;
-  description: string;
-  full_description: string;
-  location: string;
-  duration: string;
-  requirements: string[];
-  benefits: string[];
-  thumbnail_icon: string;
-}
 
 interface InternshipDetailProps {}
 

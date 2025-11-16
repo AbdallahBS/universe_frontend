@@ -38,6 +38,8 @@ export const ProtectedRoute = ({
 
   // SECURITY: Redirect unauthenticated users
   if (requireAuth && !user) {
+    console.log("no user ffound");
+    
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

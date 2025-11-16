@@ -11,7 +11,7 @@ type ApiFetchOptions = {
   requireAuth?: boolean;
 };
 
-const RAW_BASE = "http://localhost:3000";
+const RAW_BASE = "https://universe-backend-rk1g.onrender.com";
 const BASE_URL = (RAW_BASE ?? "").replace(/\/$/, "");
 
 export async function apiFetch<T>(

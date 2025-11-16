@@ -85,7 +85,7 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
               {internships.map((internship, index) => (
                 <div
                   key={internship.urn}
-                  onClick={() => onInternshipClick(internship.urn)}
+                  onClick={() => onInternshipClick(internship.urn.activity_urn)}
                   className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-6 cursor-pointer transform hover:scale-[1.02] hover:shadow-xl transition-all duration-300 animate-fade-in-up"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >

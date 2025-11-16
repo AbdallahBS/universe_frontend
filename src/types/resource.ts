@@ -49,7 +49,7 @@ export interface Stats {
 
 export interface LinkedInPost {
   _id: string;
-  urn: string;
+  urn: any;
   __v?: number;
   author: Author;
   createdAt: string;

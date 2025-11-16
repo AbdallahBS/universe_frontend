@@ -25,8 +25,8 @@ function AppContent() {
   };
 
   // test purpose
-  const handleIntershipClick = (id: string) => {
-    navigate(`/internships/${id}`);
+  const handleIntershipClick = (activityUrn: string) => {
+    navigate(`/internships/${activityUrn}`);
   };
 
   // Show auth pages if not authenticated
