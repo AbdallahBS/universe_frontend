@@ -14,12 +14,15 @@ import ScrollDownButton from "@components/ui/ScrollDownButton";
 import { getInternship } from "@services/internshipService";
 import { LinkedInPost } from "types/resource";
 import { timeAgo } from "@utils/helpers";
+import CommentsSection from "@components/internship_post/statsSection";
+import MediaGallery from "@components/internship_post/mediaGallery";
+import Linkify from "linkify-react";
 
 interface InternshipDetailProps {}
 
 const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
   const navigate = useNavigate();
-  const {urn} = useParams();
+  const { urn } = useParams();
   const { user, isLoading } = useAuth();
 
   const [internship, setInternship] = useState<LinkedInPost>();
@@ -106,7 +109,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                 <Briefcase className="w-10 h-10 text-teal-600" />
               </div>
               <div className="flex-1 text-white">
-                <h1 className="text-4xl font-bold mb-2 truncate">{internship.text}</h1>
+                <h1 className="text-4xl font-bold mb-2">{internship.text}</h1>
                 <p className="text-xl text-teal-50 mb-4">
                   {internship.author.first_name} {internship.author.last_name}
                 </p>
@@ -117,7 +120,12 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>{timeAgo(internship.posted_at.timestamp, Date.now())} - {new Date(internship.posted_at.date).toDateString().replace(/ /g, ' / ')}</span>
+                    <span>
+                      {timeAgo(internship.posted_at.timestamp, Date.now())} -{" "}
+                      {new Date(internship.posted_at.date)
+                        .toDateString()
+                        .replace(/ /g, " / ")}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -129,23 +137,46 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
               <h2 className="text-2xl font-bold text-slate-900">
                 About this Internship
               </h2>
-              <p className="text-slate-600 leading-relaxed whitespace-pre-line">
-                {internship.text}
+              <p className="leading-relaxed whitespace-pre-line text-slate-600 [&_a]:text-blue-600 [&_a]:underline">
+                <Linkify
+                  options={{
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                  }}
+                >
+                  {internship.text}
+                </Linkify>
               </p>
             </div>
 
+            <MediaGallery media={[
+              {id: '1',
+  media_type: 'image',
+  url: 'https://media.licdn.com/dms/image/v2/D4D22AQFuPN6J5irtlw/feedshare-shrink_1280/B4DZmkGKVSJUAs-/0/1759394703864?e=1764806400&v=beta&t=JwILGGCt8Z76zzfo4VBd5wWl2cpzdK9q5p8YTt8-QXU',
+  title: 'image 1'},
+              {id: '2',
+  media_type: 'image',
+  url: 'https://media.licdn.com/dms/image/v2/D4D22AQHK1dCldAlS3A/feedshare-shrink_2048_1536/B4DZbLfAfbGYAo-/0/1747170698988?e=1764806400&v=beta&t=ilMEyQVkX4zmu6T2ruBcMDWXtx7OSKMSHcG91L7-ZWw',
+  title: 'image 2'},
+              {id: '3',
+  media_type: 'video',
+  url: 'https://dms.licdn.com/playlist/vid/v2/D4D05AQEBnlF6UlhAuQ/mp4-720p-30fp-crf28/B4DZfrtXBqGQB0-/0/1752006338265?e=1763913600&v=beta&t=HYZNrk3jlMevQW06vDtRHxMEGmPEddKeibCggNGkCtY',
+  thumbnail: 'https://media.licdn.com/dms/image/v2/D4D05AQEBnlF6UlhAuQ/videocover-high/B4DZfrtXBqGQCM-/0/1752006319408?e=1763913600&v=beta&t=R59Z6jyA5Wl4I8PmeWESpVmU-Slf_3x_fW5kZmn18xE',
+  title: 'video 1'}
+            ]} />
+
             {internship.stats && (
               <div className="space-y-4 animate-fade-in-up animation-delay-500">
-                <h2 className="text-2xl font-bold text-slate-900">
-                  Stats
-                </h2>
+                <h2 className="text-2xl font-bold text-slate-900">Stats</h2>
                 <ul className="space-y-3">
-                  {internship.stats &&
+                  {internship.stats && (
                     <li className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-600">{internship.stats.total_reactions} Reactions</span>
+                      <span className="text-slate-600">
+                        {internship.stats.total_reactions} Reactions
+                      </span>
                     </li>
-                  }
+                  )}
                 </ul>
               </div>
             )}
@@ -163,6 +194,8 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                 </ul>
               </div>
             )} */}
+
+            <CommentsSection stats={internship.stats} />
 
             <div className="pt-6 animate-fade-in-up animation-delay-700">
               <button
