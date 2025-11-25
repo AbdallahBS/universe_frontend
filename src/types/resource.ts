@@ -14,12 +14,20 @@ export interface Author {
   headline: string | null;
   username: string | null;
   profile_picture: string | null;
+  profile_url: string | null;
 }
 
 export interface MediaImage {
   url: string;
   width: number;
   height: number;
+}
+
+export interface Document {
+  title : string;
+  page_count : number;
+  url : string;
+  thumbnail : string
 }
 
 export interface Media {
@@ -54,7 +62,7 @@ export interface LinkedInPost {
   author: Author;
   createdAt: string;
   updatedAt: string;
-  document: string | null;
+  document: Document | null;
   full_urn: string;
   media: Media | null;
   post_type: string;
@@ -63,6 +71,8 @@ export interface LinkedInPost {
   reshared_post: LinkedInPost | null;
   stats: Stats;
   text: string;
+  title: string;
+  category: string;
   url: string;
 }
 

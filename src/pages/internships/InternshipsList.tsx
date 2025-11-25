@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Briefcase, MapPin, Clock, ArrowRight } from 'lucide-react';
+import { Briefcase, MapPin, Clock, ArrowRight, PanelBottom } from 'lucide-react';
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import PaginationPage from "@components/Pagination";
 import { useAuth } from '@context/AuthContext';
 import { getInternships } from '@services/internshipService';
 import { LinkedInPost, Pagination } from 'types/resource';
-import ScrollDownButton from '@components/ui/ScrollDownButton';
+import ScrollButtons from '@components/ui/ScrollButtons';
 import { timeAgo } from '@utils/helpers';
+import InternshipFilters from '@components/internship_post/internshipFilter';
+import SectionCarousel from '@components/internship_post/sectionCarousel';
 
 interface InternshipsListProps {
   onInternshipClick: (id: string) => void;
@@ -61,7 +63,7 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
 
   return (
     <>
-    <ScrollDownButton />
+    <ScrollButtons />
     
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 pt-24 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -82,6 +84,9 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
             <LoadingSpinner loading={loading} />
           ) : (
             <div className="space-y-4">
+              <SectionCarousel />
+              <InternshipFilters onSearchChange={() => {}} onFilterChange={() => {}} availableFilters={{ locations: [], durations: [], companies: [] }} />
+
               {internships.map((internship, index) => (
                 <div
                   key={internship.urn}
@@ -96,19 +101,20 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
 
                     <div className="flex-1 min-w-0">
                       <h3 className="text-2xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-300 truncate">
-                        {internship.text ?? internship.reshared_post?.text}
+                        {internship.title ?? internship.reshared_post?.text ?? internship.text}
                       </h3>
-                      <p className="text-lg text-slate-700 font-medium mt-1">{internship.author.first_name ?? internship.reshared_post?.author.first_name} {internship.author.last_name ?? internship.reshared_post?.author.last_name}</p>
-                      <p className="text-slate-600 mt-2 line-clamp-2">{internship.text ?? internship.reshared_post?.text}</p>
+                      <p className="text-lg text-slate-700 font-medium mt-1">{internship.reshared_post?.author.first_name ?? internship.author.first_name} {internship.reshared_post?.author.last_name ?? internship.author.last_name}</p>
+                      <p className="text-slate-600 mt-2 line-clamp-2">{internship.reshared_post?.text ?? internship.text}</p>
 
                       <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4" />
+                          <PanelBottom className="w-4 h-4" />
                           <span>{internship.post_type}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          <span>{timeAgo(internship.posted_at.timestamp, Date.now())} - {new Date(internship.posted_at.date).toDateString().replace(/ /g, ' / ')}</span>
+                          <span>{timeAgo(internship.posted_at.timestamp, Date.now())} - 
+                            {new Date(internship.posted_at.date).toDateString().replace(/ /g, ' / ')}</span>
                         </div>
                       </div>
                     </div>

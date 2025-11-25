@@ -7,14 +7,6 @@ interface StatsSectionProps {
 }
 
 const StatsSection: React.FC<StatsSectionProps> = ({ stats }) => {
-  const [activeReaction, setActiveReaction] = useState<string | null>(null);
-
-  const reactionEmojis: { [key: string]: string } = {
-    like: '👍',
-    love: '❤️',
-    helpful: '🙌',
-    amazing: '⭐',
-  };
 
   return (
     <div className="space-y-8 animate-fade-in-up animation-delay-800">

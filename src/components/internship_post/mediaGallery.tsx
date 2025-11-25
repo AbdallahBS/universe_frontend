@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Play, FileText, X } from 'lucide-react';
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight, Play, FileText, X, FileWarning } from "lucide-react";
+import LoadingSpinner from "@components/ui/LoadingSpinner";
 
 interface Media {
-  id: string;
-  media_type: 'image' | 'video' | 'pdf';
+  media_type: "image" | "video" | "pdf";
   thumbnail?: string;
   url: string;
   title?: string;
+  documentPage?: number;
 }
 
 interface MediaGalleryProps {
@@ -14,6 +15,7 @@ interface MediaGalleryProps {
 }
 
 const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
   const [expandedMedia, setExpandedMedia] = useState<Media | null>(null);
 
@@ -23,56 +25,88 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
 
   const handlePrevious = () => {
     setCurrentMediaIndex((prev) => (prev === 0 ? media.length - 1 : prev - 1));
+    setIsLoading(true);
   };
 
   const handleNext = () => {
     setCurrentMediaIndex((prev) => (prev === media.length - 1 ? 0 : prev + 1));
+    setIsLoading(true);
   };
 
   const renderMediaThumbnail = (item: Media) => {
     switch (item.media_type) {
-      case 'image':
+      case "image":
         return (
           <img
             src={`https://corsproxy.io/?url=${item.url}`}
-            alt={item.title || 'Internship media'}
+            alt={item.title || "Internship media"}
             className="w-full h-full object-cover"
+            onLoad={() => setIsLoading(false)}
+            onError={() => setIsLoading(false)}
           />
         );
-      case 'video':
+      case "video":
         return (
           <a
-      href={item.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="relative group w-full max-w-md block rounded-xl overflow-hidden shadow-md"
-    >
-      {/* Thumbnail Image */}
-      <img
-        src={`https://corsproxy.io/?url=${item.thumbnail}`}
-        alt="Video Thumbnail"
-        className="w-full h-auto object-cover group-hover:brightness-90 transition"
-      />
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative group w-full h-full block rounded-xl overflow-hidden shadow-md"
+          >
+            {/* Thumbnail Image */}
+            <img
+              src={`https://corsproxy.io/?url=${item.thumbnail}`}
+              alt="Video Thumbnail"
+              className="w-full h-full object-cover group-hover:brightness-90 transition"
+              onLoad={() => setIsLoading(false)}
+              onError={() => setIsLoading(false)}
+            />
 
-      {/* Play Icon Overlay */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="bg-black/40 group-hover:bg-black/50 transition p-4 rounded-full">
-          <Play className="w-10 h-10 text-white" />
-        </div>
-      </div>
-    </a>
+            {/* Play Icon Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-black/40 group-hover:bg-black/50 transition p-4 rounded-full">
+                <Play className="w-10 h-10 text-white" />
+              </div>
+            </div>
+          </a>
         );
-      case 'pdf':
+      case "pdf":
         return (
-          <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-            <div className="text-center">
+          <div className="relative w-full h-full flex">
+            {" "}
+            {/* Left: Thumbnail */}
+            <div className="w-[60%] h-full bg-slate-100 flex items-center justify-center">
+              {item.thumbnail ? (
+                <img
+                  src={`https://corsproxy.io/?url=${item.thumbnail}`}
+                  alt="PDF Preview"
+                  className="w-full h-full object-fill"
+                  onLoad={() => setIsLoading(false)}
+                  onError={() => setIsLoading(false)}
+                />
+              ) : (
+                <FileWarning className="w-14 h-14 text-slate-300" />
+              )}
+            </div>
+            {/* Right: Content */}
+            <div className="w-[40%] h-full p-2 flex flex-col justify-center items-center text-center">
               <FileText className="w-16 h-16 text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-600 font-medium mb-4">{item.title || 'PDF Document'}</p>
+              <p className="text-slate-800 font-semibold mb-1">PDF Document</p>
+              <p className="text-slate-800 font-semibold mb-1">
+                {item.title ? `title : ${item.title}` : "Untitled"}
+              </p>
+
+              <p className="text-slate-500 text-sm mb-3">
+                {item.documentPage
+                  ? `${item.documentPage} Pages is found.`
+                  : "No pages found."}
+              </p>
+
               <a
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-300"
+                className="text-center gap-2 px-3 py-2 w-1/2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
               >
                 View PDF
               </a>
@@ -84,30 +118,6 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
     }
   };
 
-  const renderMediaPreview = (item: Media) => {
-    if (item.media_type === 'image') {
-      return (
-        <img
-          src={item.url}
-          alt={item.title || 'Internship media'}
-          className="w-full h-24 object-cover rounded-lg"
-        />
-      );
-    } else if (item.media_type === 'video') {
-      return (
-        <div className="relative w-full h-24 bg-black rounded-lg flex items-center justify-center group cursor-pointer">
-          <Play className="w-8 h-8 text-white group-hover:scale-110 transition-transform duration-300" />
-        </div>
-      );
-    } else if (item.media_type === 'pdf') {
-      return (
-        <div className="w-full h-24 bg-slate-200 rounded-lg flex items-center justify-center">
-          <FileText className="w-8 h-8 text-slate-600" />
-        </div>
-      );
-    }
-  };
-
   return (
     <>
       <div className="space-y-4 animate-fade-in-up animation-delay-300">
@@ -116,6 +126,13 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 overflow-hidden">
           <div className="relative aspect-video bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center">
             <div className="relative w-full h-full">
+{/* Loading Spinner */}
+    {isLoading && (
+      <div className="absolute inset-0 flex items-center justify-center z-30 bg-slate-100/40">
+        <LoadingSpinner loading={isLoading} fullScreen={false} />
+      </div>
+    )}
+
               {renderMediaThumbnail(currentMedia)}
             </div>
 
@@ -142,8 +159,8 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
                       onClick={() => setCurrentMediaIndex(index)}
                       className={`w-2 h-2 rounded-full transition-all duration-300 ${
                         index === currentMediaIndex
-                          ? 'bg-teal-600 w-6'
-                          : 'bg-slate-300 hover:bg-slate-400'
+                          ? "bg-teal-600 w-6"
+                          : "bg-slate-300 hover:bg-slate-400"
                       }`}
                     />
                   ))}
@@ -151,26 +168,6 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
               </>
             )}
           </div>
-
-          {media.length > 1 && (
-            <div className="bg-slate-50 border-t border-slate-200 p-4">
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {media.map((item, index) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setCurrentMediaIndex(index)}
-                    className={`flex-shrink-0 rounded-lg border-2 transition-all duration-300 ${
-                      index === currentMediaIndex
-                        ? 'border-teal-600 shadow-lg'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    {renderMediaPreview(item)}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -179,7 +176,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
           <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-auto">
             <div className="flex items-center justify-between p-4 border-b border-slate-200">
               <h3 className="text-lg font-bold text-slate-900">
-                {expandedMedia.title || 'Media'}
+                {expandedMedia.title || "Media"}
               </h3>
               <button
                 onClick={() => setExpandedMedia(null)}
@@ -188,9 +185,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
                 <X className="w-6 h-6 text-slate-600" />
               </button>
             </div>
-            <div className="p-4">
-              {renderMediaThumbnail(expandedMedia)}
-            </div>
+            <div className="p-4">{renderMediaThumbnail(expandedMedia)}</div>
           </div>
         </div>
       )}
