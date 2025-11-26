@@ -4,10 +4,16 @@ import App from './App.tsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext.tsx';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </StrictMode>
+const root = createRoot(document.getElementById('root')!);
+
+const isStrictMode = import.meta.env.VITE_NODE_ENV === 'development';
+
+const AppWrapper = (
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);
+
+root.render(
+  isStrictMode ? <StrictMode>{AppWrapper}</StrictMode> : AppWrapper
 );
