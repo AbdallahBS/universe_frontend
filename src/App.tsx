@@ -12,6 +12,7 @@ import ForgotPassword from '@pages/auth/ForgotPassword';
 import { PublicRoute } from '@components/PublicRoute';
 import { ProtectedRoute } from '@components/ProtectedRoute';
 import Dashboard from '@pages/Dashboard';
+import About from '@pages/About';
 
 // Main app content component
 function AppContent() {
@@ -97,6 +98,7 @@ function AppContent() {
           {/* Semi-public routes - anyone can view, but enhanced for logged-in users */}
           <Route path="/internships" element={<InternshipsList onInternshipClick={handleIntershipClick}/>} />
           <Route path="/internships/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
+          <Route path="/about" element={<About/>} />
 
           {/* Admin-only Routes */}
           {/* <Route 

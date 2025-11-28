@@ -76,12 +76,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               >
                 Alternance
               </a>
-              <a
-                href="#"
-                className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              <button
+                onClick={() => handleNavClick("/about")}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currentPage === "/about"
+                    ? "text-teal-600 bg-teal-50"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
               >
                 About
-              </a>
+              </button>
               <a
                 href="#"
                 className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
