@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Briefcase, MapPin, Clock, ArrowRight, PanelBottom } from 'lucide-react';
+import { Briefcase, Clock, ArrowRight } from 'lucide-react';
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import PaginationPage from "@components/Pagination";
 import { useAuth } from '@context/AuthContext';
@@ -9,6 +9,28 @@ import ScrollButtons from '@components/ui/ScrollButtons';
 import { timeAgo } from '@utils/helpers';
 import InternshipFilters from '@components/internship_post/internshipFilter';
 import SectionCarousel from '@components/internship_post/sectionCarousel';
+
+// Thumbnail component with error handling
+const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: string }> = ({ src, alt, className = "" }) => {
+  const [imageError, setImageError] = useState(false);
+
+  if (!src || imageError) {
+    return (
+      <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-teal-100 via-blue-100 to-purple-100 ${className}`}>
+        <Briefcase className="w-16 h-16 text-teal-600 opacity-50" />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`w-full h-full object-cover ${className}`}
+      onError={() => setImageError(true)}
+    />
+  );
+};
 
 interface InternshipsListProps {
   onInternshipClick: (id: string) => void;
@@ -23,7 +45,7 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
 
   const [loading, setLoading] = useState(true);
 
-  const {isLoading, isAuthenticated} = useAuth();
+  const {isLoading} = useAuth();
 
   useEffect(() => {
     document.title = 'Universe | Internships';
@@ -57,8 +79,22 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const getIcon = (iconName: string | null | undefined) => {
-    return <Briefcase className="w-12 h-12 text-teal-600" />;
+  const getThumbnailUrl = (internship: LinkedInPost): string | null => {
+    // Priority: media thumbnail > first image > document thumbnail > reshared post thumbnail
+    if (internship.media?.thumbnail) {
+      return internship.media.thumbnail;
+    }
+    if (internship.media?.images && internship.media.images.length > 0) {
+      return internship.media.images[0].url;
+    }
+    if (internship.document?.thumbnail) {
+      return internship.document.thumbnail;
+    }
+    if (internship.reshared_post) {
+      const resharedThumbnail = getThumbnailUrl(internship.reshared_post);
+      if (resharedThumbnail) return resharedThumbnail;
+    }
+    return null;
   };
 
   return (
@@ -87,46 +123,78 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
               <SectionCarousel />
               <InternshipFilters onSearchChange={() => {}} onFilterChange={() => {}} availableFilters={{ locations: [], durations: [], companies: [] }} />
 
-              {internships.map((internship, index) => (
-                <div
-                  key={internship.urn}
-                  onClick={() => onInternshipClick(internship.urn.activity_urn)}
-                  className="group bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-6 cursor-pointer transform hover:scale-[1.02] hover:shadow-xl transition-all duration-300 animate-fade-in-up"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <div className="flex items-center gap-6">
-                    <div className="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-teal-100 to-blue-100 rounded-xl flex items-center justify-center transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                      {getIcon(internship.media?.thumbnail)}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-2xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-300 truncate">
-                        {internship.title ?? internship.reshared_post?.text ?? internship.text}
-                      </h3>
-                      <p className="text-lg text-slate-700 font-medium mt-1">{internship.reshared_post?.author.first_name ?? internship.author.first_name} {internship.reshared_post?.author.last_name ?? internship.author.last_name}</p>
-                      <p className="text-slate-600 mt-2 line-clamp-2">{internship.reshared_post?.text ?? internship.text}</p>
-
-                      <div className="flex items-center gap-4 mt-4 text-sm text-slate-500">
-                        <div className="flex items-center gap-1">
-                          <PanelBottom className="w-4 h-4" />
-                          <span>{internship.post_type}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{timeAgo(internship.posted_at.timestamp, Date.now())} - 
-                            {new Date(internship.posted_at.date).toDateString().replace(/ /g, ' / ')}</span>
-                        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {internships.map((internship, index) => (
+                  <div
+                    key={internship.urn}
+                    onClick={() => onInternshipClick(internship.urn.activity_urn)}
+                    className="group bg-white rounded-3xl border border-slate-200 overflow-hidden cursor-pointer transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 animate-fade-in-up"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    {/* Large Featured Image */}
+                    <div className="relative w-full h-64 md:h-72 overflow-hidden bg-gradient-to-br from-teal-100 via-blue-100 to-purple-100">
+                      <ThumbnailImage 
+                        src={getThumbnailUrl(internship)} 
+                        alt={internship.title ?? internship.reshared_post?.text ?? internship.text ?? "Internship thumbnail"}
+                        className="group-hover:scale-110 transition-transform duration-500"
+                      />
+                      {/* Overlay gradient on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {/* Post type badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-teal-700 text-xs font-semibold rounded-full shadow-lg">
+                          {internship.post_type}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center group-hover:bg-teal-600 transition-colors duration-300">
-                        <ArrowRight className="w-6 h-6 text-teal-600 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                    {/* Content Section */}
+                    <div className="p-6">
+                      {/* Author Info */}
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+                          {(internship.reshared_post?.author.first_name ?? internship.author.first_name)?.[0]}
+                          {(internship.reshared_post?.author.last_name ?? internship.author.last_name)?.[0]}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900">
+                            {internship.reshared_post?.author.first_name ?? internship.author.first_name} {internship.reshared_post?.author.last_name ?? internship.author.last_name}
+                          </p>
+                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                            <Clock className="w-3 h-3" />
+                            <span>{timeAgo(internship.posted_at.timestamp, Date.now())}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-300 mb-3 line-clamp-2">
+                        {internship.title ?? internship.reshared_post?.text ?? internship.text}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-slate-600 text-sm line-clamp-3 mb-4">
+                        {internship.reshared_post?.text ?? internship.text}
+                      </p>
+
+                      {/* Footer with CTA */}
+                      <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                        <div className="text-xs text-slate-500">
+                          {new Date(internship.posted_at.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </div>
+                        <div className="flex items-center gap-2 text-teal-600 font-semibold text-sm group-hover:gap-3 transition-all duration-300">
+                          <span>View Details</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               {internships.length === 0 && !loading && (
                 <div className="text-center py-20">

@@ -7,6 +7,7 @@ import {
   User2,
   PanelBottom,
   GitCompareArrows,
+  Briefcase,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import { useNavigate, useParams } from "react-router-dom";
@@ -94,6 +95,23 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
     return res;
   }
 
+  const getThumbnailUrl = (post: LinkedInPost): string | null => {
+    if (post.media?.thumbnail) {
+      return post.media.thumbnail;
+    }
+    if (post.media?.images && post.media.images.length > 0) {
+      return post.media.images[0].url;
+    }
+    if (post.document?.thumbnail) {
+      return post.document.thumbnail;
+    }
+    if (post.reshared_post) {
+      const nested = getThumbnailUrl(post.reshared_post);
+      if (nested) return nested;
+    }
+    return null;
+  };
+
   const handleApply = () => {
     setApplying(true);
     setTimeout(() => {
@@ -124,90 +142,111 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
     );
   }
 
+  const bannerImage = getThumbnailUrl(internship);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 pt-24 pb-16">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-32 h-32 bg-teal-200/30 rounded-full blur-xl animate-float"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-purple-200/30 rounded-full blur-xl animate-float animation-delay-1000"></div>
-        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-blue-200/20 rounded-full blur-xl animate-float animation-delay-500"></div>
-      </div>
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <button
-          onClick={() => {
-            navigate("/internships");
-          }}
-          className="group inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 mb-8 transition-colors duration-300 animate-fade-in-up"
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
-          <span className="font-medium">Back to Internships</span>
-        </button>
-
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-xl overflow-hidden animate-fade-in-up animation-delay-200">
-          <div className="bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 p-8">
-            <div className="flex items-start gap-6">
-              <div className="flex-shrink-0 w-20 h-20 bg-white rounded-xl flex items-center justify-center shadow-lg">
-                {
-                  internship.reshared_post ? (
-                    internship.reshared_post.author.profile_picture ? (
-                      <div className="w-20 h-20 rounded-full border-2 border-slate-300 overflow-hidden">
-                        <img
-                          src={`https://corsproxy.io/?url=${internship.reshared_post.author.profile_picture}`}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (<User2 className="w-10 h-10 text-teal-600" />)
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 pt-24">
+      <div className="relative w-full h-[60vh] sm:h-[70vh] overflow-hidden rounded-b-[2.5rem] shadow-2xl">
+        {bannerImage ? (
+          <img
+            src={bannerImage}
+            alt={internship.title ?? "Internship banner"}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 flex flex-col items-center justify-center text-white">
+            <Briefcase className="w-20 h-20 mb-4 opacity-80" />
+            <p className="text-2xl font-semibold">Opportunity Spotlight</p>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent" />
+        <div className="absolute inset-0 flex flex-col justify-between max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-white">
+          <button
+            onClick={() => navigate("/internships")}
+            className="group inline-flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/20 transition"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+            <span>Back to Internships</span>
+          </button>
+          <div className="space-y-6 pb-6">
+            <div className="flex flex-wrap items-center gap-5">
+              <div className="flex-shrink-0 w-20 h-20 rounded-full border-2 border-white/40 overflow-hidden bg-white/20 backdrop-blur">
+                {internship.reshared_post ? (
+                  internship.reshared_post.author.profile_picture ? (
+                    <img
+                      src={`https://corsproxy.io/?url=${internship.reshared_post.author.profile_picture}`}
+                      alt="Author avatar"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    internship.author.profile_picture ? (
-                      <div className="w-20 h-20 rounded-full border-2 border-slate-300 overflow-hidden">
-                        <img
-                          src={`https://corsproxy.io/?url=${internship.author.profile_picture}`}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (<User2 className="w-10 h-10 text-teal-600" />)
+                    <div className="w-full h-full flex items-center justify-center">
+                      <User2 className="w-10 h-10 text-white" />
+                    </div>
                   )
-                }
-                
+                ) : internship.author.profile_picture ? (
+                  <img
+                    src={`https://corsproxy.io/?url=${internship.author.profile_picture}`}
+                    alt="Author avatar"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <User2 className="w-10 h-10 text-white" />
+                  </div>
+                )}
               </div>
-
-          <div className="flex-1 text-white min-w-0">
-                <h2 className="text-4xl font-bold mb-2 truncate">{internship.title ?? internship.reshared_post?.text ?? internship.text}</h2>
-                <p className="text-xl text-teal-50 mb-4">
-                  <a href={internship.reshared_post?.author.profile_url ?? internship.author.profile_url ?? ""} target="_blank" className="text-slate-100 font-bold hover:text-teal-100">
-                    {internship.reshared_post?.author.first_name ?? internship.author.first_name} {internship.reshared_post?.author.last_name ?? internship.author.last_name}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm uppercase tracking-[0.35em] text-white/70 mb-2">Featured Internship</p>
+                <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-2">
+                  {internship.title ?? internship.reshared_post?.text ?? internship.text}
+                </h1>
+                <p className="text-lg text-teal-100">
+                  <a
+                    href={internship.reshared_post?.author.profile_url ?? internship.author.profile_url ?? ""}
+                    target="_blank"
+                    className="font-semibold hover:text-white"
+                  >
+                    {internship.reshared_post?.author.first_name ?? internship.author.first_name}{" "}
+                    {internship.reshared_post?.author.last_name ?? internship.author.last_name}
                   </a>
                 </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-teal-50 text-sm">
-                  {internship.reshared_post && 
-                  (<>
-                    <div className="flex items-center gap-1">
-                      <GitCompareArrows className="w-4 h-4" />
-                      <span>Reshared by <br /> <a href={internship.author.profile_url ?? ""} target="_blank"
-                      className="text-slate-100 underline hover:text-teal-100">
-                        {internship.author.first_name} {internship.author.last_name}</a>
-                      </span>
-                    </div>
-                  </>)}
-                  <div className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    <span>{timeAgo(internship.posted_at.timestamp, Date.now())}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span> {new Date(internship.posted_at.date).toDateString().replace(/ /g, " / ")}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <PanelBottom className="w-4 h-4" />
-                    <span>{internship.post_type}</span>
-                  </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-teal-100">
+              {internship.reshared_post && (
+                <div className="flex items-start gap-2">
+                  <GitCompareArrows className="w-4 h-4 mt-0.5" />
+                  <span>
+                    Reshared by{" "}
+                    <a href={internship.author.profile_url ?? ""} target="_blank" className="underline hover:text-white">
+                      {internship.author.first_name} {internship.author.last_name}
+                    </a>
+                  </span>
                 </div>
+              )}
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{timeAgo(internship.posted_at.timestamp, Date.now())}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>{new Date(internship.posted_at.date).toDateString().replace(/ /g, " / ")}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <PanelBottom className="w-4 h-4" />
+                <span>{internship.post_type}</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 md:-mt-10 pb-16">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-10 left-10 w-32 h-32 bg-teal-200/30 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 right-0 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
           <div className="p-8 space-y-8">
             <div className="space-y-4 animate-fade-in-up animation-delay-400">
               <h2 className="text-2xl font-bold text-slate-900">

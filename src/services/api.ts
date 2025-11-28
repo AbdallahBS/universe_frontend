@@ -19,7 +19,7 @@ export async function apiFetch<T>(
   opts: ApiFetchOptions = {}
 ): Promise<T> {
   const url = `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
-
+  console.log("URL : ", url);
   const init: RequestInit = {
     method: opts.method ?? "GET",
     headers: {
