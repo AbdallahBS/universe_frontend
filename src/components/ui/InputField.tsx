@@ -48,6 +48,7 @@ const InputField: React.FC<InputFieldProps> = ({
           onBlur={() => setIsFocused(false)}
           className={`
             w-full px-4 py-3 rounded-lg border border-slate-300 
+            bg-white
             focus:ring-2 focus:ring-teal-500 focus:border-transparent
             transition-all duration-200 outline-none
             placeholder-slate-400 text-slate-900

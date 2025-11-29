@@ -54,12 +54,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               >
                 Home
               </button>
-              <a
-                href="#"
-                className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Score calculator
-              </a>
+             
               <button
                 onClick={() => handleNavClick("/internships")}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -70,12 +65,21 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               >
                 Internships
               </button>
-              <a
-                href="#"
-                className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              <button
+                onClick={() => handleNavClick("/cycle-ingenieur")}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  currentPage === "/cycle-ingenieur"
+                    ? "text-teal-600 bg-teal-50"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Engineering Cycle
+              </button>
+              <span
+                className="text-slate-400 cursor-not-allowed px-3 py-2 rounded-md text-sm font-medium"
               >
                 Alternance
-              </a>
+              </span>
               <button
                 onClick={() => handleNavClick("/about")}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -170,6 +174,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
             }`}
           >
             Internships
+          </button>
+          <button
+            onClick={() => handleNavClick("/cycle-ingenieur")}
+            className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+              currentPage === "/cycle-ingenieur"
+                ? "text-teal-600 bg-teal-50"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            Engineering Cycle
           </button>
           <a
             href="#"

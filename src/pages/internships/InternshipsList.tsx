@@ -24,7 +24,7 @@ const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: st
 
   return (
     <img
-      src={src}
+      src={src ? `https://corsproxy.io/?url=${encodeURIComponent(src)}` : undefined}
       alt={alt}
       className={`w-full h-full object-cover ${className}`}
       onError={() => setImageError(true)}

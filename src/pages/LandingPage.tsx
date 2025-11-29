@@ -50,8 +50,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                 </h1>
                 
                 <p className="text-xl text-slate-600 leading-relaxed max-w-lg animate-fade-in-up animation-delay-500">
-                  Embark on extraordinary journeys, discover hidden gems, and create unforgettable memories with fellow adventurers around the globe.
-                </p>
+                With UNIVERSE, navigating university life in Tunisia becomes easier. Discover PFE offers, internships, engineering cycle paths, and alternance opportunities — all in one place. Build the future you deserve.                </p>
               </div>
 
               {/* Buttons */}
@@ -75,17 +74,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
               {/* Stats */}
               <div className="flex items-center space-x-8 pt-8 animate-fade-in-up animation-delay-700">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">50K+</div>
-                  <div className="text-sm text-slate-600">Adventurers</div>
+                  <div className="text-2xl font-bold text-slate-900">50PFE Offers</div>
+                  <div className="text-sm text-slate-600">internships</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">200+</div>
-                  <div className="text-sm text-slate-600">Destinations</div>
+                  <div className="text-2xl font-bold text-slate-900">2025</div>
+                  <div className="text-sm text-slate-600">Engineering cycle paths</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900">4.9★</div>
-                  <div className="text-sm text-slate-600">Rating</div>
+                  <div className="text-2xl font-bold text-slate-900">10+</div>
+                  <div className="text-sm text-slate-600">Documents</div>
                 </div>
+              
+                
               </div>
             </div>
 
@@ -110,8 +111,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                       <Globe className="w-5 h-5 text-teal-600" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900">Global Reach</div>
-                      <div className="text-sm text-slate-600">Worldwide adventures</div>
+                      <div className="font-semibold text-slate-900">Your Future</div>
+                      <div className="text-sm text-slate-600">Build the future you deserve</div>
                     </div>
                   </div>
                 </div>
@@ -135,7 +136,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                     </div>
                     <div>
                       <div className="font-semibold text-slate-900">Instant</div>
-                      <div className="text-sm text-slate-600">Quick booking</div>
+                      <div className="text-sm text-slate-600">Access to all resources</div>
                     </div>
                   </div>
                 </div>

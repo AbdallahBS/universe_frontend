@@ -13,7 +13,8 @@
       "@ui/*": ["components/ui/*"],
       "@pages/*": ["pages/*"],
       "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@data/*": ["data/*"]
     },
 
     /* Bundler mode */

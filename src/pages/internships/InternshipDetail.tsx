@@ -149,7 +149,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
       <div className="relative w-full h-[60vh] sm:h-[70vh] overflow-hidden rounded-b-[2.5rem] shadow-2xl">
         {bannerImage ? (
           <img
-            src={bannerImage}
+            src={`https://corsproxy.io/?url=${encodeURIComponent(bannerImage)}`}
             alt={internship.title ?? "Internship banner"}
             className="h-full w-full object-cover"
           />
