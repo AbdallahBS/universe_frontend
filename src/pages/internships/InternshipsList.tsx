@@ -171,7 +171,9 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
                       <h3 className="text-xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors duration-300 mb-3 line-clamp-2">
                         {internship.title ?? internship.reshared_post?.text ?? internship.text}
                       </h3>
-
+                      <p className="text-slate-600 text-sm line-clamp-3 mb-4 underline">
+                        {internship.category}
+                      </p>
                       {/* Description */}
                       <p className="text-slate-600 text-sm line-clamp-3 mb-4">
                         {internship.reshared_post?.text ?? internship.text}

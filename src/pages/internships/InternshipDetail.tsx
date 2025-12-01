@@ -163,7 +163,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
         <div className="absolute inset-0 flex flex-col justify-between max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-white">
           <button
             onClick={() => navigate("/internships")}
-            className="group inline-flex items-center gap-2 self-start rounded-full bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/20 transition"
+            className="group inline-flex items-center gap-2 self-start rounded-full bg-white/30 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/50 transition"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
             <span>Back to Internships</span>
@@ -198,7 +198,9 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
               <div className="flex-1 min-w-0">
                 <p className="text-sm uppercase tracking-[0.35em] text-white/70 mb-2">Featured Internship</p>
                 <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-2">
-                  {internship.title ?? internship.reshared_post?.text ?? internship.text}
+                  <a href={internship.url} target="_blank">
+                    {internship.title ?? internship.reshared_post?.text ?? internship.text}
+                  </a> 
                 </h1>
                 <p className="text-lg text-teal-100">
                   <a
@@ -235,6 +237,9 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
               <div className="flex items-center gap-2">
                 <PanelBottom className="w-4 h-4" />
                 <span>{internship.post_type}</span>
+              </div>
+              <div className="text-white text-sm line-clamp-3 mb-4 underline">
+                  {internship.category}
               </div>
             </div>
           </div>
