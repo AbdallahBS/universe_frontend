@@ -2,18 +2,16 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Check } from 'lucide-react';
 
 interface FilterOptions {
-  location: string[];
   duration: string[];
-  company: string[];
+  search_by: string[];
 }
 
 interface InternshipFiltersProps {
   onSearchChange: (query: string) => void;
   onFilterChange: (filters: FilterOptions) => void;
   availableFilters: {
-    locations: string[];
-    durations: string[];
-    companies: string[];
+    duration: string[];
+    search_by: string[];
   };
 }
 
@@ -24,9 +22,8 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState<FilterOptions>({
-    location: [],
     duration: [],
-    company: [],
+    search_by: [],
   });
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -64,16 +61,14 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
 
   const clearFilters = () => {
     setSelectedFilters({
-      location: [],
       duration: [],
-      company: [],
+      search_by: [],
     });
     setSearchQuery('');
     onSearchChange('');
     onFilterChange({
-      location: [],
       duration: [],
-      company: [],
+      search_by: [],
     });
   };
 
@@ -109,7 +104,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-slate-300 rounded-lg shadow-lg z-50 animate-fade-in-up">
+          <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-slate-300 rounded-lg shadow-lg z-[100] animate-fade-in-up">
             <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
               {options.length > 0 ? (
                 options.map((option) => (
@@ -140,13 +135,12 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
   };
 
   const hasActiveFilters =
-    selectedFilters.location.length > 0 ||
     selectedFilters.duration.length > 0 ||
-    selectedFilters.company.length > 0 ||
+    selectedFilters.search_by.length > 0 ||
     searchQuery.length > 0;
 
   return (
-    <div className="space-y-4 animate-fade-in-up" ref={dropdownRef}>
+    <div className="space-y-4 animate-fade-in-up relative z-40" ref={dropdownRef}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex-1 relative">
           <div className="relative">
@@ -173,19 +167,14 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
 
       <div className="flex flex-wrap gap-3 items-center">
         <FilterDropdown
-          label="Location"
-          category="location"
-          options={availableFilters.locations}
-        />
-        <FilterDropdown
           label="Duration"
           category="duration"
-          options={availableFilters.durations}
+          options={availableFilters.duration}
         />
         <FilterDropdown
-          label="Company"
-          category="company"
-          options={availableFilters.companies}
+          label="Search by"
+          category="search_by"
+          options={availableFilters.search_by}
         />
       </div>
     </div>

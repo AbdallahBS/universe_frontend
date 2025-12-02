@@ -50,13 +50,30 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
   useEffect(() => {
     document.title = 'Universe | Internships';
     setLoading(isLoading);
-    fetchInternships();
+    fetchInternships("1", "10", selectedSections);
   }, [isLoading]);
 
-  const fetchInternships = async (page: string = "1", limit: string = "10") => {
+  /*** SectionCarousel Props*****/
+  const [selectedSections, setSelectedSections] = useState<Set<string>>(new Set(["internship_offers", "internship_requests", "job_offers"]));
+
+  const toggleSection = (sectionId: string) => {
+    setSelectedSections((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      // update internships
+      fetchInternships("1", "10", newSet);
+      return newSet;
+    });
+  };
+  /************ */
+  const fetchInternships = async (page: string = "1", limit: string = "10", Sections : Set<string> = new Set()) => {
     try {
       setLoading(true);
-      const response = await getInternships(page, limit);
+      const response = await getInternships(page, limit, [...Sections]);
       console.log(response);
       
       if (response.success) {
@@ -75,7 +92,7 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchInternships(page.toString());
+    fetchInternships(page.toString(), "10", selectedSections);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -120,8 +137,8 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
             <LoadingSpinner loading={loading} />
           ) : (
             <div className="space-y-4">
-              <SectionCarousel />
-              <InternshipFilters onSearchChange={() => {}} onFilterChange={() => {}} availableFilters={{ locations: [], durations: [], companies: [] }} />
+              <SectionCarousel selectedSections={selectedSections} toggleSection={toggleSection} />
+              <InternshipFilters onSearchChange={() => {}} onFilterChange={() => {}} availableFilters={{ duration: ["past day" ,"past week", "past month"], search_by: ["title", "description", "author"] }} />
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {internships.map((internship, index) => (

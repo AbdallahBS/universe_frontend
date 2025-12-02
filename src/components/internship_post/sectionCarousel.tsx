@@ -7,35 +7,24 @@ interface Section {
   icon: string;
 }
 
+interface SectionTagsProps {
+  selectedSections: Set<string>;
+  toggleSection: (sectionId: string) => void;
+}
+
 const SECTIONS: Section[] = [
-  { id: "tech", name: "Technology", icon: "💻" },
-  { id: "software", name: "Software Engineering", icon: "🧑‍💻" },
-  { id: "data-ai", name: "Data & AI", icon: "🤖" },
-  { id: "sales-marketing", name: "Sales & Marketing", icon: "📈" },
-  { id: "finance", name: "Finance", icon: "💰" },
-  { id: "hr", name: "Human Resources", icon: "👥" },
-  { id: "healthcare", name: "Healthcare", icon: "🏥" },
-  { id: "education", name: "Education", icon: "📚" },
-  { id: "consulting", name: "Consulting", icon: "💼" },
-  { id: "design", name: "Design", icon: "🎨" },
-  { id: "management", name: "Management", icon: "📦" },
+  { id: "internship_offers", name: "Internship Offers", icon: "🔍" },
+  { id: "internship_requests", name: "Internship Requests", icon: "👀" },
+  { id: "job_offers", name: "Job Offers", icon: "💼" },
+  { id: "news_announcements", name: "News & Announcements", icon: "📢" },
+  { id: "events_trainings", name: "Events & Trainings", icon: "📅" },
+  { id: "educational_content", name: "Educational Content", icon: "📚" },
+  { id: "general_updates", name: "General Updates", icon: "📰" },
+  { id: "marketing_promotion", name: "Marketing & Promotion", icon: "📈" },
+  { id: "other", name: "Other", icon: "✨" }
 ];
 
-const SectionTags = () => {
-  const [selectedSections, setSelectedSections] = useState<Set<string>>(new Set());
-
-  const toggleSection = (sectionId: string) => {
-    setSelectedSections((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(sectionId)) {
-        newSet.delete(sectionId);
-      } else {
-        newSet.add(sectionId);
-      }
-      return newSet;
-    });
-  };
-
+const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSection}) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-8">
       <style>{`
