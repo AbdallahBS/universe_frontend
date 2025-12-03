@@ -122,7 +122,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale d\'Ingénieurs de Sousse',
     location: 'Sousse',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqahAUMYbIo56tl36wOoyJe-PRsiMBCYLLqnJte1TrcGu3uxXz6onybqjMe8xkDJkYVuHlCh42B5Y12tbB6pmpeYN7_nWmJw9VB2gdsxl72uXZY0LII7nAEq9Vu6yeWcopI56Xl=s680-w680-h510-rw',
+    image: 'https://rami.tn/wp-content/uploads/2023/07/ENISO.webp',
     description: 'École d\'ingénieurs spécialisée en informatique appliquée.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -187,7 +187,7 @@ export const universitiesData: University[] = [
     fullName: 'Institut Supérieur d\'Informatique et de Multimédia de Sfax',
     location: 'Sfax',
     type: 'independant',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4npEU0WN_dRat0NYBGFRvfUl2f-Ghsgm9taysabxdz8RV83EgV2It1YYJBqVNzSpACjJ63yl8Bd0MtG-jVSFo-lVKyMBql6X_RXdxbvI_hLpdDmbe_1VG1NN_zRp6CGX-6y_SQjuTw=s680-w680-h510-rw',
+    image: 'https://www.ecoles.com.tn/sites/default/files/universite/logo/isims-logo.jpg',
     description: 'Institut spécialisé en informatique et multimédia.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -247,7 +247,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale des Sciences et Technologies Avancées de Borj Cedria',
     location: 'Borj Cedria',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nrAS1jnRKqmIbqKnAysxF4FyrzxW_WR0d_a5vVVpodLBmmAGr33e3fOR7lBlAZqLkkDUuml-B31BnzS9whukd6E1GYsdG4n8Ga95PTetwru1m6kWKro9tF-FXr_aHe1yksd7ACA=s680-w680-h510-rw',
+    image: 'https://ucar.rnu.tn/wp-content/uploads/2025/10/Enstab-logo-3.png',
     description: 'École spécialisée en technologies avancées.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -312,7 +312,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale des Sciences de l\'Informatique',
     location: 'Manouba',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4noA6AhOZVN0mMoX1qYdDxs5a-SFrMCMkC1o-J734unk5gQ2MDBn2fXQn4JfgcD6PaQZvpWi3E229lKC2TZ5Vs5uGimF5xyMohMm-hs3q5JZ1SWHrNQCix_5PnzHa2shVwCdAe4x=s680-w680-h510-rw',
+    image: 'https://www.tunup.org/uploads/9/2/7/2/92725294/published/screenshot-2024-10-06-at-22-25-24.png?1728935688',
     description: 'École spécialisée en sciences de l\'informatique.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -377,7 +377,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale d\'Ingénieurs de Carthage',
     location: 'Carthage',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4noCUE_P1D2TnZJ1JXE_uMwlangxTc6MJV9adNZLIQClZPzq19yxgHhaNZrKsF15lJT8HexNsIAB1QGm649dD_ZwGETQL8OpvKPwWdEhQecRZIQ3uTPC7kNmIwzc1vtNsNmczAZx=s680-w680-h510-rw',
+    image: 'https://upload.wikimedia.org/wikipedia/fr/c/c2/Logo_ENICarthage.jpg',
     description: 'École d\'ingénieurs spécialisée en infotronique et informatique.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -463,7 +463,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale d\'Électronique et des Télécommunications de Sfax',
     location: 'Sfax',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqU2f4PypFcoB59VjZS6QuSGLqOBTKCHJtQQ4ODIEVdH0e0vmjMD61EL_YKXBuBCKUDsa6uzJWU_JLXBNN4c7Ds61SqnkM76NRKwCIoSCwU2FZCPYyQi-LYW7VFxZNoHBybPtMj=s680-w680-h510-rw',
+    image: 'https://enetcom.rnu.tn/images/logo.png',
     description: 'École spécialisée en télécommunications et ingénierie des données.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -575,7 +575,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale Supérieure d\'Ingénieurs de Tunis',
     location: 'Tunis',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nr0Ec5qNsug8tM_nT9-C-COv0PoklApH0ALMpFHQKe2nW2jnMCf-d62pP42BZlPac40kKTHHvKU5VAHP6c2PAaaPUE7oAova3rdm9KmvhJ59hMUh3dZEfs5Wo2X4CbDd5SrRGtCUQ=s680-w680-h510-rw',
+    image: 'https://www.ensit.tn/wp-content/uploads/2015/05/logo-ecole-1170x284.png',
     description: 'École supérieure d\'ingénieurs avec spécialisation informatique.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -640,7 +640,7 @@ export const universitiesData: University[] = [
     fullName: 'Institut Supérieur des Arts du Multimédia de la Manouba',
     location: 'Manouba',
     type: 'independant',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqPDinX-TcwNs7nAFFUvRkfMT9pnA7AZQ3f9NwRmRLrOAtv4UNS5hk5D2hilvCoIH8ATNyxEd0rRuuIcLQyuWP1bjydNBFLvoxwMBuJrwsrMjrJUpMnkLB9RRGNpzLcsV-sncHh=s680-w680-h510-rw',
+    image: 'https://lh3.googleusercontent.com/4XJfPxFI8aF139wbMEGenfWgi0sNyKa-9t272hPwTjbpBrW0J6rY2Tyf3wqVxZl1RQs=s300',
     description: 'Institut spécialisé en informatique et multimédia.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -707,7 +707,7 @@ export const universitiesData: University[] = [
     fullName: 'Institut Supérieur des Sciences Appliquées et de Technologie de Sousse',
     location: 'Sousse',
     type: 'ressource-pedagogique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4noNwck-mrDDHRrGBP3xPmxr3so5dC3JR-Zts8MkbJbmWaREg72vzhhNMnK0vvhCgRy3uFLWrEPeJIqoqhPN3R9w0llvXY5PD1XLIDFv5D1X4zN9ofINlKVXjAMH1HGVUd8ZR0Jp6Q=s680-w680-h510-rw',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSJNrW0Z-JMInI4I2jRZcwXx7MHjomP9zflA&s',
     description: 'Institut spécialisé en sciences informatiques.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -774,7 +774,7 @@ export const universitiesData: University[] = [
     fullName: 'Institut Supérieur d\'Informatique d\'El Manar',
     location: 'Tunis',
     type: 'independant',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4npY4vNWK9w_C-hlSrgMtwwvjp5xX2v12aJrVrPhRIFNQlJS7xnQLZ5tRKxls6FsRpSPL2Yc0Q7Rqav_aFQqRufBPilQR89hJV_nYxk1IrSDrTIAYcxDiD7kPZuyJLJvBGHQ90fI=s680-w680-h510-rw',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Institut_Sup%C3%A9rieur_d%27Informatique_%28logo%29.svg/1200px-Institut_Sup%C3%A9rieur_d%27Informatique_%28logo%29.svg.png',
     description: 'Institut spécialisé en ingénierie informatique.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -889,7 +889,7 @@ export const universitiesData: University[] = [
     fullName: 'École Nationale d\'Ingénieurs de Sfax',
     location: 'Sfax',
     type: 'specifique',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqWbUlj1sRZLgAFeN7J6-kw_cnylfIQuCVtv6ktqBEPm2dYP_rra3x-8VbWa9JE_XR-YUzoHU64pcZLl92z9L6UlFximBDgu8ymKu9Req5onzYadDuqZB3tgieUJUoNCNWw9IEu=s680-w680-h510-rw',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4FKAhRdnWu-MAMqY1t2OD0OV8RMVMQR4ygw&s',
     description: 'École d\'ingénieurs avec spécialisation en génie informatique.',
     specialties: [
       "Technologies de l'informatique - Développement systèmes d'informations",
@@ -954,7 +954,7 @@ export const universitiesData: University[] = [
     fullName: 'Institut Supérieur d\'Informatique et des Techniques de Communication Hammam-Sousse',
     location: 'Hammam-Sousse',
     type: 'independant',
-    image: 'https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqicr8fLdkp6g7awkYkuLnQKFcOTNhEGENLRFXeTdAfUzAJ_2XleAALtSdoVF-G3Kc_DUiRhFJpK7tYsfXXSpID4Q_a05bwHwibBDpqHas2rUIfJelpLPpdGOnBO7I8ULyBxPBHCw=s680-w680-h510-rw',
+    image: 'https://www.mastere.tn/wp-content/uploads/2020/08/isitcom.png',
     description: 'Institut spécialisé en informatique et techniques de communication.',
     specialties: [
 

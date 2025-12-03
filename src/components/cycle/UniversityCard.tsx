@@ -82,24 +82,23 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, license }) 
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+      <div className="bg-white rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 overflow-hidden group text-sm">
         {/* University Image */}
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-32 overflow-hidden bg-white flex items-center justify-center">
           <img 
             src={university.image} 
             alt={university.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            className="max-h-full max-w-full object-contain transition-transform duration-300"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div className="absolute bottom-4 left-4 right-4">
-            <h3 className="text-xl font-bold text-white mb-1">
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-2 pt-4">
+            <h3 className="text-base font-semibold text-white mb-0.5">
               {university.name}
             </h3>
-            <p className="text-sm text-white/90">{university.fullName}</p>
+            <p className="text-xs text-white/90 line-clamp-1">{university.fullName}</p>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
@@ -151,13 +150,13 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, license }) 
           </div>
 
           {/* Last Acceptable Score */}
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 mb-4 border border-indigo-200">
-            <h4 className="text-sm font-semibold text-slate-700 mb-3 text-center">Last Acceptable Score {university.lastYearScores.year}:</h4>
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3 mb-3 border border-indigo-200">
+            <h4 className="text-xs font-semibold text-slate-700 mb-2 text-center">Last Acceptable Score {university.lastYearScores.year}:</h4>
             <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600 mb-1">{lowestScore !== null ? lowestScore : '--'}</div>
+              <div className="text-2xl font-bold text-indigo-600 mb-1">{lowestScore !== null ? lowestScore : '--'}</div>
               
               {filteredSpecialties.length > 1 && (
-                <div className="text-xs text-slate-500 mt-1">
+                <div className="text-[11px] text-slate-500 mt-1">
                   (Varies by specialty)
                 </div>
               )}
@@ -170,7 +169,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, license }) 
               href={`https://${university.website}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-sm transition-colors"
+              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium text-xs transition-colors"
             >
               <ExternalLink className="w-4 h-4" />
               Official Website
@@ -181,7 +180,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, license }) 
                 search: license ? `?specialty=${encodeURIComponent(license)}` : ''
               }}
               state={{ selectedSpecialty: license || "All Specialties" }}
-              className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 font-medium text-sm shadow-lg"
+              className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-lg hover:from-indigo-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 font-medium text-xs shadow-lg"
             >
               More Info
             </Link>

@@ -30,12 +30,8 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               <div className="flex justify-between items-center h-16">
                 <div className="flex-shrink-0">
                   <div className="flex items-center space-x-1">
-                    <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-                      <span className="text-xl text-white font-bold">U</span>
-                    </div>
-                    <span className="text-2xl font-bold text-slate-800">
-                      NIVERSE
-                    </span>
+                    <img src="/logo.png" alt="Universe" className="w-20 h-20 object-cover" />
+                    
                   </div>
                 </div>
               </div>
