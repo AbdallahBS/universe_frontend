@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
-import InternshipsList from '@pages/internships/InternshipsList';import InternshipDetail from '@pages/internships/InternshipDetail';
+import { ThemeProvider } from './context/ThemeContext';
+import InternshipsList from '@pages/internships/InternshipsList'; import InternshipDetail from '@pages/internships/InternshipDetail';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import ErrorPage from '@pages/ErrorPage';
 import Navigation from '@components/Navigation';
@@ -34,78 +35,78 @@ function AppContent() {
 
   // Show auth pages if not authenticated
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
       <Navigation currentPage={location.pathname} />
-      
-        <Routes>
-          {/* Public Routes */}
-          <Route 
-            path="/" 
-            element={
-              <PublicRoute>
-                <LandingPage />
-              </PublicRoute>
-            } 
-          />
-          
-          {/* Auth Routes - redirect if already logged in */}
-          <Route 
-            path="/login" 
-            element={
-              <PublicRoute>
-                <LoginPage />
-              </PublicRoute>
-            } 
-          />
-          <Route 
-            path="/signup" 
-            element={
-              <PublicRoute>
-                <SignupPage onSignupSuccess={handleSignupSuccess}/>
-              </PublicRoute>
-            } 
-          />
 
-          {/* Password Reset */}         
-          <Route 
-            path="/password-reset" 
-            element={
-              <PublicRoute>
-                <ForgotPassword />
-              </PublicRoute>
-            } 
-          />
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/"
+          element={
+            <PublicRoute>
+              <LandingPage />
+            </PublicRoute>
+          }
+        />
 
-          {/* Email Verification */}
-          <Route 
-            path="/verify-email" 
-            element={
-              <ProtectedRoute requireVerified={false}>
-                <VerifyEmailPage userEmail={userEmail} />
-              </ProtectedRoute>
-            } 
-          />
+        {/* Auth Routes - redirect if already logged in */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <SignupPage onSignupSuccess={handleSignupSuccess} />
+            </PublicRoute>
+          }
+        />
 
-          {/* Protected Routes - require authentication */}
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute>
-                {/* Dashboard component for authenticated users */}
-                <Dashboard />
-              </ProtectedRoute>
-            } 
-          />
+        {/* Password Reset */}
+        <Route
+          path="/password-reset"
+          element={
+            <PublicRoute>
+              <ForgotPassword />
+            </PublicRoute>
+          }
+        />
 
-          {/* Semi-public routes - anyone can view, but enhanced for logged-in users */}
-          <Route path="/internships" element={<InternshipsList onInternshipClick={handleIntershipClick}/>} />
-          <Route path="/internships/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
-          <Route path="/cycle-ingenieur" element={<CycleIngenieurPage />} />
-          <Route path="/university/:id" element={<UniversityDetailsPage />} />
-          <Route path="/about" element={<About/>} />
+        {/* Email Verification */}
+        <Route
+          path="/verify-email"
+          element={
+            <ProtectedRoute requireVerified={false}>
+              <VerifyEmailPage userEmail={userEmail} />
+            </ProtectedRoute>
+          }
+        />
 
-          {/* Admin-only Routes */}
-          {/* <Route 
+        {/* Protected Routes - require authentication */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              {/* Dashboard component for authenticated users */}
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Semi-public routes - anyone can view, but enhanced for logged-in users */}
+        <Route path="/internships" element={<InternshipsList onInternshipClick={handleIntershipClick} />} />
+        <Route path="/internships/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
+        <Route path="/cycle-ingenieur" element={<CycleIngenieurPage />} />
+        <Route path="/university/:id" element={<UniversityDetailsPage />} />
+        <Route path="/about" element={<About />} />
+
+        {/* Admin-only Routes */}
+        {/* <Route 
             path="/admin" 
             element={
               <ProtectedRoute requiredRoles={['admin']}>
@@ -114,12 +115,12 @@ function AppContent() {
             } 
           /> */}
 
-          {/* Error Routes */}
-          <Route path="/401" element={<ErrorPage errorCode="401" errorText="Unauthorized" errorDescription="You are not authorized to access this page." />} />
-          <Route path="/404" element={<ErrorPage errorCode="404" errorText="Page Not Found" errorDescription="The page you are looking for does not exist." />} />
-          <Route path="*" element={<Navigate to="/404" replace />} />
-        </Routes>
-      
+        {/* Error Routes */}
+        <Route path="/401" element={<ErrorPage errorCode="401" errorText="Unauthorized" errorDescription="You are not authorized to access this page." />} />
+        <Route path="/404" element={<ErrorPage errorCode="404" errorText="Page Not Found" errorDescription="The page you are looking for does not exist." />} />
+        <Route path="*" element={<Navigate to="/404" replace />} />
+      </Routes>
+
     </div>
   );
 }
@@ -127,9 +128,11 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

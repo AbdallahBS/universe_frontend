@@ -10,14 +10,14 @@ const ScoreCalculator: React.FC = () => {
     effectif1ereAnnee: '',
     francais1ereAnnee: '',
     anglais1ereAnnee: '',
-    
+
     // Second Year
     moyenne2emeAnnee: '',
     rang2emeAnnee: '',
     effectif2emeAnnee: '',
     francais2emeAnnee: '',
     anglais2emeAnnee: '',
-    
+
     // Other parameters
     anneeNaissance: '',
     anneeConcours: new Date().getFullYear().toString(),
@@ -77,10 +77,10 @@ const ScoreCalculator: React.FC = () => {
     const moy1 = parseFloat(scores.moyenne1ereAnnee) || 0;
     const moy2 = parseFloat(scores.moyenne2emeAnnee) || 0;
     const mg = (moy1 + moy2) / 2;
-    
+
     // Calculate M
     const scoreM = calculateM(mg);
-    
+
     // Calculate R
     const r1 = calculateRi(
       parseFloat(scores.rang1ereAnnee),
@@ -91,25 +91,25 @@ const ScoreCalculator: React.FC = () => {
       parseFloat(scores.effectif2emeAnnee)
     );
     const scoreR = (r1 + r2) / 2;
-    
+
     // Calculate ML
     const fr1 = parseFloat(scores.francais1ereAnnee) || 0;
     const fr2 = parseFloat(scores.francais2emeAnnee) || 0;
     const en1 = parseFloat(scores.anglais1ereAnnee) || 0;
     const en2 = parseFloat(scores.anglais2emeAnnee) || 0;
     const scoreML = (fr1 + fr2 + en1 + en2) / 4;
-    
+
     // Calculate B1
     const scoreB1 = calculateB1(
       parseInt(scores.anneeNaissance),
       parseInt(scores.anneeConcours)
     );
-    
+
     // Calculate B2
     const scoreB2 = calculateB2(parseFloat(scores.moyenneBac));
-    
+
     // Calculate Score A
-    const scoreA = 0.2 * scoreM + (1.4/3) * scoreR + (5/6) * scoreML + (2/3) * (scoreB1 + scoreB2);
+    const scoreA = 0.2 * scoreM + (1.4 / 3) * scoreR + (5 / 6) * scoreML + (2 / 3) * (scoreB1 + scoreB2);
 
     // Calculate Score G
     const scoreE = parseFloat(scores.scoreE) || 0;
@@ -138,10 +138,10 @@ const ScoreCalculator: React.FC = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    if (score >= 40) return 'text-orange-600';
-    return 'text-red-600';
+    if (score >= 80) return 'text-green-600 dark:text-green-400';
+    if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    if (score >= 40) return 'text-orange-600 dark:text-orange-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const handleCompareClick = () => {
@@ -151,7 +151,7 @@ const ScoreCalculator: React.FC = () => {
 
   const getComparisonStatus = (lastScore: number) => {
     const difference = results.scoreG - lastScore;
-    
+
     if (difference >= 5) {
       return { color: 'bg-green-500', text: ' 🤲✨ Great chance! Inshallah you will be accepted' };
     } else if (difference >= 2) {
@@ -175,14 +175,14 @@ const ScoreCalculator: React.FC = () => {
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
             <Calculator className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-slate-800">Calculate Your Score</h3>
-            <p className="text-slate-600">Enter your grades and see your Score A and Global Score</p>
+            <h3 className="text-2xl font-bold text-slate-800 dark:text-white">Calculate Your Score</h3>
+            <p className="text-slate-600 dark:text-slate-400">Enter your grades and see your Score A and Global Score</p>
           </div>
         </div>
 
@@ -190,11 +190,11 @@ const ScoreCalculator: React.FC = () => {
           {/* Input Form */}
           <div className="space-y-6">
             {/* First Year Section */}
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-slate-800 mb-4">First Year</h4>
+            <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-800 dark:text-white mb-4">First Year</h4>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     First Year Average
                   </label>
                   <input
@@ -204,13 +204,13 @@ const ScoreCalculator: React.FC = () => {
                     step="0.01"
                     value={scores.moyenne1ereAnnee}
                     onChange={(e) => handleInputChange('moyenne1ereAnnee', e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Ex: 15.50"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Classement
                     </label>
                     <input
@@ -219,12 +219,12 @@ const ScoreCalculator: React.FC = () => {
                       step="1"
                       value={scores.rang1ereAnnee}
                       onChange={(e) => handleInputChange('rang1ereAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 1"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Class Size
                     </label>
                     <input
@@ -233,14 +233,14 @@ const ScoreCalculator: React.FC = () => {
                       step="1"
                       value={scores.effectif1ereAnnee}
                       onChange={(e) => handleInputChange('effectif1ereAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 100"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Note Français
                     </label>
                     <input
@@ -250,12 +250,12 @@ const ScoreCalculator: React.FC = () => {
                       step="0.01"
                       value={scores.francais1ereAnnee}
                       onChange={(e) => handleInputChange('francais1ereAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 15.00"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Note Anglais
                     </label>
                     <input
@@ -265,7 +265,7 @@ const ScoreCalculator: React.FC = () => {
                       step="0.01"
                       value={scores.anglais1ereAnnee}
                       onChange={(e) => handleInputChange('anglais1ereAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 15.00"
                     />
                   </div>
@@ -274,11 +274,11 @@ const ScoreCalculator: React.FC = () => {
             </div>
 
             {/* Second Year Section */}
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-slate-800 mb-4">Second Year</h4>
+            <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-800 dark:text-white mb-4">Second Year</h4>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Second Year Average
                   </label>
                   <input
@@ -288,13 +288,13 @@ const ScoreCalculator: React.FC = () => {
                     step="0.01"
                     value={scores.moyenne2emeAnnee}
                     onChange={(e) => handleInputChange('moyenne2emeAnnee', e.target.value)}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="Ex: 16.00"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Classement
                     </label>
                     <input
@@ -303,12 +303,12 @@ const ScoreCalculator: React.FC = () => {
                       step="1"
                       value={scores.rang2emeAnnee}
                       onChange={(e) => handleInputChange('rang2emeAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 1"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Class Size
                     </label>
                     <input
@@ -317,14 +317,14 @@ const ScoreCalculator: React.FC = () => {
                       step="1"
                       value={scores.effectif2emeAnnee}
                       onChange={(e) => handleInputChange('effectif2emeAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 100"
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Note Français
                     </label>
                     <input
@@ -334,12 +334,12 @@ const ScoreCalculator: React.FC = () => {
                       step="0.01"
                       value={scores.francais2emeAnnee}
                       onChange={(e) => handleInputChange('francais2emeAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 15.00"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Note Anglais
                     </label>
                     <input
@@ -349,7 +349,7 @@ const ScoreCalculator: React.FC = () => {
                       step="0.01"
                       value={scores.anglais2emeAnnee}
                       onChange={(e) => handleInputChange('anglais2emeAnnee', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 15.00"
                     />
                   </div>
@@ -358,12 +358,12 @@ const ScoreCalculator: React.FC = () => {
             </div>
 
             {/* Other Information */}
-            <div className="bg-slate-50 p-4 rounded-lg">
-              <h4 className="font-semibold text-slate-800 mb-4">Other Information</h4>
+            <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+              <h4 className="font-semibold text-slate-800 dark:text-white mb-4">Other Information</h4>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Birth Year
                     </label>
                     <input
@@ -373,12 +373,12 @@ const ScoreCalculator: React.FC = () => {
                       step="1"
                       value={scores.anneeNaissance}
                       onChange={(e) => handleInputChange('anneeNaissance', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 2000"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Baccalaureate Average
                     </label>
                     <input
@@ -388,13 +388,13 @@ const ScoreCalculator: React.FC = () => {
                       step="0.01"
                       value={scores.moyenneBac}
                       onChange={(e) => handleInputChange('moyenneBac', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Ex: 15.00"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                     Score E (If you have it)
                   </label>
                   <div className="space-y-2">
@@ -405,12 +405,12 @@ const ScoreCalculator: React.FC = () => {
                       step="0.01"
                       value={scores.scoreE}
                       onChange={(e) => handleInputChange('scoreE', e.target.value)}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                       placeholder="Leave empty if you don't have it"
                     />
                     <button
                       onClick={() => setShowVideoModal(true)}
-                      className="w-full py-2 px-4 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
+                      className="w-full py-2 px-4 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800/50 text-emerald-700 dark:text-emerald-300 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
                     >
                       <Calculator className="w-4 h-4" />
                       Don't know how to calculate Score E? We'll help you, especially if you're DSI
@@ -420,7 +420,7 @@ const ScoreCalculator: React.FC = () => {
               </div>
             </div>
 
-        
+
 
             {/* Add Compare Button */}
             <button
@@ -435,14 +435,14 @@ const ScoreCalculator: React.FC = () => {
           {/* Results Section */}
           <div className="space-y-6">
             {/* Score A */}
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-200">
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-white" />
+                  <TrendingUp className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-slate-800">Score A</h4>
-                  <p className="text-sm text-slate-600">Admission Score</p>
+                  <h4 className="text-lg font-bold text-slate-800 dark:text-white">Score A</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Admission Score</p>
                 </div>
               </div>
               <div className="text-center">
@@ -453,14 +453,14 @@ const ScoreCalculator: React.FC = () => {
             </div>
 
             {/* Score G */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
                   <TrendingUp className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h4 className="text-lg font-bold text-slate-800">Score Global</h4>
-                  <p className="text-sm text-slate-600">Score A × 0.7 + Score E × 0.3</p>
+                  <h4 className="text-lg font-bold text-slate-800 dark:text-white">Score Global</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Score A × 0.7 + Score E × 0.3</p>
                 </div>
               </div>
               <div className="text-center">
@@ -468,7 +468,7 @@ const ScoreCalculator: React.FC = () => {
                   {results.scoreG.toFixed(2)}
                 </div>
                 {!scores.scoreE && (
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
                     If you don't have Score E, Global Score is calculated based on Score A only
                   </p>
                 )}
@@ -476,14 +476,14 @@ const ScoreCalculator: React.FC = () => {
             </div>
 
             {/* Formula Info */}
-            <div className="bg-slate-50 rounded-xl p-4">
-              <h5 className="font-semibold text-slate-800 mb-3">How Score is Calculated:</h5>
+            <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
+              <h5 className="font-semibold text-slate-800 dark:text-white mb-3">How Score is Calculated:</h5>
               <div className="space-y-2 text-sm">
-                
-                <code className="block bg-white p-2 rounded mt-1 text-xs">
+
+                <code className="block bg-white dark:bg-slate-800 p-2 rounded mt-1 text-xs text-slate-800 dark:text-slate-200">
                   Score Global = 0.7×Score A + 0.3×Score E
                 </code>
-               
+
               </div>
             </div>
           </div>
@@ -492,12 +492,12 @@ const ScoreCalculator: React.FC = () => {
 
       {/* Comparison Section */}
       {showComparison && (
-        <div className="mt-8 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-2xl font-bold text-slate-800 mb-6">See Where You Can Get In</h3>
-          
+        <div className="mt-8 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+          <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">See Where You Can Get In</h3>
+
           {/* University Selection */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
               Choose School
             </label>
             <select
@@ -507,7 +507,7 @@ const ScoreCalculator: React.FC = () => {
                 setSelectedUniversity(uni || null);
                 setComparisonSpecialty('');
               }}
-              className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">-- Choose School --</option>
               {universitiesData.map((uni) => (
@@ -521,13 +521,13 @@ const ScoreCalculator: React.FC = () => {
           {/* Specialty Selection - Only show if university is selected */}
           {selectedUniversity && (
             <div className="mb-6">
-              <label className="block text-sm font-medium text-slate-700 mb-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Choose Specialty
               </label>
               <select
                 value={comparisonSpecialty}
                 onChange={(e) => setComparisonSpecialty(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">-- Choose Specialty --</option>
                 {getUniversitySpecialties(selectedUniversity).map((spec) => (
@@ -547,15 +547,15 @@ const ScoreCalculator: React.FC = () => {
                 .map((specialty, index) => {
                   const status = getComparisonStatus(specialty.lastAcceptableScore);
                   return (
-                    <div key={index} className="bg-slate-50 rounded-lg p-6">
+                    <div key={index} className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <h4 className="font-bold text-slate-800">{specialty.name}</h4>
-                          <p className="text-sm text-slate-600">{specialty.capacity} places </p>
+                          <h4 className="font-bold text-slate-800 dark:text-white">{specialty.name}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">{specialty.capacity} places </p>
                         </div>
                         <div className="text-sm">
-                          <span className="text-slate-600">Score minimum:</span>{' '}
-                          <span className="font-bold">{specialty.lastAcceptableScore.toFixed(2)}</span>
+                          <span className="text-slate-600 dark:text-slate-400">Score minimum:</span>{' '}
+                          <span className="font-bold text-slate-800 dark:text-white">{specialty.lastAcceptableScore.toFixed(2)}</span>
                         </div>
                       </div>
 
@@ -572,7 +572,7 @@ const ScoreCalculator: React.FC = () => {
                             </span>
                           </div>
                         </div>
-                        <div className="flex h-2 mb-4 overflow-hidden rounded bg-slate-200">
+                        <div className="flex h-2 mb-4 overflow-hidden rounded bg-slate-200 dark:bg-slate-600">
                           <div
                             style={{ width: '100%' }}
                             className={`shadow-none flex flex-col whitespace-nowrap justify-center ${status.color}`}
@@ -593,15 +593,15 @@ const ScoreCalculator: React.FC = () => {
       {/* Warning Modal */}
       {showWarningModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-lg p-6 shadow-2xl transform transition-all">
+          <div className="bg-white dark:bg-slate-800 rounded-xl w-full max-w-lg p-6 shadow-2xl transform transition-all">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 text-amber-600" />
+              <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800">Important Note</h3>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-white">Important Note</h3>
             </div>
-            <p className="text-slate-600 mb-6 leading-relaxed">
-               Each school has its own Score E formula. Always change Score E according to the school you're comparing with. Inshallah God be with you ❤️
+            <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+              Each school has its own Score E formula. Always change Score E according to the school you're comparing with. Inshallah God be with you ❤️
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -621,12 +621,12 @@ const ScoreCalculator: React.FC = () => {
       {/* Video Modal */}
       {showVideoModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-3xl">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="text-lg font-bold text-slate-800">How to Calculate Your Score E</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-xl w-full max-w-3xl">
+            <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-700">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-white">How to Calculate Your Score E</h3>
               <button
                 onClick={() => setShowVideoModal(false)}
-                className="text-slate-500 hover:text-slate-700"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -641,8 +641,8 @@ const ScoreCalculator: React.FC = () => {
                 allowFullScreen
               ></iframe>
             </div>
-            <div className="p-4 bg-slate-50 rounded-b-xl">
-              <p className="text-sm text-slate-600">
+            <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-b-xl">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 Video for students who studied DSI, Example from the National School of Computer Sciences,
               </p>
             </div>

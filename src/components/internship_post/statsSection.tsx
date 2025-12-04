@@ -10,82 +10,64 @@ const StatsSection: React.FC<StatsSectionProps> = ({ stats }) => {
 
   return (
     <div className="space-y-8 animate-fade-in-up animation-delay-800">
-      <div className="border-t border-slate-200 pt-8">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Comments & Reactions</h2>
+      <div className="border-t border-slate-200 dark:border-slate-700 pt-8">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Comments & Reactions</h2>
 
         <div className="space-y-6">
-          <div className="bg-gradient-to-r from-teal-50 to-blue-50 rounded-2xl border border-slate-200 p-6">
+          <div className="bg-gradient-to-r from-teal-50 to-blue-50 dark:from-teal-900/30 dark:to-blue-900/30 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
             <div className="flex items-center gap-4 mb-6">
-              {/* <div className="flex gap-3">
-                {Object.entries(reactionEmojis).map(([reactionType, emoji]) => (
-                  <button
-                    key={reactionType}
-                    onClick={() => setActiveReaction(activeReaction === reactionType ? null : reactionType)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-110 ${
-                      activeReaction === reactionType
-                        ? 'bg-white shadow-md'
-                        : 'bg-white/60 hover:bg-white'
-                    }`}
-                  >
-                    <span className="text-2xl">{emoji}</span>
-                    {reactions[reactionType] > 0 && (
-                      <span className="text-sm font-semibold text-slate-700">{reactions[reactionType]}</span>
-                    )}
-                  </button>
-                ))}
-              </div> */}
-              <div className="ml-auto text-sm font-semibold text-slate-600">
+              <div className="ml-auto text-sm font-semibold text-slate-600 dark:text-slate-400">
                 {stats.total_reactions} Total Reactions
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-white rounded-lg p-3">
-                <MessageCircle className="w-5 h-5 text-teal-600 mx-auto mb-1" />
-                <p className="text-sm font-semibold text-slate-900">{stats.comments}</p>
-                <p className="text-xs text-slate-500">Comments</p>
+              <div className="bg-white dark:bg-slate-700 rounded-lg p-3">
+                <MessageCircle className="w-5 h-5 text-teal-600 dark:text-teal-400 mx-auto mb-1" />
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.comments}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Comments</p>
               </div>
-              <div className="bg-white rounded-lg p-3 flex gap-6">
-                {stats.like > 0 &&  (<div className="flex flex-col items-center">
-                  <ThumbsUp className="w-5 h-5 text-blue-500 mb-1" />
-                  <p className="text-sm font-semibold text-slate-900">{stats.like}</p>
-                  <p className="text-xs text-slate-500">Likes</p>
+              <div className="bg-white dark:bg-slate-700 rounded-lg p-3 flex gap-6">
+                {stats.like > 0 && (<div className="flex flex-col items-center">
+                  <ThumbsUp className="w-5 h-5 text-blue-500 dark:text-blue-400 mb-1" />
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.like}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Likes</p>
                 </div>)}
 
-                {stats.love > 0 &&  (<div className="flex flex-col items-center">
+                {stats.love > 0 && (<div className="flex flex-col items-center">
                   <Heart className="w-5 h-5 text-red-400 mb-1" />
-                  <p className="text-sm font-semibold text-slate-900">{stats.love}</p>
-                  <p className="text-xs text-slate-500">Loves</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.love}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Loves</p>
                 </div>)}
 
                 {stats.insight > 0 && (<div className="flex flex-col items-center">
                   <Lightbulb className="w-5 h-5 text-orange-400 mb-1" />
-                  <p className="text-sm font-semibold text-slate-900">{stats.insight}</p>
-                  <p className="text-xs text-slate-500">Insights</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.insight}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Insights</p>
                 </div>)}
 
                 {stats.support > 0 && (<div className="flex flex-col items-center">
                   <HandHeartIcon className="w-5 h-5 text-orange-400 mb-1" />
-                  <p className="text-sm font-semibold text-slate-900">{stats.support}</p>
-                  <p className="text-xs text-slate-500">support</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.support}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">support</p>
                 </div>)}
 
                 {stats.funny > 0 && (<div className="flex flex-col items-center">
                   <Laugh className="w-5 h-5 text-orange-400 mb-1" />
-                  <p className="text-sm font-semibold text-slate-900">{stats.funny}</p>
-                  <p className="text-xs text-slate-500">funny</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.funny}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">funny</p>
                 </div>)}
 
                 {stats.celebrate > 0 && (<div className="flex flex-col items-center">
                   <PartyPopper className="w-5 h-5 text-orange-400 mb-1" />
-                  <p className="text-sm font-semibold text-slate-900">{stats.celebrate}</p>
-                  <p className="text-xs text-slate-500">celebrate</p>
+                  <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.celebrate}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">celebrate</p>
                 </div>)}
               </div>
-              <div className="bg-white rounded-lg p-3">
-                <LucideGitCompareArrows className="w-5 h-5 text-green-500 mx-auto mb-1" />
-                <p className="text-sm font-semibold text-slate-900">{stats.reposts}</p>
-                <p className="text-xs text-slate-500">Reposts</p>
+              <div className="bg-white dark:bg-slate-700 rounded-lg p-3">
+                <LucideGitCompareArrows className="w-5 h-5 text-green-500 dark:text-green-400 mx-auto mb-1" />
+                <p className="text-sm font-semibold text-slate-900 dark:text-white">{stats.reposts}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Reposts</p>
               </div>
             </div>
           </div>

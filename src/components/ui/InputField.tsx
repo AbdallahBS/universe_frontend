@@ -33,7 +33,7 @@ const InputField: React.FC<InputFieldProps> = ({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700 dark:text-slate-300">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
@@ -47,13 +47,13 @@ const InputField: React.FC<InputFieldProps> = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={`
-            w-full px-4 py-3 rounded-lg border border-slate-300 
-            bg-white
+            w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600
+            bg-white dark:bg-slate-700
             focus:ring-2 focus:ring-teal-500 focus:border-transparent
             transition-all duration-200 outline-none
-            placeholder-slate-400 text-slate-900
+            placeholder-slate-400 dark:placeholder-slate-500 text-slate-900 dark:text-white
             ${isFocused ? 'shadow-md' : 'shadow-sm'}
-            hover:border-slate-400
+            hover:border-slate-400 dark:hover:border-slate-500
             ${error ? 'border-red-500 focus:ring-red-500' : ''}
           `}
           required={required}
@@ -62,19 +62,17 @@ const InputField: React.FC<InputFieldProps> = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         )}
       </div>
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );
 };
 
 export default InputField;
-
-

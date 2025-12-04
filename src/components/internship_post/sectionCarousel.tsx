@@ -24,7 +24,7 @@ const SECTIONS: Section[] = [
   { id: "other", name: "Other", icon: "✨" }
 ];
 
-const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSection}) => {
+const SectionTags: React.FC<SectionTagsProps> = ({ selectedSections, toggleSection }) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-8">
       <style>{`
@@ -54,10 +54,10 @@ const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSecti
       `}</style>
 
       <div className="mb-6 animate-fade-in">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
           Choose Your Category
         </h2>
-        <p className="text-slate-600 text-sm">
+        <p className="text-slate-600 dark:text-slate-400 text-sm">
           Select categories to filter your result
         </p>
       </div>
@@ -73,10 +73,9 @@ const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSecti
               className={`
                 group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full
                 transition-all duration-300 ease-out animate-fade-in
-                ${
-                  isSelected
-                    ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/30 hover:bg-teal-700'
-                    : 'bg-white text-slate-700 border-2 border-teal-100 hover:border-teal-400 hover:shadow-md'
+                ${isSelected
+                  ? 'bg-teal-600 text-white shadow-lg shadow-teal-500/30 hover:bg-teal-700'
+                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-2 border-teal-100 dark:border-slate-600 hover:border-teal-400 dark:hover:border-teal-500 hover:shadow-md'
                 }
               `}
               style={{
@@ -87,7 +86,7 @@ const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSecti
               <span className="text-lg leading-none transition-transform duration-300 group-hover:scale-110">
                 {section.icon}
               </span>
-              
+
               {/* Label */}
               <span className="text-sm font-medium whitespace-nowrap">
                 {section.name}
@@ -105,7 +104,7 @@ const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSecti
                 className={`
                   absolute inset-0 rounded-full opacity-0 group-hover:opacity-100
                   transition-opacity duration-300 pointer-events-none
-                  ${isSelected ? 'bg-white/10' : 'bg-teal-50/50'}
+                  ${isSelected ? 'bg-white/10' : 'bg-teal-50/50 dark:bg-teal-900/30'}
                 `}
               />
             </button>
@@ -115,7 +114,7 @@ const SectionTags : React.FC<SectionTagsProps> = ({selectedSections, toggleSecti
 
       {/* Selected count indicator */}
       {selectedSections.size > 0 && (
-        <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 rounded-full text-sm font-medium animate-fade-in border border-teal-200">
+        <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-50 to-teal-100 dark:from-teal-900/50 dark:to-teal-800/50 text-teal-700 dark:text-teal-300 rounded-full text-sm font-medium animate-fade-in border border-teal-200 dark:border-teal-700">
           <Check className="w-4 h-4" />
           <span>{selectedSections.size} {selectedSections.size === 1 ? 'category' : 'categories'} selected</span>
         </div>

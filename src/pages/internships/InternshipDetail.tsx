@@ -20,9 +20,9 @@ import CommentsSection from "@components/internship_post/statsSection";
 import MediaGallery from "@components/internship_post/mediaGallery";
 import Linkify from "linkify-react";
 
-interface InternshipDetailProps {}
+interface InternshipDetailProps { }
 
-const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
+const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
   const navigate = useNavigate();
   const { urn } = useParams();
   const { user, isLoading } = useAuth();
@@ -55,18 +55,19 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
     }
   };
 
-  const loadMediaLinks = (item : LinkedInPost) => {
-    let res: { media_type: 'image' | 'video' | 'pdf';
-               thumbnail?: string;
-               url: string;
-               title?: string;
-               documentPage?: number;
-             }[] = [];     
+  const loadMediaLinks = (item: LinkedInPost) => {
+    let res: {
+      media_type: 'image' | 'video' | 'pdf';
+      thumbnail?: string;
+      url: string;
+      title?: string;
+      documentPage?: number;
+    }[] = [];
 
     if (item.reshared_post) {
-      res = [...res, ...loadMediaLinks(item.reshared_post)];  
+      res = [...res, ...loadMediaLinks(item.reshared_post)];
     }
-    
+
     if (item?.media?.type.includes("video")) {
       res.push({
         media_type: "video",
@@ -81,7 +82,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
           url: image.url
         });
       });
-      
+
     }
     if (item?.document) {
       res.push({
@@ -126,14 +127,14 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
 
   if (!internship) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-xl text-slate-600">Internship not found</p>
+          <p className="text-xl text-slate-600 dark:text-slate-400">Internship not found</p>
           <button
             onClick={() => {
               navigate("/internships");
             }}
-            className="mt-4 text-teal-600 hover:text-teal-700 font-medium"
+            className="mt-4 text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium"
           >
             Go back
           </button>
@@ -145,7 +146,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
   const bannerImage = getThumbnailUrl(internship);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 pt-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 pt-24">
       <div className="relative w-full h-[60vh] sm:h-[70vh] overflow-hidden rounded-b-[2.5rem] shadow-2xl">
         {bannerImage ? (
           <img
@@ -200,7 +201,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                 <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-2">
                   <a href={internship.url} target="_blank">
                     {internship.title ?? internship.reshared_post?.text ?? internship.text}
-                  </a> 
+                  </a>
                 </h1>
                 <p className="text-lg text-teal-100">
                   <a
@@ -239,7 +240,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                 <span>{internship.post_type}</span>
               </div>
               <div className="text-white text-sm line-clamp-3 mb-4 underline">
-                  {internship.category}
+                {internship.category}
               </div>
             </div>
           </div>
@@ -248,16 +249,16 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 md:-mt-10 pb-16">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-10 left-10 w-32 h-32 bg-teal-200/30 rounded-full blur-3xl"></div>
-          <div className="absolute top-20 right-0 w-40 h-40 bg-purple-200/30 rounded-full blur-3xl"></div>
+          <div className="absolute -top-10 left-10 w-32 h-32 bg-teal-200/30 dark:bg-teal-700/20 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 right-0 w-40 h-40 bg-purple-200/30 dark:bg-purple-700/20 rounded-full blur-3xl"></div>
         </div>
-        <div className="relative bg-white/90 backdrop-blur-sm rounded-3xl border border-slate-200 shadow-2xl overflow-hidden">
+        <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden">
           <div className="p-8 space-y-8">
             <div className="space-y-4 animate-fade-in-up animation-delay-400">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                 About this Internship
               </h2>
-              <p className="leading-relaxed whitespace-pre-line text-slate-600 [&_a]:text-blue-600 [&_a]:underline">
+              <p className="leading-relaxed whitespace-pre-line text-slate-600 dark:text-slate-300 [&_a]:text-blue-600 dark:[&_a]:text-blue-400 [&_a]:underline">
                 <Linkify
                   options={{
                     target: "_blank",
@@ -265,49 +266,19 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({}) => {
                   }}
                 >
                   {internship.reshared_post ? (
-                    <> 
-                     <span className="text-sm text-gray-500 italic">Reshared : {internship.text}</span><br />
-                     <span className="font-mono">{internship.reshared_post.text}</span>
-                     </>
-                    ) : (
-                      <span className="font-mono">{internship.text}</span>
-                    ) }
-                  {}
+                    <>
+                      <span className="text-sm text-gray-500 dark:text-gray-400 italic">Reshared : {internship.text}</span><br />
+                      <span className="font-mono">{internship.reshared_post.text}</span>
+                    </>
+                  ) : (
+                    <span className="font-mono">{internship.text}</span>
+                  )}
+                  { }
                 </Linkify>
               </p>
             </div>
 
             <MediaGallery media={loadMediaLinks(internship)} />
-
-            {/* {internship.stats && (
-              <div className="space-y-4 animate-fade-in-up animation-delay-500">
-                <h2 className="text-2xl font-bold text-slate-900">Stats</h2>
-                <ul className="space-y-3">
-                  {internship.stats && (
-                    <li className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-600">
-                        {internship.stats.total_reactions} Reactions
-                      </span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-            )} */}
-
-            {/* {internship.benefits && internship.benefits.length > 0 && (
-              <div className="space-y-4 animate-fade-in-up animation-delay-600">
-                <h2 className="text-2xl font-bold text-slate-900">Benefits</h2>
-                <ul className="space-y-3">
-                  {internship.benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Sparkles className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-600">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )} */}
 
             <CommentsSection stats={internship.stats} />
 

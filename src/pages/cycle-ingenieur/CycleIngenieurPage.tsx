@@ -11,7 +11,7 @@ import CandidatureGuide from '@components/cycle/CandidatureGuide';
 const CycleIngenieurPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const initialType = (searchParams.get('type') as University['type']) || 'all';
-  
+
   const [selectedType, setSelectedType] = useState<University['type'] | 'all'>(initialType);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All Specialties');
@@ -87,97 +87,93 @@ const CycleIngenieurPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-20">
-     
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20">
+
 
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-         
+
 
           <div className="text-center mb-12">
-            <div className="inline-flex items-center px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium mb-6">
               <GraduationCap className="w-4 h-4 mr-2" />
               Engineering Cycle
             </div>
-            <h1 className="text-2xl md:text-10xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            <h1 className="text-2xl md:text-10xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
               Engineering Schools in Tunisia
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
               Discover the best engineering schools, calculate your scores, and prepare for admission
             </p>
           </div>
 
-         
-        
+
+
         </div>
-        <div className="bg-green-50 rounded-lg p-6 mb-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="w-5 h-5 text-green-600" />
-                  <h3 className="text-xl font-bold text-green-800">What's New? 🎉</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-4 border border-green-100">
-                    <Calendar className="w-5 h-5 text-green-600 mt-1" />
-                    <div>
-                      <h4 className="font-medium text-slate-800 mb-1">2025 Notice Available! 📢</h4>
-                      <p className="text-sm text-slate-600 mb-2">
-                        You can download the new 2025 notice and see all the details
-                      </p>
-                      <a
-                        href="/assets/PREAVIS_2025.pdf"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
-                        download
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>Download Notice (PDF)</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
+        <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <AlertCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <h3 className="text-xl font-bold text-green-800 dark:text-green-300">What's New? 🎉</h3>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 bg-white dark:bg-slate-800 rounded-lg p-4 border border-green-100 dark:border-green-800">
+              <Calendar className="w-5 h-5 text-green-600 dark:text-green-400 mt-1" />
+              <div>
+                <h4 className="font-medium text-slate-800 dark:text-slate-200 mb-1">2025 Notice Available! 📢</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  You can download the new 2025 notice and see all the details
+                </p>
+                <a
+                  href="/assets/PREAVIS_2025.pdf"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-800/50 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-700 transition-colors"
+                  download
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Notice (PDF)</span>
+                </a>
               </div>
+            </div>
+          </div>
+        </div>
         {/* Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8 bg-white rounded-xl p-2 border border-slate-200">
+        <div className="flex flex-wrap gap-2 mb-8 bg-white dark:bg-slate-800 rounded-xl p-2 border border-slate-200 dark:border-slate-700">
           <button
             onClick={() => setActiveTab('universities')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'universities'
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'universities'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
           >
             <GraduationCap className="w-4 h-4 inline mr-2" />
             Universities
           </button>
           <button
             onClick={() => setActiveTab('calculator')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'calculator'
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'calculator'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
           >
             <Calculator className="w-4 h-4 inline mr-2" />
             Calculate Your Score
           </button>
           <button
             onClick={() => setActiveTab('annexes')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'annexes'
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'annexes'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
           >
             <FileText className="w-4 h-4 inline mr-2" />
             Annexes
           </button>
           <button
             onClick={() => setActiveTab('requirements')}
-            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'requirements'
-                ? 'bg-indigo-600 text-white shadow-lg'
-                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${activeTab === 'requirements'
+              ? 'bg-indigo-600 text-white shadow-lg'
+              : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+              }`}
           >
             <Award className="w-4 h-4 inline mr-2" />
             Requirements
@@ -203,7 +199,7 @@ const CycleIngenieurPage: React.FC = () => {
             {/* Results */}
             <div className="mb-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-slate-800">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
                   {filteredUniversities.length} école{filteredUniversities.length !== 1 ? 's' : ''} trouvée{filteredUniversities.length !== 1 ? 's' : ''}
                 </h2>
                 {(selectedType !== 'all' || searchQuery || selectedSpecialty !== 'All Specialties') && (
@@ -213,7 +209,7 @@ const CycleIngenieurPage: React.FC = () => {
                       setSearchQuery('');
                       setSelectedSpecialty('All Specialties');
                     }}
-                    className="text-indigo-600 hover:text-indigo-700 font-medium"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
                   >
                     Reset Filters
                   </button>
@@ -234,11 +230,11 @@ const CycleIngenieurPage: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-16">
-                <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <GraduationCap className="w-12 h-12 text-slate-400" />
+                <div className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <GraduationCap className="w-12 h-12 text-slate-400 dark:text-slate-500" />
                 </div>
-                <h3 className="text-xl font-semibold text-slate-800 mb-2">No schools found</h3>
-                <p className="text-slate-600 mb-6">
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">No schools found</h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-6">
                   Try changing your search criteria to see more results.
                 </p>
                 <button
@@ -259,192 +255,192 @@ const CycleIngenieurPage: React.FC = () => {
         {activeTab === 'calculator' && <ScoreCalculator />}
 
         {activeTab === 'annexes' && (
-          <div className="bg-white rounded-xl border border-slate-200 p-8 mb-8 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 mb-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <FileText className="w-6 h-6 text-indigo-600" />
-              <h2 className="text-2xl font-bold text-slate-800">Annexes</h2>
+              <FileText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Annexes</h2>
             </div>
 
             {/* Specific Schools Section */}
             <div className="mb-8">
               <div className="bg-indigo-50 rounded-lg p-6 mb-6">
-                <h3 className="text-xl font-bold text-indigo-800 mb-3"></h3>
-                <p className="text-lg text-slate-700 mb-4">
-              
+                <h3 className="text-xl font-bold text-indigo-800 dark:text-indigo-300 mb-3"></h3>
+                <p className="text-lg text-slate-700 dark:text-slate-300 mb-4">
+
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
-                 
-                      <div  className="bg-white rounded-lg p-4 border border-indigo-100 hover:border-indigo-300 transition-colors">
-                        <div className="flex items-start gap-3">
-                          <Download className="w-5 h-5 text-indigo-600 mt-1" />
-                          <div>
-                            <h4 className="font-medium text-slate-800 mb-1">PDF</h4>
-                            <p className="text-sm text-slate-600 mb-2">Annex to submit with your application</p>
-                            <a
-                              href="/assets/ANNEXE.pdf"
-                              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors"
-                              download
-                            >
-                              <Download className="w-4 h-4" />
-                              <span>Download Annex (PDF)</span>
-                            </a>
-                          </div>
-                        </div>
+
+                  <div className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-indigo-100 dark:border-indigo-800 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors">
+                    <div className="flex items-start gap-3">
+                      <Download className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-1" />
+                      <div>
+                        <h4 className="font-medium text-slate-800 dark:text-white mb-1">PDF</h4>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Annex to submit with your application</p>
+                        <a
+                          href="/assets/ANNEXE.pdf"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
+                          download
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>Download Annex (PDF)</span>
+                        </a>
                       </div>
-                
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
               {/* Independent Schools Section */}
-              <div className="bg-purple-50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-purple-800 mb-3">Independent Institutes Annexes (Indépendant)</h3>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-                  <p className="text-lg text-slate-700">
-                    ⚠️ Important Note: Many institutes have not yet published their annexes for this year. 
+              <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-6">
+                <h3 className="text-xl font-bold text-purple-800 dark:text-purple-300 mb-3">Independent Institutes Annexes (Indépendant)</h3>
+                <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-6">
+                  <p className="text-lg text-slate-700 dark:text-slate-300">
+                    ⚠️ Important Note: Many institutes have not yet published their annexes for this year.
                     We recommend following their official websites. You can find the links to all institutes below 🔍
                   </p>
                 </div>
-                
+
                 {/* Available Annexes */}
                 <div className="mb-6">
-                  <h4 className="font-medium text-purple-900 mb-4">Currently Available Annexes:</h4>
+                  <h4 className="font-medium text-purple-900 dark:text-purple-300 mb-4">Currently Available Annexes:</h4>
                   <div className="grid md:grid-cols-2 gap-4">
-              
-                        <div  className="bg-white rounded-lg p-4 border border-purple-100 hover:border-purple-300 transition-colors">
-                          <div className="flex items-start gap-3">
-                            <Download className="w-5 h-5 text-purple-600 mt-1" />
-                            <div>
-                              <h4 className="font-medium text-slate-800 mb-1">INSAT</h4>
-                              <p className="text-sm text-slate-600 mb-2">Institut National des Sciences Appliquées et de Technologie  </p>
-                              <a
-                                href="/assets/ANNEXE_INSAT.pdf"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                                download
-                              >
-                                <Download className="w-4 h-4" />
-                                <span>Download Annex (PDF)</span>
-                              </a>
-                            </div>
-                          </div>
-                        </div>
 
-                        <div  className="bg-white rounded-lg p-4 border border-purple-100 hover:border-purple-300 transition-colors">
-                          <div className="flex items-start gap-3">
-                            <Download className="w-5 h-5 text-purple-600 mt-1" />
-                            <div>
-                              <h4 className="font-medium text-slate-800 mb-1">FST</h4>
-                              <p className="text-sm text-slate-600 mb-2">Faculté des Sciences de Tunis </p>
-                              <a
-                                href="/assets/ANNEXE_SCI_TUNIS.pdf"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                                download
-                              >
-                                <Download className="w-4 h-4" />
-                                <span>Download Annex (PDF)</span>
-                              </a>
-                            </div>
-                          </div>
+                    <div className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-purple-100 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <Download className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-slate-800 dark:text-white mb-1">INSAT</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Institut National des Sciences Appliquées et de Technologie  </p>
+                          <a
+                            href="/assets/ANNEXE_INSAT.pdf"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                            download
+                          >
+                            <Download className="w-4 h-4" />
+                            <span>Download Annex (PDF)</span>
+                          </a>
                         </div>
+                      </div>
+                    </div>
 
-                        <div  className="bg-white rounded-lg p-4 border border-purple-100 hover:border-purple-300 transition-colors">
-                          <div className="flex items-start gap-3">
-                            <Download className="w-5 h-5 text-purple-600 mt-1" />
-                            <div>
-                              <h4 className="font-medium text-slate-800 mb-1">FST</h4>
-                              <p className="text-sm text-slate-600 mb-2">Faculty of Sciences for Mathematics, Physics and Natural Sciences in Tunis</p>
-                              <a
-                                href="/assets/ANNEXE_SCI_TUNIS_math_phy.pdf"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                                download
-                              >
-                                <Download className="w-4 h-4" />
-                                <span>Download Annex (PDF)</span>
-                              </a>
-                            </div>
-                          </div>
+                    <div className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-purple-100 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <Download className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-slate-800 dark:text-white mb-1">FST</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Faculté des Sciences de Tunis </p>
+                          <a
+                            href="/assets/ANNEXE_SCI_TUNIS.pdf"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                            download
+                          >
+                            <Download className="w-4 h-4" />
+                            <span>Download Annex (PDF)</span>
+                          </a>
                         </div>
+                      </div>
+                    </div>
 
-                        <div  className="bg-white rounded-lg p-4 border border-purple-100 hover:border-purple-300 transition-colors">
-                          <div className="flex items-start gap-3">
-                            <Download className="w-5 h-5 text-purple-600 mt-1" />
-                            <div>
-                              <h4 className="font-medium text-slate-800 mb-1">FSS</h4>
-                              <p className="text-sm text-slate-600 mb-2">Faculté des Sciences de Sfax </p>
-                              <a
-                                href="/assets/ANNEXE_SCI_SFAX.pdf"
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
-                                download
-                              >
-                                <Download className="w-4 h-4" />
-                                <span>Download Annex (PDF)</span>
-                              </a>
-                            </div>
-                          </div>
+                    <div className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-purple-100 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <Download className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-slate-800 dark:text-white mb-1">FST</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Faculty of Sciences for Mathematics, Physics and Natural Sciences in Tunis</p>
+                          <a
+                            href="/assets/ANNEXE_SCI_TUNIS_math_phy.pdf"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                            download
+                          >
+                            <Download className="w-4 h-4" />
+                            <span>Download Annex (PDF)</span>
+                          </a>
                         </div>
-                    
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-purple-100 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
+                      <div className="flex items-start gap-3">
+                        <Download className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-1" />
+                        <div>
+                          <h4 className="font-medium text-slate-800 dark:text-white mb-1">FSS</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Faculté des Sciences de Sfax </p>
+                          <a
+                            href="/assets/ANNEXE_SCI_SFAX.pdf"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                            download
+                          >
+                            <Download className="w-4 h-4" />
+                            <span>Download Annex (PDF)</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
                 {/* University Websites */}
-                <div className="bg-white rounded-lg p-6 border border-purple-100">
-                  <h4 className="font-medium text-purple-900 mb-4">Official Institute Website Links:</h4>
-                  <p className="text-slate-700 mb-4">
+                <div className="bg-white dark:bg-slate-700 rounded-lg p-6 border border-purple-100 dark:border-purple-800">
+                  <h4 className="font-medium text-purple-900 dark:text-purple-300 mb-4">Official Institute Website Links:</h4>
+                  <p className="text-slate-700 dark:text-slate-300 mb-4">
                     You can visit these websites to follow the latest news and download new annexes when they are published 🌐
                   </p>
                   <div className="grid md:grid-cols-2 gap-4">
-                   
-                        <a
-                 
-                          href="https://intek.rnu.tn/fr"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-                        >
-                          <ExternalLink className="w-4 h-4 text-purple-600" />
-                          <div>
-                            <span className="font-medium text-purple-900">INTE KEF</span>
-                            <span className="text-sm text-purple-700 block">Institut National des Technologies et des Sciences du Kef</span>
-                          </div>
-                        </a>
-                        <a
-                 
-                          href="https://isimg.rnu.tn/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-                        >
-                          <ExternalLink className="w-4 h-4 text-purple-600" />
-                          <div>
-                            <span className="font-medium text-purple-900">ISIMG</span>
-                            <span className="text-sm text-purple-700 block">Institut Supérieur d'Informatique et de Multimédia de Gabès</span>
-                          </div>
-                        </a>
-                        <a
-                 
-                 href="http://www.isimm.rnu.tn/public/"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-               >
-                 <ExternalLink className="w-4 h-4 text-purple-600" />
-                 <div>
-                   <span className="font-medium text-purple-900">ISIMM</span>
-                   <span className="text-sm text-purple-700 block">Institut Supérieur d'Informatique et de Mathématiques de Monastir</span>
-                 </div>
-               </a>
-               <a
-                 
-                 href="http://www.fsb.rnu.tn/"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-               >
-                 <ExternalLink className="w-4 h-4 text-purple-600" />
-                 <div>
-                   <span className="font-medium text-purple-900">SCI Bizerte</span>
-                   <span className="text-sm text-purple-700 block">Faculté des Sciences de Bizerte </span>
-                 </div>
-               </a>
+
+                    <a
+
+                      href="https://intek.rnu.tn/fr"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/50 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/50 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <div>
+                        <span className="font-medium text-purple-900 dark:text-purple-300">INTE KEF</span>
+                        <span className="text-sm text-purple-700 dark:text-purple-400 block">Institut National des Technologies et des Sciences du Kef</span>
+                      </div>
+                    </a>
+                    <a
+
+                      href="https://isimg.rnu.tn/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/50 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/50 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <div>
+                        <span className="font-medium text-purple-900 dark:text-purple-300">ISIMG</span>
+                        <span className="text-sm text-purple-700 dark:text-purple-400 block">Institut Supérieur d'Informatique et de Multimédia de Gabès</span>
+                      </div>
+                    </a>
+                    <a
+
+                      href="http://www.isimm.rnu.tn/public/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/50 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/50 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <div>
+                        <span className="font-medium text-purple-900 dark:text-purple-300">ISIMM</span>
+                        <span className="text-sm text-purple-700 dark:text-purple-400 block">Institut Supérieur d'Informatique et de Mathématiques de Monastir</span>
+                      </div>
+                    </a>
+                    <a
+
+                      href="http://www.fsb.rnu.tn/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/50 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-800/50 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <div>
+                        <span className="font-medium text-purple-900 dark:text-purple-300">SCI Bizerte</span>
+                        <span className="text-sm text-purple-700 dark:text-purple-400 block">Faculté des Sciences de Bizerte </span>
+                      </div>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -455,11 +451,11 @@ const CycleIngenieurPage: React.FC = () => {
         {activeTab === 'guide' && <CandidatureGuide />}
 
         {activeTab === 'requirements' && (
-          <div className="bg-white rounded-xl border border-slate-200 p-8 mb-8 shadow-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 mb-8 shadow-sm">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
-                <Award className="w-6 h-6 text-indigo-600" />
-                <h2 className="text-2xl font-bold text-slate-800">Requirements</h2>
+                <Award className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Requirements</h2>
               </div>
               <div className="flex gap-3">
                 <a
@@ -483,22 +479,22 @@ const CycleIngenieurPage: React.FC = () => {
 
 
             <div className="mt-8 space-y-4">
-              <div className="bg-green-50 rounded-lg p-6 mb-6">
+              <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-6 mb-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="w-5 h-5 text-green-600" />
-                  <h3 className="text-xl font-bold text-green-800">What's New? 🎉</h3>
+                  <AlertCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  <h3 className="text-xl font-bold text-green-800 dark:text-green-300">What's New? 🎉</h3>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-4 border border-green-100">
-                    <Calendar className="w-5 h-5 text-green-600 mt-1" />
+                  <div className="flex items-start gap-3 bg-white dark:bg-slate-700 rounded-lg p-4 border border-green-100 dark:border-green-800">
+                    <Calendar className="w-5 h-5 text-green-600 dark:text-green-400 mt-1" />
                     <div>
-                      <h4 className="font-medium text-slate-800 mb-1">2025 Notice Available Now! 📢</h4>
-                      <p className="text-sm text-slate-600 mb-2">
+                      <h4 className="font-medium text-slate-800 dark:text-white mb-1">2025 Notice Available Now! 📢</h4>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
                         You can download the new 2025 notice and see all the details
                       </p>
                       <a
                         href="/assets/PREAVIS_2025.pdf"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
                         download
                       >
                         <Download className="w-4 h-4" />
@@ -509,20 +505,20 @@ const CycleIngenieurPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-amber-50 rounded-lg p-6">
+              <div className="bg-amber-50 dark:bg-amber-900/30 rounded-lg p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <AlertCircle className="w-5 h-5 text-amber-600" />
-                 
+                  <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+
                   <a href="https://www.facebook.com/1269451033/posts/10233562670789835/?mibextid=rS40aB7S9Ucbxw6v" target="_blank" rel="noopener noreferrer">
-                  <p className="text-amber-800 font-medium">
-                  The scores shown are Global Scores. These scores are from 2024.
-                  
-                  </p>
-                     
+                    <p className="text-amber-800 dark:text-amber-300 font-medium">
+                      The scores shown are Global Scores. These scores are from 2024.
+
+                    </p>
+
                   </a>
                 </div>
               </div>
-              
+
             </div>
           </div>
         )}
