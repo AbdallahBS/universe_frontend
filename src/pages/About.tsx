@@ -6,14 +6,14 @@ const developers = [
     id: 1,
     name: 'Mazen Jebali',
     position: 'Software Developer and a Hobbyist',
-    avatar: 'https://scontent.ftun15-1.fna.fbcdn.net/v/t39.30808-1/583041894_2741764159488504_1699209473446557789_n.jpg?stp=c144.155.662.663a_dst-jpg_s200x200_tt6&_nc_cat=101&ccb=1-7&_nc_sid=e99d92&_nc_ohc=ZPnGMoIMnnkQ7kNvwFkwE7d&_nc_oc=AdlRRlR54v5XAJ4TodIU07AXaZ2mYPC-AnF-OjwLIojmc0Od0kATg3HEjbmj-xfHFKg&_nc_zt=24&_nc_ht=scontent.ftun15-1.fna&_nc_gid=qp-Dwf_FEcGgMagUn3Z4DA&oh=00_AfivkzGB7Ywuy_SFlntDngdrFrYcH7VtlPnR30yQR8z_Lg&oe=692F6483',
+    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4E03AQHrlrbVRZfLFA/profile-displayphoto-crop_800_800/B4EZqEI8b1KMAM-/0/1763153536424?e=1766620800&v=beta&t=pWBsGt5RSsKlKK9NACdvbKMKMs1rZGyoDfb12Ex2i2Q")}`,
     contactLink: 'https://www.linkedin.com/in/jebali-mazen/'
   },
   {
     id: 2,
     name: 'Abdallah Ben Salem',
     position: 'Full Stack Developer and a Hobbyist',
-    avatar: 'https://scontent.ftun15-1.fna.fbcdn.net/v/t39.30808-1/454653576_1179075560098607_3859578595552595962_n.jpg?stp=dst-jpg_s200x200_tt6&_nc_cat=100&ccb=1-7&_nc_sid=e99d92&_nc_ohc=O9d0P-_oRsIQ7kNvwEDuplO&_nc_oc=AdksS6uOwPro0skNC7fswV-DE0zEQKh_R2s3a_XoO6ZwYCKH-Xm5M0vZW6ncN5vuXIw&_nc_zt=24&_nc_ht=scontent.ftun15-1.fna&_nc_gid=rU82rYGmpFcHlv-hohVmXw&oh=00_AfjgrqcsWWJKNS4z9RWcFpZW2KGmNEJHOX8AatS6bOfeyQ&oe=692F8793',
+    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4E03AQHGgsG7KjS7_Q/profile-displayphoto-shrink_800_800/B4EZRxd..dGwAg-/0/1737070474325?e=1766620800&v=beta&t=JSTAVkeBbXQqVr81zl-7INHMxca_DPVLePKML-mLEjw")}`,
     contactLink: 'https://www.linkedin.com/in/abdallahbensalem/'
   },
 ];
