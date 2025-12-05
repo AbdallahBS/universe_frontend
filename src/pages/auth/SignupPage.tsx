@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { SignupSchema } from '../../utils/validators';
 import { signup as signupService } from '../../services/authService';
 import { SignupFormData, SignupPayload } from 'types/auth';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 interface SignupPageProps {
   onSignupSuccess?: (email: string) => void;
@@ -12,6 +14,7 @@ interface SignupPageProps {
 
 const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   const navigate = useNavigate();
+  const { loginWithGoogle } = useAuth();
   const [formData, setFormData] = useState<SignupFormData>({
     firstname: '',
     lastname: '',
@@ -23,6 +26,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof SignupFormData, string>>>({});
   const [serverError, setServerError] = useState<string | null>(null);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   useEffect(() => {
     document.title = 'Universe | Auth';
@@ -65,8 +69,29 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
     }
   };
 
+  const googleSignup = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsGoogleLoading(true);
+      setServerError(null);
+      try {
+        await loginWithGoogle(tokenResponse.access_token);
+        navigate('/dashboard');
+      } catch (err: any) {
+        console.error('Google signup error:', err);
+        setServerError(err.message || 'Google sign up failed. Please try again.');
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google signup error:', error);
+      setServerError('Google sign up failed. Please try again.');
+    },
+    flow: 'implicit',
+  });
+
   const handleGoogleSignUp = () => {
-    console.log('Google sign up clicked');
+    googleSignup();
   };
 
   return (

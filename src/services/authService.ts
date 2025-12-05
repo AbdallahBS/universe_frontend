@@ -8,7 +8,7 @@ export async function getOrCreateDeviceUUID(): Promise<string> {
 
   try {
     const res = await thumbmark.get();
-    
+
     return String(res.thumbmark);
   } catch (err: any) {
     throw new Error(String(err));
@@ -59,7 +59,7 @@ export async function requestEmailVerification(): Promise<{ message: string }> {
 
 export async function login(payload: { email: string; password: string; UUID?: string }): Promise<TokensResponse> {
   const UUID = payload.UUID || await getOrCreateDeviceUUID();
-  
+
   try {
     const data = await apiFetch<TokensResponse>('/v1/auth/login', {
       method: 'POST',
@@ -87,3 +87,19 @@ export async function logout(): Promise<{ message: string }> {
     throw new Error(message);
   }
 }
+
+export async function googleLogin(idToken: string): Promise<TokensResponse> {
+  const UUID = await getOrCreateDeviceUUID();
+  try {
+    const data = await apiFetch<TokensResponse>('/v1/auth/google', {
+      method: 'POST',
+      json: { idToken, UUID, deviceType: 'web' },
+      requireAuth: false,
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Google login failed';
+    throw new Error(message);
+  }
+}
+

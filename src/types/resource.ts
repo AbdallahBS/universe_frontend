@@ -1,9 +1,16 @@
+export interface OAuthProvider {
+  provider: 'google' | 'facebook' | 'github';
+  providerUserId: string;
+}
+
 export interface User {
   id: string;
   email: string;
   firstname: string;
   lastname: string;
   isVerified?: boolean;
+  profilePicture?: string;
+  oauthProviders?: OAuthProvider[];
   roles?: string[];
 }
 
@@ -24,10 +31,10 @@ export interface MediaImage {
 }
 
 export interface Document {
-  title : string;
-  page_count : number;
-  url : string;
-  thumbnail : string
+  title: string;
+  page_count: number;
+  url: string;
+  thumbnail: string
 }
 
 export interface Media {

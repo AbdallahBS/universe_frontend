@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -10,7 +11,7 @@ interface LoginPageProps {
 
 const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -18,6 +19,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   });
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   useEffect(() => {
     document.title = 'Universe | Auth';
@@ -42,8 +44,29 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
     }
   };
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsGoogleLoading(true);
+      setError(null);
+      try {
+        await loginWithGoogle(tokenResponse.access_token);
+        navigate('/dashboard');
+      } catch (err: any) {
+        console.error('Google login error:', err);
+        setError(err.message || 'Google sign in failed. Please try again.');
+      } finally {
+        setIsGoogleLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google login error:', error);
+      setError('Google sign in failed. Please try again.');
+    },
+    flow: 'implicit',
+  });
+
   const handleGoogleSignIn = () => {
-    console.log('Google sign in clicked');
+    googleLogin();
   };
 
   return (

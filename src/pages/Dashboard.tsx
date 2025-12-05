@@ -8,7 +8,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
   useEffect(() => {
     document.title = 'Universe | Dashboard';
   }, []);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pt-20">
@@ -22,12 +22,9 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
               <p className="text-gray-600 dark:text-slate-400 mb-6">
                 You are successfully logged in to your account.
               </p>
-              <button
-                onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition-colors"
-              >
-                Logout
-              </button>
+              <p className="text-sm text-gray-500 dark:text-slate-500">
+                Use the profile menu in the navigation bar to logout.
+              </p>
             </div>
           </div>
         </div>

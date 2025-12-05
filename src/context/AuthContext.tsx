@@ -7,6 +7,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
 };
@@ -25,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const isAuth = await CookieManager.isAuthenticated();
         const CookieUser = CookieManager.getUser();
-        
+
         if (isAuth && CookieUser) {
           setUser(CookieUser);
         }
@@ -46,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { login: loginService } = await import('../services/authService');
       const response = await loginService({ email, password });
-      
+
       // Store user data in cookie (tokens are already set by backend)
       if (response.user) {
         CookieManager.set('user', JSON.stringify(response.user), 30);
@@ -54,6 +55,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Login failed:', error);
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async (idToken: string) => {
+    try {
+      const { googleLogin } = await import('../services/authService');
+      const response = await googleLogin(idToken);
+
+      // Store user data in cookie (tokens are already set by backend)
+      if (response.user) {
+        CookieManager.set('user', JSON.stringify(response.user), 30);
+        setUser(response.user);
+      }
+    } catch (error) {
+      console.error('Google login failed:', error);
       throw error;
     }
   };
@@ -76,6 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated,
     isLoading,
     login,
+    loginWithGoogle,
     logout,
     setUser
   }), [user, isAuthenticated, isLoading]);
@@ -90,5 +108,3 @@ export function useAuth(): AuthContextValue {
   }
   return ctx;
 }
-
-
