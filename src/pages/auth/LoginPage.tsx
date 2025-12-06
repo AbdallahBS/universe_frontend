@@ -71,27 +71,21 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
 
   return (
     <div className="min-h-screen flex mt-10">
-      {/* Left Side - Hero Section */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(120,119,198,0.3),transparent_50%)]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(14,165,233,0.2),transparent_50%)]"></div>
-        </div>
+      {/* Left Side - Hero Section with Background Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/singinbg.jpg')" }}
+        ></div>
+
+        {/* Dark Overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-800/70 to-teal-900/60"></div>
 
         {/* Floating Elements */}
         <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full animate-pulse"></div>
         <div className="absolute bottom-40 left-20 w-20 h-20 bg-teal-500/20 rounded-full animate-bounce"></div>
-
-        {/* Bird Icon */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="w-24 h-24 text-white/80 animate-float">
-            <svg viewBox="0 0 100 100" fill="currentColor">
-              <path d="M20 50 C30 40, 50 40, 70 50 C80 45, 85 55, 70 60 C50 65, 30 65, 20 50 Z" />
-              <path d="M70 50 C75 45, 80 50, 75 55 C70 55, 70 50, 70 50 Z" />
-            </svg>
-          </div>
-        </div>
+        <div className="absolute top-1/3 left-10 w-16 h-16 bg-cyan-400/15 rounded-full animate-float"></div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
@@ -103,7 +97,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
               <br />
               AWAITS!
             </h1>
-            <p className="text-xl text-slate-300 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
+            <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
               Log in to unlock exclusive deals, plan your dream escapes, and pick up where you left off. Whether it's mountains, beaches, or city lights.
             </p>
             <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400">

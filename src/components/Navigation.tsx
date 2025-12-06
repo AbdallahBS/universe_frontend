@@ -119,12 +119,15 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               >
                 About
               </button>
-              <a
-                href="#"
-                className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              <button
+                onClick={() => handleNavClick("/contact")}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === "/contact"
+                  ? "text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
               >
                 Contact
-              </a>
+              </button>
             </div>
           </div>
 
@@ -295,18 +298,24 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
           >
             Engineering Cycle
           </button>
-          <a
-            href="#"
-            className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          <button
+            onClick={() => handleNavClick("/about")}
+            className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${currentPage === "/about"
+              ? "text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
           >
             About
-          </a>
-          <a
-            href="#"
-            className="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          </button>
+          <button
+            onClick={() => handleNavClick("/contact")}
+            className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${currentPage === "/contact"
+              ? "text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
           >
             Contact
-          </a>
+          </button>
 
           {/* Mobile Auth Section */}
           <div className="pt-4 pb-3 border-t border-slate-200 dark:border-slate-700 space-y-2">

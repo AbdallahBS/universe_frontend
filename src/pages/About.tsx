@@ -41,7 +41,7 @@ const About: React.FC = () => {
             </span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            The talented individuals behind this amazing platform
+           
           </p>
         </div>
 

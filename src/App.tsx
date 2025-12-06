@@ -14,8 +14,10 @@ import { PublicRoute } from '@components/PublicRoute';
 import { ProtectedRoute } from '@components/ProtectedRoute';
 import Dashboard from '@pages/Dashboard';
 import About from '@pages/About';
+import Contact from '@pages/Contact';
 import CycleIngenieurPage from '@pages/cycle-ingenieur/CycleIngenieurPage';
 import UniversityDetailsPage from '@pages/cycle-ingenieur/UniversityDetailsPage';
+import Footer from '@components/Footer';
 
 // Main app content component
 function AppContent() {
@@ -104,6 +106,7 @@ function AppContent() {
         <Route path="/cycle-ingenieur" element={<CycleIngenieurPage />} />
         <Route path="/university/:id" element={<UniversityDetailsPage />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* Admin-only Routes */}
         {/* <Route 
@@ -121,6 +124,7 @@ function AppContent() {
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
 
+      <Footer />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Sparkles, ArrowRight, Globe, Users, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import About from './About';
+import Contact from './Contact';
 
 interface LandingPageProps {
 }
@@ -9,10 +11,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
   useEffect(() => {
     document.title = 'Universe';
   }, []);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center">
         {/* Background Elements */}
@@ -50,7 +52,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                 </h1>
 
                 <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg animate-fade-in-up animation-delay-500">
-                  With UNIVERSE, navigating university life in Tunisia becomes easier. Discover PFE offers, internships, engineering cycle paths, and alternance opportunities — all in one place. Build the future you deserve.                </p>
+                  With UNIVERSE, navigating university life in Tunisia becomes easier. Discover PFE offers, internships, engineering cycle paths, and alternance opportunities — all in one place. Build the future you deserve.
+                </p>
               </div>
 
               {/* Buttons */}
@@ -85,8 +88,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">10+</div>
                   <div className="text-sm text-slate-600 dark:text-slate-400">Documents</div>
                 </div>
-
-
               </div>
             </div>
 
@@ -97,7 +98,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                 {/* Background Image */}
                 <div className="relative w-full h-96 lg:h-[500px] rounded-3xl overflow-hidden shadow-2xl">
                   <img
-                    src="https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=800"
+                    src="/landing1.jpg"
                     alt="Adventure landscape"
                     className="w-full h-full object-cover"
                   />
@@ -145,6 +146,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
           </div>
         </div>
       </div>
+
+      {/* About / Our Team Section */}
+      <About />
+
+      {/* Contact Section */}
+      <Contact />
     </div>
   );
 };

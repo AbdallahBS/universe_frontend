@@ -96,24 +96,21 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
 
   return (
     <div className="min-h-screen flex mt-10">
-      {/* Left Side - Hero Section */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-teal-900 via-slate-800 to-slate-900 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(14,165,233,0.3),transparent_50%)]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(6,182,212,0.2),transparent_50%)]"></div>
-        </div>
+      {/* Left Side - Hero Section with Background Image */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {/* Background Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: "url('/singinbg.jpg')" }}
+        ></div>
+
+        {/* Dark Overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/70 via-slate-800/70 to-slate-900/80"></div>
 
         {/* Floating Elements */}
         <div className="absolute top-32 left-20 w-24 h-24 bg-teal-500/20 rounded-full animate-float animation-delay-1000"></div>
         <div className="absolute bottom-32 right-32 w-16 h-16 bg-white/10 rounded-full animate-pulse animation-delay-500"></div>
-
-        {/* Mountain Silhouette */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1200 300" className="w-full h-auto text-slate-800/30" fill="currentColor">
-            <path d="M0 300 L200 150 L400 200 L600 100 L800 180 L1000 120 L1200 200 L1200 300 Z" />
-          </svg>
-        </div>
+        <div className="absolute top-1/2 right-10 w-20 h-20 bg-cyan-400/15 rounded-full animate-bounce"></div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
@@ -125,7 +122,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
               <br />
               TODAY!
             </h1>
-            <p className="text-xl text-slate-300 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
+            <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
               Join thousands of adventurers who have discovered amazing places, created unforgettable memories, and found their perfect escapes.
             </p>
             <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400">
