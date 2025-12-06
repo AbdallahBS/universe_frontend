@@ -114,7 +114,7 @@ const Footer: React.FC = () => {
                             </li>
                             <li className="flex items-center space-x-3">
                                 <MapPin className="w-5 h-5 text-teal-400 flex-shrink-0" />
-                                <span className="text-slate-400 text-sm">Tunisia 🇹🇳</span>
+                                <span className="text-slate-400 text-sm">El Haouria, Nabeul, Tunisia 🇹🇳</span>
                             </li>
                             <li className="flex items-center space-x-3">
                                 <Phone className="w-5 h-5 text-teal-400 flex-shrink-0" />

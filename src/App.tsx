@@ -30,10 +30,9 @@ function AppContent() {
     navigate('/verify-email');
   };
 
-  // test purpose
-  const handleIntershipClick = (activityUrn: string) => {
-    navigate(`/internships/${activityUrn}`);
-  };
+  // const handleIntershipClick = (activityUrn: string) => {
+  //   navigate(`/internships/${activityUrn}`);
+  // };
 
   // Show auth pages if not authenticated
   return (
@@ -101,8 +100,9 @@ function AppContent() {
         />
 
         {/* Semi-public routes - anyone can view, but enhanced for logged-in users */}
-        <Route path="/internships" element={<InternshipsList onInternshipClick={handleIntershipClick} />} />
-        <Route path="/internships/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
+        <Route path="/internships" element={<InternshipsList />} />
+        <Route path="/internships/:page" element={<InternshipsList />} />
+        <Route path="/internship/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
         <Route path="/cycle-ingenieur" element={<CycleIngenieurPage />} />
         <Route path="/university/:id" element={<UniversityDetailsPage />} />
         <Route path="/about" element={<About />} />

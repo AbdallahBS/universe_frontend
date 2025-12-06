@@ -10,7 +10,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "@context/AuthContext";
 import ScrollButtons from "@components/ui/ScrollButtons";
 import { getInternship } from "@services/internshipService";
@@ -20,11 +20,16 @@ import CommentsSection from "@components/internship_post/statsSection";
 import MediaGallery from "@components/internship_post/mediaGallery";
 import Linkify from "linkify-react";
 
-interface InternshipDetailProps { }
+interface InternshipDetailProps { 
+}
 
 const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
   const navigate = useNavigate();
   const { urn } = useParams();
+
+  const [searchParams] = useSearchParams();
+  const PreviousPageNumber = searchParams.get("prevPage");
+
   const { user, isLoading } = useAuth();
 
   const [internship, setInternship] = useState<LinkedInPost>();
@@ -35,6 +40,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
     document.title = "Universe | Internships";
     setLoading(isLoading);
     fetchInternshipDetails();
+    window.scrollTo({ top: 100, behavior: 'smooth' });
   }, [isLoading]);
 
   const fetchInternshipDetails = async () => {
@@ -163,7 +169,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-between max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-white">
           <button
-            onClick={() => navigate("/internships")}
+            onClick={() => navigate(`/internships/${PreviousPageNumber}`)}
             className="group inline-flex items-center gap-2 self-start rounded-full bg-white/30 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/50 transition"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
