@@ -108,7 +108,7 @@ const Contact: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Location</h3>
-                                    <p className="text-slate-900 dark:text-white font-semibold">Tunisia 🇹🇳</p>
+                                    <p className="text-slate-900 dark:text-white font-semibold">El Haouria, Nabeul, Tunisia 🇹🇳</p>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +153,7 @@ const Contact: React.FC = () => {
                                                 value={formData.name}
                                                 onChange={handleInputChange}
                                                 required
-                                                placeholder="John Doe"
+                                                placeholder="Full Name"
                                                 className="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all duration-300"
                                             />
                                         </div>

@@ -9,6 +9,7 @@ import ScrollButtons from '@components/ui/ScrollButtons';
 import { timeAgo } from '@utils/helpers';
 import InternshipFilters from '@components/internship_post/internshipFilter';
 import SectionCarousel from '@components/internship_post/sectionCarousel';
+import { Link, useParams } from 'react-router-dom';
 
 // Thumbnail component with error handling
 const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: string }> = ({ src, alt, className = "" }) => {
@@ -33,7 +34,6 @@ const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: st
 };
 
 interface InternshipsListProps {
-  onInternshipClick: (id: string) => void;
 }
 
 interface FilterOptions {
@@ -42,23 +42,22 @@ interface FilterOptions {
   dateTo?: string;
 }
 
-const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) => {
+const InternshipsList: React.FC<InternshipsListProps> = () => {
   /** General States */
   const [loading, setLoading] = useState(true);
   const {isLoading} = useAuth();
+  const { page } = useParams();
   /****************** */
 
   /** Internships and pagination */
   const [internships, setInternships] = useState<LinkedInPost[]>([]);
 
   const [Pagination, setPagination] = useState<Pagination>();
-  const [currentPage, setCurrentPage] = useState<number>();
+  const [currentPage, setCurrentPage] = useState<number>(Number(page) || 1);
   const [totalPages, setTotalPages] = useState<number>();
   /****************** */
 
   /*** SectionCarousel Props*****/
-  //const [selectedSections, setSelectedSections] = useState<Set<string>>(new Set(["internship_offers", "internship_requests", "job_offers"]));
-
   const [selectedSections, setSelectedSections] = useState<Set<string>>(() => {
     try {
       const stored = localStorage.getItem("selectedSections");
@@ -98,19 +97,20 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
       return { criteria: ["title"], dateFrom: "", dateTo: "" };
     }
   });
-  const [availableFilters, setAvailableFilters] = useState({
-    criteria: ["title", "text", "author"] as string[],
-  });
+  const availableFilters = {
+    criteria: ["title", "text", "author"]
+  }
 
   useEffect(() => {
     localStorage.setItem("filters", JSON.stringify(filters));
   }, [filters]);
+
   /************ */
 
   useEffect(() => {
     document.title = 'Universe | Internships';
     setLoading(isLoading);
-    fetchInternships("1", "10", selectedSections, filters, searchQuery);
+    fetchInternships(currentPage.toString(), "10", selectedSections, filters, searchQuery);
   }, [isLoading]);
 
   const fetchInternships = async (page: string = "1", limit: string = "10", Sections : Set<string> = new Set(),
@@ -204,9 +204,9 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {internships.map((internship, index) => (
+        <Link to={`/internship/${internship.urn.activity_urn}?prevPage=${currentPage}`} className="no-underline text-inherit block">
         <div
           key={internship.urn}
-          onClick={() => onInternshipClick(internship.urn.activity_urn)}
           className="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 animate-fade-in-up"
           style={{ animationDelay: `${index * 100}ms` }}
         >
@@ -229,80 +229,76 @@ const InternshipsList: React.FC<InternshipsListProps> = ({ onInternshipClick }) 
             </div>
           </div>
 
-                    {/* Content Section */}
-                    <div className="p-6">
-                      {/* Author Info */}
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
-                          {(internship.reshared_post?.author.first_name ?? internship.author.first_name)?.[0]}
-                          {(internship.reshared_post?.author.last_name ?? internship.author.last_name)?.[0]}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {internship.reshared_post?.author.first_name ?? internship.author.first_name} {internship.reshared_post?.author.last_name ?? internship.author.last_name}
-                          </p>
-                          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                            <Clock className="w-3 h-3" />
-                            <span>{timeAgo(internship.posted_at.timestamp, Date.now())}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                     {/* Title */}
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 mb-3 line-clamp-2">
-                        {internship.title ?? internship.reshared_post?.text ?? internship.text}
-                      </h3>
-
-                      <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4 underline">
-                        {internship.category}
-                      </p>
-
-                      {/* Description */}
-                      <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4">
-                        {internship.reshared_post?.text ?? internship.text}
-                      </p>
-
-                      {/* Footer with CTA */}
-                      <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
-                          {new Date(internship.posted_at.date).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
-                          })}
-                        </div>
-                        <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400 font-semibold text-sm group-hover:gap-3 transition-all duration-300">
-                          <span>View Details</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                        </div>
-                      </div>
+              {/* Content Section */}
+              <div className="p-6">
+                {/* Author Info */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center text-white font-semibold text-sm">
+                    {(internship.reshared_post?.author.first_name ?? internship.author.first_name)?.[0]}
+                    {(internship.reshared_post?.author.last_name ?? internship.author.last_name)?.[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                      {internship.reshared_post?.author.first_name ?? internship.author.first_name} {internship.reshared_post?.author.last_name ?? internship.author.last_name}
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                      <Clock className="w-3 h-3" />
+                      <span>{timeAgo(internship.posted_at.timestamp, Date.now())}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {internships.length === 0 && !loading && (
-                <div className="text-center py-20">
-                  <Briefcase className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-                  <p className="text-xl text-slate-600 dark:text-slate-400">No internships available at the moment</p>
-                  <p className="text-slate-500 dark:text-slate-500 mt-2">Check back soon for new opportunities!</p>
                 </div>
-              )}
-              
-              {internships.length > 0 && Pagination!.pages > 1 && (
-                <PaginationPage
-                  currentPage={currentPage ?? 0}
-                  totalPages={totalPages ?? 0}
-                  onPageChange={handlePageChange}
-                />
-              )}
+               {/* Title */}
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 mb-3 line-clamp-2">
+                  {internship.title ?? internship.reshared_post?.text ?? internship.text}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4 underline">
+                  {internship.category}
+                </p>
+                {/* Description */}
+                <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4">
+                  {internship.reshared_post?.text ?? internship.text}
+                </p>
+                {/* Footer with CTA */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                    {new Date(internship.posted_at.date).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </div>
+                  <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400 font-semibold text-sm group-hover:gap-3 transition-all duration-300">
+                    <span>View Details</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+            </Link>
+          ))}
         </div>
+
+        {internships.length === 0 && !loading && (
+          <div className="text-center py-20">
+            <Briefcase className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+            <p className="text-xl text-slate-600 dark:text-slate-400">No internships available at the moment</p>
+            <p className="text-slate-500 dark:text-slate-500 mt-2">Check back soon for new opportunities!</p>
+          </div>
+        )}
+        
+        {internships.length > 0 && Pagination!.pages > 1 && (
+          <PaginationPage
+            currentPage={currentPage ?? 0}
+            totalPages={totalPages ?? 0}
+            onPageChange={handlePageChange}
+          />
+        )}
       </div>
-    </div>
-    </>
-  );
-};
+    )}
+  </div>
+  </div>
+ </div>
+</>
+)};
 
 export default InternshipsList;
