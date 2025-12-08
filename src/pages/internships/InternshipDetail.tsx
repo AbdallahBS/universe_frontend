@@ -12,6 +12,8 @@ import {
   Share2,
   Bookmark,
   Tag,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -36,6 +38,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
   const [internship, setInternship] = useState<LinkedInPost>();
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     document.title = "Universe | Internships";
@@ -233,8 +236,8 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
             <button
               onClick={() => setIsBookmarked(!isBookmarked)}
               className={`p-2.5 rounded-full backdrop-blur-md border shadow-lg transition-all duration-300 ${isBookmarked
-                  ? 'bg-teal-500/80 border-teal-400/50 text-white'
-                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30'
+                ? 'bg-teal-500/80 border-teal-400/50 text-white'
+                : 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30'
                 }`}
               title="Bookmark"
             >
@@ -328,8 +331,11 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
                   </h2>
                 </div>
 
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                  <div className="leading-relaxed whitespace-pre-line text-slate-600 dark:text-slate-300 [&_a]:text-teal-600 dark:[&_a]:text-teal-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-teal-700 dark:hover:[&_a]:text-teal-300 text-sm sm:text-base">
+                <div className="prose prose-slate dark:prose-invert max-w-none relative">
+                  <div
+                    className={`leading-relaxed whitespace-pre-line text-slate-600 dark:text-slate-300 [&_a]:text-teal-600 dark:[&_a]:text-teal-400 [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-teal-700 dark:hover:[&_a]:text-teal-300 text-sm sm:text-base transition-all duration-300 ease-in-out overflow-hidden ${isDescriptionExpanded ? '' : 'max-h-[200px]'
+                      }`}
+                  >
                     <Linkify
                       options={{
                         target: "_blank",
@@ -351,7 +357,30 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
                       )}
                     </Linkify>
                   </div>
+
+                  {/* Gradient fade overlay when collapsed */}
+                  {!isDescriptionExpanded && (
+                    <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white dark:from-slate-800 to-transparent pointer-events-none" />
+                  )}
                 </div>
+
+                {/* Show more/less button */}
+                <button
+                  onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                  className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 bg-teal-50 dark:bg-teal-900/30 hover:bg-teal-100 dark:hover:bg-teal-900/50 rounded-xl transition-all duration-200"
+                >
+                  {isDescriptionExpanded ? (
+                    <>
+                      <span>Show less</span>
+                      <ChevronUp className="w-4 h-4" />
+                    </>
+                  ) : (
+                    <>
+                      <span>Show more</span>
+                      <ChevronDown className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 
