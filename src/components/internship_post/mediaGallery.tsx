@@ -73,8 +73,8 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
         );
       case "pdf":
         return (
-          <div className="flex flex-col sm:flex-row h-full rounded-2xl overflow-hidden border border-slate-200">
-            <div className="sm:w-2/3 h-48 sm:h-auto bg-slate-50 flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row h-full rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+            <div className="sm:w-2/3 h-48 sm:h-auto bg-slate-50 dark:bg-slate-900/50 flex items-center justify-center">
               {item.thumbnail ? (
                 <img
                   src={`https://corsproxy.io/?url=${item.thumbnail}`}
@@ -84,20 +84,20 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
                   onError={() => setIsLoading(false)}
                 />
               ) : (
-                <FileWarning className="w-14 h-14 text-slate-300" />
+                <FileWarning className="w-14 h-14 text-slate-300 dark:text-slate-600" />
               )}
             </div>
-            <div className="sm:w-1/3 p-4 flex flex-col justify-center text-center space-y-2">
-              <FileText className="w-10 h-10 text-slate-400 mx-auto" />
-              <p className="text-slate-800 font-semibold">{item.title || "PDF Document"}</p>
-              <p className="text-slate-500 text-sm">
+            <div className="sm:w-1/3 p-4 flex flex-col justify-center text-center space-y-2 bg-white dark:bg-slate-800">
+              <FileText className="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto" />
+              <p className="text-slate-800 dark:text-white font-semibold">{item.title || "PDF Document"}</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
                 {item.documentPage ? `${item.documentPage} pages` : "Page count unavailable"}
               </p>
               <a
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center px-3 py-2 text-sm font-semibold bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition"
+                className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-semibold bg-gradient-to-r from-teal-600 to-blue-600 text-white rounded-xl shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300"
               >
                 View PDF
               </a>
@@ -139,20 +139,19 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
   return (
     <section className="space-y-4 animate-fade-in-up animation-delay-500">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-slate-900">Media</h2>
-        <span className="text-sm text-slate-500">
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Media</h2>
+        <span className="text-sm text-slate-500 dark:text-slate-400">
           {currentMediaIndex + 1} / {media.length}
         </span>
       </div>
 
-      <div className="bg-white/90 backdrop-blur rounded-3xl border border-slate-200 p-5 shadow-lg">
+      <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 p-5 shadow-xl">
         <div
-          className={`relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 ${
-            isPdf ? "min-h-[320px] sm:min-h-0" : "aspect-video"
-          }`}
+          className={`relative rounded-2xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 ${isPdf ? "min-h-[320px] sm:min-h-0" : "aspect-video"
+            }`}
         >
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center z-30 bg-slate-100/40">
+            <div className="absolute inset-0 flex items-center justify-center z-30 bg-slate-100/40 dark:bg-slate-900/40">
               <LoadingSpinner loading={isLoading} fullScreen={false} />
             </div>
           )}
@@ -163,15 +162,15 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
             <>
               <button
                 onClick={handlePrevious}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-300"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-slate-700/90 hover:bg-white dark:hover:bg-slate-600 rounded-full p-2 shadow-lg transition-all duration-300"
               >
-                <ChevronLeft className="w-6 h-6 text-slate-900" />
+                <ChevronLeft className="w-6 h-6 text-slate-900 dark:text-white" />
               </button>
               <button
                 onClick={handleNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-all duration-300"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-slate-700/90 hover:bg-white dark:hover:bg-slate-600 rounded-full p-2 shadow-lg transition-all duration-300"
               >
-                <ChevronRight className="w-6 h-6 text-slate-900" />
+                <ChevronRight className="w-6 h-6 text-slate-900 dark:text-white" />
               </button>
             </>
           )}
@@ -183,11 +182,10 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({ media }) => {
               <button
                 key={index}
                 onClick={() => setCurrentMediaIndex(index)}
-                className={`relative flex-shrink-0 h-20 w-32 rounded-2xl border transition-all ${
-                  index === currentMediaIndex
-                    ? "border-teal-500 ring-2 ring-teal-200"
-                    : "border-slate-200 hover:border-slate-300"
-                }`}
+                className={`relative flex-shrink-0 h-20 w-32 rounded-2xl border transition-all ${index === currentMediaIndex
+                  ? "border-teal-500 ring-2 ring-teal-200 dark:ring-teal-700"
+                  : "border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500"
+                  }`}
                 aria-label={`Select media ${index + 1}`}
               >
                 {renderThumbnail(item)}

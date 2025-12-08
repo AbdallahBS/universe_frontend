@@ -10,7 +10,7 @@ const ScrollButtons: React.FC<ScrollButtonsProps> = ({
   scrollTarget = 'bottom',
   size = 45,
 }) => {
-  const handleScroll = (direction : string) => {
+  const handleScroll = (direction: string) => {
     if (direction === 'bottom') {
       window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
@@ -27,37 +27,39 @@ const ScrollButtons: React.FC<ScrollButtonsProps> = ({
 
   return (
     <>
-    <button
-      onClick={() => handleScroll("top")}
-      className="
-        fixed bottom-20 right-10
-        flex items-center justify-center 
-        rounded-full bg-teal-100 text-teal-600
-        shadow-lg hover:bg-teal-600 
-        transition-transform duration-200 
-        hover:scale-110 hover:text-white focus:outline-none
-      "
-      style={{ width: size, height: size, fontSize: size / 2 }}
-      aria-label="Scroll down"
-    >
-      <ArrowUp />
-    </button>
+      <button
+        onClick={() => handleScroll("top")}
+        className="
+          fixed bottom-20 right-6 sm:right-10 z-50
+          flex items-center justify-center 
+          rounded-full bg-teal-100 dark:bg-teal-900/80 text-teal-600 dark:text-teal-400
+          shadow-lg hover:bg-teal-600 dark:hover:bg-teal-500
+          transition-all duration-200 
+          hover:scale-110 hover:text-white dark:hover:text-white focus:outline-none
+          backdrop-blur-sm border border-teal-200 dark:border-teal-700
+        "
+        style={{ width: size, height: size, fontSize: size / 2 }}
+        aria-label="Scroll to top"
+      >
+        <ArrowUp />
+      </button>
 
-     <button
-      onClick={() => handleScroll("bottom")}
-      className="
-        fixed bottom-5 right-10
-        flex items-center justify-center 
-        rounded-full bg-teal-100 text-teal-600
-        shadow-lg hover:bg-teal-600 
-        transition-transform duration-200 
-        hover:scale-110 hover:text-white focus:outline-none
-      "
-      style={{ width: size, height: size, fontSize: size / 2 }}
-      aria-label="Scroll down"
-    >
-      <ArrowDown />
-    </button>
+      <button
+        onClick={() => handleScroll("bottom")}
+        className="
+          fixed bottom-5 right-6 sm:right-10 z-50
+          flex items-center justify-center 
+          rounded-full bg-teal-100 dark:bg-teal-900/80 text-teal-600 dark:text-teal-400
+          shadow-lg hover:bg-teal-600 dark:hover:bg-teal-500
+          transition-all duration-200 
+          hover:scale-110 hover:text-white dark:hover:text-white focus:outline-none
+          backdrop-blur-sm border border-teal-200 dark:border-teal-700
+        "
+        style={{ width: size, height: size, fontSize: size / 2 }}
+        aria-label="Scroll to bottom"
+      >
+        <ArrowDown />
+      </button>
     </>
   );
 };
