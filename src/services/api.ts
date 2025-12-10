@@ -37,10 +37,21 @@ async function refreshTokens(): Promise<void> {
         body: JSON.stringify({ UUID: uuid })
       });
 
+      const contentType = response.headers.get("content-type") ?? "";
+      const isJson = contentType.includes("application/json");
+      const responseData = isJson ? await response.json().catch(() => null) : await response.text();
+
       if (!response.ok) {
+         const errorCode =
+    responseData?.error?.code ||
+    responseData?.code ||
+    responseData?.message ||
+    response.statusText;
+
         isRefreshing = false;
         refreshPromise = null;
         console.log("REFRESH_FAILED");
+        console.log(errorCode);
         throw new Error("REFRESH_FAILED");
       }
 

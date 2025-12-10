@@ -13,7 +13,7 @@ const developers = [
     id: 2,
     name: 'Abdallah Ben Salem',
     position: 'Full Stack Developer and a Hobbyist',
-    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4E03AQHGgsG7KjS7_Q/profile-displayphoto-shrink_800_800/B4EZRxd..dGwAg-/0/1737070474325?e=1766620800&v=beta&t=JSTAVkeBbXQqVr81zl-7INHMxca_DPVLePKML-mLEjw")}`,
+    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4D03AQFsArP7ojg11g/profile-displayphoto-crop_800_800/B4DZsEkKjCLEAQ-/0/1765308163024?e=1767225600&v=beta&t=YXdyysvGAp_-qPi_RkRy5Bmzj2ZSBlQDU53qFcl9yWU")}`,
     contactLink: 'https://www.linkedin.com/in/abdallahbensalem/'
   },
 ];
