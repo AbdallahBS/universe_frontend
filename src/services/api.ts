@@ -85,6 +85,7 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
   const tokenExpired =
     errorCode === "INVALID_TOKEN" ||
     errorCode === "TOKEN_EXPIRED" ||
+    errorCode === "AUTH_EXPIRED" ||
     response.status === 401 ||
     response.status === 400;
 
