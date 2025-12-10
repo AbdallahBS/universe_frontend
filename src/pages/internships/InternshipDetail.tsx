@@ -14,16 +14,19 @@ import {
   Tag,
   ChevronDown,
   ChevronUp,
+  Loader2,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ScrollButtons from "@components/ui/ScrollButtons";
 import { getInternship } from "@services/internshipService";
+import { saveInternship, unsaveInternship, checkIfSaved } from "@services/savedInternshipsService";
 import { LinkedInPost } from "types/resource";
 import { timeAgo } from "@utils/helpers";
 import CommentsSection from "@components/internship_post/statsSection";
 import MediaGallery from "@components/internship_post/mediaGallery";
 import Linkify from "linkify-react";
+import { useAuth } from "@context/AuthContext";
 
 interface InternshipDetailProps {
 }
@@ -35,16 +38,56 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
   const [searchParams] = useSearchParams();
   const PreviousPageNumber = searchParams.get("prevPage");
 
+  const { isAuthenticated } = useAuth();
+
   const [internship, setInternship] = useState<LinkedInPost>();
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     document.title = "Universe | Internships";
     fetchInternshipDetails();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  // Check if internship is saved when user is authenticated
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (isAuthenticated && urn) {
+        const saved = await checkIfSaved(urn);
+        setIsBookmarked(saved);
+      }
+    };
+    checkSavedStatus();
+  }, [isAuthenticated, urn]);
+
+  const handleBookmarkClick = async () => {
+    if (!isAuthenticated) {
+      // Show elegant login prompt
+      setShowLoginPrompt(true);
+      return;
+    }
+
+    if (!urn || isBookmarkLoading) return;
+
+    setIsBookmarkLoading(true);
+    try {
+      if (isBookmarked) {
+        await unsaveInternship(urn);
+        setIsBookmarked(false);
+      } else {
+        await saveInternship(urn);
+        setIsBookmarked(true);
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+    } finally {
+      setIsBookmarkLoading(false);
+    }
+  };
 
   const fetchInternshipDetails = async () => {
     try {
@@ -186,6 +229,39 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
         <div className="absolute bottom-20 left-1/3 w-64 h-64 bg-gradient-to-br from-blue-200/20 to-teal-200/20 dark:from-blue-700/10 dark:to-teal-700/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }}></div>
       </div>
 
+      {/* Elegant Login Prompt */}
+      {showLoginPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-sm w-full p-6 transform animate-slide-up">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
+                <Bookmark className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                Save for Later
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 mb-6">
+                Sign in to save internships and access them from your dashboard anytime.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Maybe Later
+                </button>
+                <button
+                  onClick={() => navigate('/login')}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 text-white font-medium hover:opacity-90 transition-opacity"
+                >
+                  Sign In
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Banner Section */}
       <div className="relative pt-20">
         <div className="relative w-full h-[50vh] sm:h-[55vh] lg:h-[60vh] overflow-hidden">
@@ -234,14 +310,19 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
               <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
-              onClick={() => setIsBookmarked(!isBookmarked)}
+              onClick={handleBookmarkClick}
+              disabled={isBookmarkLoading}
               className={`p-2.5 rounded-full backdrop-blur-md border shadow-lg transition-all duration-300 ${isBookmarked
                 ? 'bg-teal-500/80 border-teal-400/50 text-white'
                 : 'bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30'
-                }`}
-              title="Bookmark"
+                } ${isBookmarkLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              title={isBookmarked ? 'Remove from saved' : 'Save internship'}
             >
-              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+              {isBookmarkLoading ? (
+                <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+              ) : (
+                <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+              )}
             </button>
           </div>
 

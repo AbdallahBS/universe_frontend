@@ -1,19 +1,55 @@
 import { useAuth } from '@context/AuthContext';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles } from 'lucide-react';
+import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2 } from 'lucide-react';
 import TunisiaMap from '../components/TunisiaMap';
+import { getSavedInternships, unsaveInternship } from '@services/savedInternshipsService';
+import { LinkedInPost } from 'types/resource';
+import { timeAgo } from '@utils/helpers';
 
 interface DashboardProps {
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ }) => {
-  useEffect(() => {
-    document.title = 'Universe | Dashboard';
-  }, []);
+interface SavedInternship extends LinkedInPost {
+  savedAt?: string;
+}
 
+const Dashboard: React.FC<DashboardProps> = ({ }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  const [savedInternships, setSavedInternships] = useState<SavedInternship[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState(true);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = 'Universe | Dashboard';
+    fetchSavedInternships();
+  }, []);
+
+  const fetchSavedInternships = async () => {
+    try {
+      setLoadingSaved(true);
+      const data = await getSavedInternships();
+      setSavedInternships(data);
+    } catch (error) {
+      console.error('Error fetching saved internships:', error);
+    } finally {
+      setLoadingSaved(false);
+    }
+  };
+
+  const handleRemoveSaved = async (urn: string) => {
+    setRemovingId(urn);
+    try {
+      await unsaveInternship(urn);
+      setSavedInternships(prev => prev.filter(i => i.urn?.activity_urn !== urn));
+    } catch (error) {
+      console.error('Error removing saved internship:', error);
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
   // Get user initials for avatar fallback
   const getInitials = () => {
@@ -70,8 +106,94 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
           </div>
         </div>
 
-        {/* Section 2: Quick Actions */}
+        {/* Section 2: Saved Internships */}
         <div className="mb-10 animate-fade-in-up animation-delay-200">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <Bookmark className="w-5 h-5 text-teal-500" />
+            Saved Internships
+          </h2>
+
+          {loadingSaved ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+            </div>
+          ) : savedInternships.length === 0 ? (
+            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200/50 dark:border-slate-700/50 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                <Bookmark className="w-8 h-8 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No saved internships yet</h3>
+              <p className="text-slate-600 dark:text-slate-400 mb-4">Browse internships and click the bookmark icon to save them here.</p>
+              <button
+                onClick={() => navigate('/internships')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white font-medium rounded-lg transition-colors"
+              >
+                <Briefcase className="w-4 h-4" />
+                Browse Internships
+              </button>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {savedInternships.slice(0, 6).map((internship) => (
+                <div
+                  key={internship._id}
+                  className="group relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl transition-all duration-300"
+                >
+                  {/* Remove button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveSaved(internship.urn?.activity_urn);
+                    }}
+                    disabled={removingId === internship.urn?.activity_urn}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors z-10"
+                    title="Remove from saved"
+                  >
+                    {removingId === internship.urn?.activity_urn ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <X className="w-4 h-4" />
+                    )}
+                  </button>
+
+                  <div
+                    onClick={() => navigate(`/internship/${internship.urn?.activity_urn}`)}
+                    className="cursor-pointer"
+                  >
+                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-2 pr-8 line-clamp-2 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                      {internship.title || internship.text?.substring(0, 60) + '...'}
+                    </h3>
+
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-2">
+                      <Clock className="w-3 h-3" />
+                      <span>{timeAgo(internship.posted_at?.timestamp, Date.now())}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                        {internship.author?.first_name?.charAt(0) || 'U'}
+                      </div>
+                      <span className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                        {internship.author?.first_name} {internship.author?.last_name}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {savedInternships.length > 6 && (
+            <div className="mt-4 text-center">
+              <button className="text-sm text-teal-600 dark:text-teal-400 hover:underline">
+                View all {savedInternships.length} saved internships
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Section 3: Quick Actions */}
+        <div className="mb-10 animate-fade-in-up animation-delay-300">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <Rocket className="w-5 h-5 text-teal-500" />
             Quick Actions
