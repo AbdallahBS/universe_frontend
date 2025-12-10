@@ -11,6 +11,10 @@ interface ApiFetchOptions {
   requireAuth?: boolean;
 }
 
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const RAW_BASE = import.meta.env.VITE_API_URL;
 const BASE_URL = (RAW_BASE ?? "").replace(/\/$/, "");
 
@@ -104,6 +108,7 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
         await refreshPromise;
       }
 
+      await delay(300);
       // After successful refresh → retry original request once
       const retryResponse = await fetch(url, requestInit);
 
