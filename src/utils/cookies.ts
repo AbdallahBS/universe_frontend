@@ -38,8 +38,7 @@ export class CookieManager {
         const data = await apiFetch<any>('/v1/auth/me');
         return !!data;
       } catch (err: any) {
-        const message = typeof err?.message === 'string' ? err.message : 'Login failed';
-        throw new Error(message);
+        return false;
       }
   }
 
