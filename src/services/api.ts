@@ -36,6 +36,7 @@ async function refreshTokens(): Promise<void> {
       if (!response.ok) {
         isRefreshing = false;
         refreshPromise = null;
+        console.log("REFRESH_FAILED");
         throw new Error("REFRESH_FAILED");
       }
 
