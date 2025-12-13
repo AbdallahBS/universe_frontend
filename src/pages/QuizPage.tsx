@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
+import MatchingQuestion from '../components/quiz/MatchingQuestion';
 
 type QuizScreen = 'start' | 'quiz' | 'results';
 
@@ -10,7 +11,8 @@ export default function QuizPage() {
     const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
     const [showExplanation, setShowExplanation] = useState(false);
     const [score, setScore] = useState(0);
-    const [answers, setAnswers] = useState<{ questionId: number; selected: number[]; correct: boolean }[]>([]);
+    const [answers, setAnswers] = useState<{ questionId: number; selected: number[]; correct: boolean; matchingAnswers?: { [key: number]: number } }[]>([]);
+    const [matchingUserAnswers, setMatchingUserAnswers] = useState<{ [key: number]: number }>({});
 
     // Timer state
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -51,6 +53,7 @@ export default function QuizPage() {
         setScore(0);
         setAnswers([]);
         setElapsedTime(0);
+        setMatchingUserAnswers({});
         setScreen('quiz');
     };
 
@@ -98,9 +101,25 @@ export default function QuizPage() {
             setCurrentIndex(prev => prev + 1);
             setSelectedAnswers([]);
             setShowExplanation(false);
+            setMatchingUserAnswers({});
         } else {
             setScreen('results');
         }
+    };
+
+    // Handle matching question submission
+    const handleMatchingSubmit = (userMatches: { [key: number]: number }, isCorrect: boolean) => {
+        if (isCorrect) {
+            setScore(prev => prev + 1);
+        }
+        setMatchingUserAnswers(userMatches);
+        setShowExplanation(true);
+        setAnswers(prev => [...prev, {
+            questionId: currentQuestion.id,
+            selected: [],
+            correct: isCorrect,
+            matchingAnswers: userMatches
+        }]);
     };
 
     const restartQuiz = () => {
@@ -175,6 +194,8 @@ export default function QuizPage() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                             </svg>
                         </button>
+
+
                     </div>
                 </div>
             </div>
@@ -242,53 +263,67 @@ export default function QuizPage() {
                             </div>
                         )}
 
-                        {/* Options */}
-                        <div className="space-y-3 mb-6">
-                            {currentQuestion.options.map((option, index) => {
-                                const isSelected = selectedAnswers.includes(index);
-                                const isCorrectAnswer = currentQuestion.correctAnswers.includes(index);
-                                const isWrongSelection = isSelected && !isCorrectAnswer;
+                        {/* Matching Question Type */}
+                        {currentQuestion.type === 'matching' && currentQuestion.leftItems && currentQuestion.rightItems && currentQuestion.correctMatches && (
+                            <MatchingQuestion
+                                leftItems={currentQuestion.leftItems}
+                                rightItems={currentQuestion.rightItems}
+                                correctMatches={currentQuestion.correctMatches}
+                                onSubmit={handleMatchingSubmit}
+                                showResults={showExplanation}
+                                userMatches={matchingUserAnswers}
+                            />
+                        )}
 
-                                let buttonClass = 'bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border-2 border-transparent';
+                        {/* Options (for non-matching questions) */}
+                        {currentQuestion.type !== 'matching' && currentQuestion.options.length > 0 && (
+                            <div className="space-y-3 mb-6">
+                                {currentQuestion.options.map((option, index) => {
+                                    const isSelected = selectedAnswers.includes(index);
+                                    const isCorrectAnswer = currentQuestion.correctAnswers.includes(index);
+                                    const isWrongSelection = isSelected && !isCorrectAnswer;
 
-                                if (showExplanation) {
-                                    if (isCorrectAnswer) {
-                                        buttonClass = 'bg-green-50 dark:bg-green-900/30 border-2 border-green-500 text-green-700 dark:text-green-400';
-                                    } else if (isWrongSelection) {
-                                        buttonClass = 'bg-red-50 dark:bg-red-900/30 border-2 border-red-500 text-red-700 dark:text-red-400';
+                                    let buttonClass = 'bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border-2 border-transparent';
+
+                                    if (showExplanation) {
+                                        if (isCorrectAnswer) {
+                                            buttonClass = 'bg-green-50 dark:bg-green-900/30 border-2 border-green-500 text-green-700 dark:text-green-400';
+                                        } else if (isWrongSelection) {
+                                            buttonClass = 'bg-red-50 dark:bg-red-900/30 border-2 border-red-500 text-red-700 dark:text-red-400';
+                                        }
+                                    } else if (isSelected) {
+                                        buttonClass = 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500';
                                     }
-                                } else if (isSelected) {
-                                    buttonClass = 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500';
-                                }
 
-                                return (
-                                    <button
-                                        key={index}
-                                        onClick={() => handleAnswerSelect(index)}
-                                        disabled={showExplanation}
-                                        className={`w-full p-4 rounded-xl text-left transition-all ${buttonClass} ${!showExplanation ? 'cursor-pointer' : 'cursor-default'}`}
-                                    >
-                                        <div className="flex items-start gap-3">
-                                            <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-medium ${showExplanation && isCorrectAnswer
-                                                ? 'bg-green-500 text-white'
-                                                : showExplanation && isWrongSelection
-                                                    ? 'bg-red-500 text-white'
-                                                    : isSelected
-                                                        ? 'bg-blue-500 text-white'
-                                                        : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300'
-                                                }`}>
-                                                {isMultipleChoice ? (
-                                                    isSelected ? '✓' : String.fromCharCode(65 + index)
-                                                ) : (
-                                                    String.fromCharCode(65 + index)
-                                                )}
-                                            </span>
-                                            <span className="text-gray-700 dark:text-gray-300 pt-1">{option}</span>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleAnswerSelect(index)}
+                                            disabled={showExplanation}
+                                            className={`w-full p-4 rounded-xl text-left transition-all ${buttonClass} ${!showExplanation ? 'cursor-pointer' : 'cursor-default'}`}
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-medium ${showExplanation && isCorrectAnswer
+                                                    ? 'bg-green-500 text-white'
+                                                    : showExplanation && isWrongSelection
+                                                        ? 'bg-red-500 text-white'
+                                                        : isSelected
+                                                            ? 'bg-blue-500 text-white'
+                                                            : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300'
+                                                    }`}>
+                                                    {isMultipleChoice ? (
+                                                        isSelected ? '✓' : String.fromCharCode(65 + index)
+                                                    ) : (
+                                                        String.fromCharCode(65 + index)
+                                                    )}
+                                                </span>
+                                                <span className="text-gray-700 dark:text-gray-300 pt-1">{option}</span>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
 
                         {/* Submit Button for Multiple Choice */}
                         {isMultipleChoice && !showExplanation && (
@@ -366,20 +401,14 @@ export default function QuizPage() {
                                     <p className="text-xl font-semibold text-green-600 dark:text-green-400 mb-2">
                                         Félicitations ! Tu es prêt(e) pour l'examen final Cisco !
                                     </p>
-                                    <p className="text-2xl animate-pulse">
-                                        🚀 YEYYY! 🎊 🏆 🌟
-                                    </p>
+
                                 </div>
                             ) : (
                                 <div>
-                                    <h2 className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-2">
-                                        Hmmm... 🤔
-                                    </h2>
-                                    <p className="text-lg text-gray-700 dark:text-gray-300 mb-2">
-                                        Tu as encore du temps !
-                                    </p>
+
+
                                     <p className="text-xl font-semibold text-purple-600 dark:text-purple-400 animate-pulse">
-                                        Practice, practice, practice MOOOORRRRRE! 📚💪
+                                        Heekkkka Tawww 😭,
                                     </p>
                                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                                         Avant l'examen final, révise encore !

@@ -8,9 +8,13 @@ export interface CCNAQuestion {
     question: string;
     options: string[];
     correctAnswers: number[];
-    type: 'single' | 'multiple';
+    type: 'single' | 'multiple' | 'matching';
     explanation: string;
     imageUrl?: string;
+    // Pour le type matching
+    leftItems?: string[];
+    rightItems?: string[];
+    correctMatches?: { [leftIndex: number]: number };
 }
 
 export const ccnaQuestions: CCNAQuestion[] = [
@@ -105,11 +109,27 @@ export const ccnaQuestions: CCNAQuestion[] = [
     {
         id: 12,
         question: "Faites correspondre la description au composant d'adressage IPv6. (Toutes les options ne sont pas utilisées.)",
-        options: ["Cette partie réseau de l'adresse est attribuée par le fournisseur → routage global", "Cette partie de l'adresse est utilisée par une organisation pour identifier les sous-réseaux → ID du sous-réseau", "Cette partie de l'adresse est l'équivalent de la partie hôte d'une adresse IPv4 → ID d'interface"],
-        correctAnswers: [0, 1, 2],
-        type: 'multiple',
-        explanation: "Routage global = attribué par le fournisseur, ID du sous-réseau = identifier les sous-réseaux, ID d'interface = équivalent partie hôte IPv4.",
-        imageUrl: "https://itexamanswers.net/wp-content/uploads/2020/01/2020-03-26_171754.png"
+        type: 'matching',
+        leftItems: [
+            "Cette partie de l'adresse est utilisée par une organisation pour identifier les sous-réseaux",
+            "Cette partie réseau de l'adresse est attribuée par le fournisseur",
+            "Cette partie de l'adresse est l'équivalent de la partie hôte d'une adresse IPv4"
+        ],
+        rightItems: [
+            "global routing prefix",
+            "subnet mask",
+            "subnet ID",
+            "interface ID"
+        ],
+        correctMatches: {
+            0: 2,  // identifier les sous-réseaux → subnet ID
+            1: 0,  // attribuée par le fournisseur → global routing prefix
+            2: 3   // équivalent partie hôte → interface ID
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "Global routing prefix = attribué par le fournisseur, subnet ID = identifier les sous-réseaux, interface ID = équivalent partie hôte IPv4. Subnet mask n'est pas utilisé.",
+        imageUrl: ""
     },
     {
         id: 13,
@@ -123,11 +143,33 @@ export const ccnaQuestions: CCNAQuestion[] = [
     {
         id: 14,
         question: "Faites correspondre la caractéristique à la méthode de transfert. (Toutes les options ne sont pas utilisées.)",
-        options: ["Cut-through: faible latence, peut transmettre des cadres plus courts, commence le transfert lorsque l'adresse de destination est reçue", "Store-and-forward: stocke toujours l'intégralité du cadre, vérifie le CRC avant de le transmettre, vérifie la longueur du cadre avant de le transmettre"],
-        correctAnswers: [0, 1],
-        type: 'multiple',
-        explanation: "Un commutateur de stockage et de transfert stocke toujours la trame entière avant le transfert et vérifie son CRC et sa longueur de trame. Un commutateur de coupure peut transférer des trames avant de recevoir le champ d'adresse de destination, présentant ainsi moins de latence qu'un commutateur de stockage et de transfert.",
-        imageUrl: "https://itexamanswers.net/wp-content/uploads/2020/01/28.png"
+        type: 'matching',
+        leftItems: [
+            "stocke toujours l'intégralité de la trame",
+            "vérifie le CRC avant de transmettre",
+            "vérifie la longueur de la trame avant de transmettre",
+            "ne retransmet pas les diffusions",
+            "a une faible latence",
+            "peut transmettre des trames tronquées (runt frames)",
+            "commence le transfert lorsque l'adresse de destination est reçue"
+        ],
+        rightItems: [
+            "cut-through",
+            "store-and-forward"
+        ],
+        correctMatches: {
+            0: 1,  // stocke l'intégralité → store-and-forward
+            1: 1,  // vérifie CRC → store-and-forward
+            2: 1,  // vérifie longueur → store-and-forward
+            // 3: non utilisée (ne retransmet pas les diffusions)
+            4: 0,  // faible latence → cut-through
+            5: 0,  // trames tronquées → cut-through
+            6: 0   // commence transfert → cut-through
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "Rakez !!!  ",
+        imageUrl: ""
     },
     {
         id: 15,
@@ -149,10 +191,28 @@ export const ccnaQuestions: CCNAQuestion[] = [
     {
         id: 17,
         question: "Se référer à l'exposition. Faites correspondre le réseau avec l'adresse IP et le préfixe corrects qui satisferont aux exigences d'adressage de l'hôte utilisable pour chaque réseau.",
-        options: ["Réseau A: 192.168.0.128/25 (128 adresses)", "Réseau B: 192.168.0.0/26 (64 adresses)", "Réseau C: 192.168.0.96/27 (32 adresses)", "Réseau D: 192.168.0.80/30 (4 adresses)"],
-        correctAnswers: [0, 1, 2, 3],
-        type: 'multiple',
-        explanation: "Le réseau A doit utiliser 192.168.0.128/25, ce qui donne 128 adresses d'hôte. Le réseau B doit utiliser 192.168.0.0/26, ce qui donne 64 adresses d'hôte. Le réseau C doit utiliser 192.168.0.96/27, ce qui donne 32 adresses d'hôte. Le réseau D doit utiliser 192.168.0.80/30, ce qui donne 4 adresses d'hôte.",
+        type: 'matching',
+        leftItems: [
+            "Network A",
+            "Network B",
+            "Network C",
+            "Network D"
+        ],
+        rightItems: [
+            "192.168.0.128/25",
+            "192.168.0.0/26",
+            "192.168.0.96/27",
+            "192.168.0.80/30"
+        ],
+        correctMatches: {
+            0: 0,  // Network A → 192.168.0.128/25
+            1: 1,  // Network B → 192.168.0.0/26
+            2: 2,  // Network C → 192.168.0.96/27
+            3: 3   // Network D → 192.168.0.80/30
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "Network A → 192.168.0.128/25, Network B → 192.168.0.0/26, Network C → 192.168.0.96/27, Network D → 192.168.0.80/30.",
         imageUrl: "https://itexamanswers.net/wp-content/uploads/2020/01/i304956v6n1_207918.png"
     },
     {
@@ -238,12 +298,30 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 28,
-        question: "Se référer à l'exposition. Faites correspondre le réseau avec l'adresse IP et le préfixe corrects qui satisferont aux exigences d'adressage de l'hôte utilisable pour chaque réseau.",
-        options: ["Réseau A: 192.168.0.128/25", "Réseau B: 192.168.0.0/26", "Réseau C: 192.168.0.96/27", "Réseau D: 192.168.0.80/30"],
-        correctAnswers: [0, 1, 2, 3],
-        type: 'multiple',
-        explanation: "Le réseau A doit utiliser 192.168.0.128/25, le réseau B 192.168.0.0/26, le réseau C 192.168.0.96/27, et le réseau D 192.168.0.80/30.",
-        imageUrl: "https://itexamanswers.net/wp-content/uploads/2016/03/i208072v1n1_208072.png"
+        question: "Se référer à l'exposition. Faites correspondre le réseau avec l'adresse IP et le préfixe corrects qui satisferont aux exigences d'adressage de l'hôte utilisable pour chaque réseau. (Toutes les options ne sont pas utilisées.)",
+        type: 'matching',
+        leftItems: [
+            "Network A",
+            "Network B",
+            "Network C",
+            "Network D"
+        ],
+        rightItems: [
+            "192.168.0.0/25",
+            "192.168.0.128/26",
+            "192.168.0.192/27",
+            "192.168.0.224/30"
+        ],
+        correctMatches: {
+            0: 0,  // Network A → 192.168.0.0/25
+            1: 1,  // Network B → 192.168.0.128/26
+            2: 2,  // Network C → 192.168.0.192/27
+            3: 3   // Network D → 192.168.0.224/30
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "Network A → 192.168.0.0/25 (128 adresses), Network B → 192.168.0.128/26 (64 adresses), Network C → 192.168.0.192/27 (32 adresses), Network D → 192.168.0.224/30 (4 adresses).",
+        imageUrl: "https://itexamanswers.net/wp-content/uploads/2016/03/i207918v1n1_207918-1-1.jpg"
     },
     {
         id: 29,
@@ -255,13 +333,33 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 30,
-        question: "Quel PDU est traité lorsqu'un ordinateur hôte désencapsule un message à la couche transport du modèle TCP/IP ?",
-        options: ["bits", "trame", "paquet", "segment"],
-        correctAnswers: [3],
-        type: 'single',
-        explanation: "Au niveau de la couche transport du modèle TCP/IP, le PDU traité est le segment."
+        question: "Faites correspondre les protocoles d'application aux protocoles de transport appropriés.",
+        type: 'matching',
+        leftItems: [
+            "FTP",
+            "HTTP",
+            "DHCP",
+            "SMTP",
+            "TFTP"
+        ],
+        rightItems: [
+            "TCP",
+            "UDP"
+        ],
+        correctMatches: {
+            0: 0,  // FTP → TCP
+            1: 0,  // HTTP → TCP
+            2: 1,  // DHCP → UDP
+            3: 0,  // SMTP → TCP
+            4: 1   // TFTP → UDP
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "FTP, HTTP et SMTP utilisent TCP pour la fiabilité. DHCP et TFTP utilisent UDP pour leur simplicité.",
+        imageUrl: ""
     },
     {
+
         id: 31,
         question: "Quel service est fourni par SMTP ?",
         options: ["Permet aux clients d'envoyer des e-mails à un serveur de messagerie et aux serveurs d'envoyer des e-mails à d'autres serveurs.", "Permet l'accès à distance aux périphériques réseau et aux serveurs.", "Utilise le cryptage pour fournir un accès à distance sécurisé aux périphériques réseau et aux serveurs.", "Une application qui permet de discuter en temps réel entre utilisateurs distants."],
@@ -288,7 +386,7 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 34,
-        question: "Que signifie le terme 'atténuation' dans la communication de données ?",
+        question: "Que signifie le terme \"atténuation\" dans la communication de données ?",
         options: ["renforcement d'un signal par un dispositif réseau", "fuite de signaux d'une paire de câbles à une autre", "il est temps qu'un signal atteigne sa destination", "perte de force du signal à mesure que la distance augmente"],
         correctAnswers: [3],
         type: 'single',
@@ -483,12 +581,30 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 58,
-        question: "Faites correspondre le type de menace avec la cause. Menaces électriques →",
-        options: ["pics de tension, tension d'alimentation insuffisante (brownouts), puissance inconditionnée (bruit) et perte de puissance totale", "dommages physiques aux serveurs, routeurs, commutateurs, installations de câblage et postes de travail", "extrêmes de température (trop chaud ou trop froid) ou extrêmes d'humidité (trop humide ou trop sec)", "mauvaise manipulation des composants électriques clés (décharge électrostatique), manque de pièces de rechange critiques"],
-        correctAnswers: [0],
-        type: 'single',
-        explanation: "Les menaces électriques comprennent les pics de tension, les brownouts, le bruit électrique et la perte de puissance totale.",
-        imageUrl: "https://itexamanswers.net/wp-content/uploads/2019/12/2024-11-19_103653.jpg"
+        question: "Faites correspondre le type de menace avec la cause.",
+        type: 'matching',
+        leftItems: [
+            "electrical threats (menaces électriques)",
+            "hardware threats (menaces matérielles)",
+            "environmental threats (menaces environnementales)",
+            "maintenance threats (menaces de maintenance)"
+        ],
+        rightItems: [
+            "temperature extremes or humidity extremes (extrêmes de température ou d'humidité)",
+            "poor handling of electrical components, lack of spare parts (mauvaise manipulation, manque de pièces)",
+            "voltage spikes, brownouts, noise, power loss (pics de tension, brownouts, bruit, perte de puissance)",
+            "physical damage to servers, routers, switches (dommages physiques aux serveurs, routeurs)"
+        ],
+        correctMatches: {
+            0: 2,  // electrical threats → voltage spikes
+            1: 3,  // hardware threats → physical damage
+            2: 0,  // environmental threats → temperature extremes
+            3: 1   // maintenance threats → poor handling
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "Electrical threats = pics de tension, brownouts; Hardware threats = dommages physiques; Environmental threats = extrêmes de température/humidité; Maintenance threats = mauvaise manipulation des composants.",
+        imageUrl: ""
     },
     {
         id: 59,
@@ -524,7 +640,7 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 63,
-        question: "Un groupe de PC Windows dans un nouveau sous-réseau a été ajouté à un réseau Ethernet. Lors du test de connectivité, un technicien constate que ces PC peuvent accéder aux ressources du réseau local mais pas aux ressources Internet. Quelles sont les trois commandes et utilitaires Windows CLI qui fourniront les informations nécessaires ? (Choisissez-en trois.)",
+        question: "Un groupe de PC Windows dans un nouveau sous-réseau a été ajouté à un réseau Ethernet. Lors du test de connectivité, un technicien constate que ces PC peuvent accéder aux ressources du réseau local mais pas aux ressources Internet.Pour résoudre le problème, le technicien souhaite d'abord confirmer l'adresse IP et les configurations DNS sur les PC, et également vérifier la connectivité au routeur local. Quelles sont les trois commandes et utilitaires Windows CLI qui fourniront les informations nécessaires ? (Choisissez-en trois.)",
         options: ["interface netsh ipv6 show neighbor", "arp -a", "tracert", "ping", "ipconfig", "nslookup", "telnet"],
         correctAnswers: [3, 4, 5],
         type: 'multiple',
@@ -644,27 +760,27 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 78,
-        question: "Quelle caractéristique décrit un pare-feu ?",
-        options: ["applications qui protègent les appareils finaux contre l'infection par des logiciels malveillants", "un périphérique réseau qui filtre l'accès et le trafic entrant dans un réseau", "un protocole de tunneling qui offre aux utilisateurs distants un accès sécurisé au réseau d'une organisation", "logiciel sur un routeur qui filtre le trafic en fonction des adresses IP ou des applications"],
-        correctAnswers: [1],
+        question: "Un appareil compatible IPv6 envoie un paquet de données avec l'adresse de destination FF02::2. Quelle est la cible de ce paquet ?",
+        options: ["tous les appareils compatibles IPv6 sur la liaison locale", "tous les serveurs DHCP IPv6", "tous les appareils compatibles IPv6 sur le réseau", "tous les routeurs configurés IPv6 sur la liaison locale"],
+        correctAnswers: [3],
         type: 'single',
-        explanation: "Un pare-feu est un périphérique réseau qui filtre l'accès et le trafic entrant dans un réseau."
+        explanation: "FF02::2 identifie tous les routeurs IPv6 qui existent sur la liaison ou le réseau. FF02::1 est la cible de tous les appareils compatibles IPv6 sur la liaison ou le réseau."
     },
     {
         id: 79,
-        question: "Quel service est fourni par Telnet ?",
-        options: ["Utilise le cryptage pour sécuriser l'échange de texte, d'images graphiques, de son et de vidéo sur le Web.", "Résout les noms de domaine, tels que cisco.com, en adresses IP.", "Permet l'accès à distance aux périphériques réseau et aux serveurs.", "Une application qui permet de discuter en temps réel entre utilisateurs distants."],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "Telnet permet l'accès à distance aux périphériques réseau et aux serveurs, bien qu'il ne soit pas crypté."
+        question: "Quelles sont les trois parties d'une adresse unicast globale IPv6 ? (Choisissez-en trois.)",
+        options: ["ID du sous-réseau", "masque de sous-réseau", "adresse de diffusion", "préfixe de routage global", "ID d'interface"],
+        correctAnswers: [0, 3, 4],
+        type: 'multiple',
+        explanation: "Le format général des adresses de monodiffusion globales IPv6 comprend un préfixe de routage global, un ID de sous-réseau et un ID d'interface."
     },
     {
         id: 80,
-        question: "Quel service est fourni par SSH ?",
-        options: ["Utilise le cryptage pour fournir un accès à distance sécurisé aux périphériques réseau et aux serveurs.", "Résout les noms de domaine, tels que cisco.com, en adresses IP.", "Permet l'accès à distance aux périphériques réseau et aux serveurs sans cryptage.", "Une application qui permet de discuter en temps réel entre utilisateurs distants."],
-        correctAnswers: [0],
-        type: 'single',
-        explanation: "SSH (Secure Shell) utilise le cryptage pour fournir un accès à distance sécurisé aux périphériques réseau et aux serveurs."
+        question: "Un administrateur réseau conçoit la disposition d'un nouveau réseau sans fil. Quels sont les trois domaines de préoccupation à prendre en compte lors de la construction d'un réseau sans fil ? (Choisissez-en trois.)",
+        options: ["câblage étendu", "options de mobilité", "collision de paquets", "interférence", "sécurité", "zone de couverture"],
+        correctAnswers: [3, 4, 5],
+        type: 'multiple',
+        explanation: "Les trois domaines de préoccupation des réseaux sans fil se concentrent sur la taille de la zone de couverture, toute interférence à proximité et la sécurité du réseau."
     },
     {
         id: 81,
@@ -853,7 +969,7 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 104,
-        question: "Un administrateur réseau souhaite avoir le même masque réseau pour tous les réseaux d'un petit site particulier. Le site dispose de réseaux avec 22 téléphones IP, 20 PC, 2 imprimantes et 2 scanners. Quel masque de sous-réseau unique utiliserait le plus efficacement les adresses disponibles pour les quatre sous-réseaux ?",
+        question: "Un administrateur réseau souhaite avoir le même masque réseau pour tous les réseaux d’un petit site particulier. Le site dispose des réseaux et du nombre d'appareils suivants : Téléphones IP – 22 adresses PC – 20 adresses nécessaires Imprimantes – 2 adresses nécessaires Scanners – 2 adresses nécessaires",
         options: ["255.255.255.192", "255.255.255.252", "255.255.255.240", "255.255.255.248", "255.255.255.224"],
         correctAnswers: [4],
         type: 'single',
@@ -1014,7 +1130,7 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 124,
-        question: "Deux pings ont été émis par un hôte sur un réseau local. Le premier ping vers la passerelle par défaut a échoué. Le deuxième ping vers un hôte extérieur au réseau local a réussi. Quelle est la cause possible de l'échec du ping ?",
+        question: "Deux pings ont été émis par un hôte sur un réseau local. Le premier ping a été émis vers l’adresse IP de la passerelle par défaut de l’hôte et il a échoué. Le deuxième ping a été émis vers l’adresse IP d’un hôte extérieur au réseau local et il a réussi. Quelle est la cause possible de l’échec du ping ?",
         options: ["La passerelle par défaut n'est pas opérationnelle.", "Le périphérique de passerelle par défaut est configuré avec la mauvaise adresse IP.", "Des règles de sécurité sont appliquées au périphérique passerelle par défaut, l'empêchant de traiter les requêtes ping.", "La pile TCP/IP sur la passerelle par défaut ne fonctionne pas correctement."],
         correctAnswers: [2],
         type: 'single',
@@ -1030,107 +1146,107 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 126,
-        question: "Quel type d'adresse IPv6 est FE80::1 ?",
-        options: ["link-local", "loopback", "multicast", "global unicast"],
-        correctAnswers: [0],
+        question: "Se référer à l'exposition. Les commutateurs sont dans leur configuration par défaut. L'hôte A doit communiquer avec l'hôte D, mais l'hôte A ne dispose pas de l'adresse MAC de sa passerelle par défaut. Quels hôtes réseau recevront la requête ARP envoyée par l'hôte A ?",
+        options: ["uniquement l'hôte D", "héberge uniquement A, B, C et D", "héberge uniquement les hôtes B et C", "héberge uniquement B, C et le routeur R1", "héberge uniquement A, B et C", "uniquement le routeur R1"],
+        correctAnswers: [3],
         type: 'single',
-        explanation: "FE80::/10 est la plage des adresses link-local en IPv6."
+        explanation: "Étant donné que l'hôte A ne dispose pas de l'adresse MAC de la passerelle par défaut dans sa table ARP, l'hôte A envoie une diffusion ARP. Les hôtes B, C et le routeur R1 recevraient la diffusion."
     },
     {
         id: 127,
-        question: "Quelle couche OSI fournit le cryptage et la compression des données ?",
-        options: ["application", "présentation", "session", "transport"],
-        correctAnswers: [1],
+        question: "Se référer à l'exposition. Les commutateurs sont dans leur configuration par défaut. L'hôte A doit communiquer avec l'hôte D, mais l'hôte A ne dispose pas de l'adresse MAC de sa passerelle par défaut. Quels hôtes réseau recevront la requête ARP envoyée par l'hôte A ?",
+        options: ["uniquement l'hôte D", "uniquement le routeur R1", "héberge uniquement A, B et C", "héberge uniquement A, B, C et D", "héberge uniquement les hôtes B et C", "héberge uniquement B, C et le routeur R1"],
+        correctAnswers: [5],
         type: 'single',
-        explanation: "La couche présentation (couche 6) du modèle OSI fournit le cryptage et la compression des données."
+        explanation: "Étant donné que l'hôte A ne dispose pas de l'adresse MAC de la passerelle par défaut dans la table ARP, l'hôte A envoie une diffusion ARP. La diffusion ARP serait envoyée à tous les appareils du réseau local."
     },
     {
         id: 128,
-        question: "Quel protocole de couche application utilise les types de messages GET, PUT et POST ?",
-        options: ["DNS", "DHCP", "SMTP", "HTTP"],
-        correctAnswers: [3],
+        question: "Quelle technologie sans fil a des exigences de faible puissance et de faible débit de données, ce qui la rend populaire dans les environnements IoT ?",
+        options: ["Bluetooth", "Zigbee", "WiMAX", "Wi-Fi"],
+        correctAnswers: [1],
         type: 'single',
-        explanation: "HTTP utilise les méthodes GET, PUT et POST pour les requêtes vers les serveurs Web."
+        explanation: "Zigbee est une spécification utilisée pour les communications à faible débit de données et à faible consommation d'énergie. Il est généralement utilisé pour les environnements industriels et de l'Internet des objets (IoT)."
     },
     {
         id: 129,
-        question: "Quelle est la plage d'adresses IPv4 privées de classe A ?",
-        options: ["10.0.0.0 - 10.255.255.255", "172.16.0.0 - 172.31.255.255", "192.168.0.0 - 192.168.255.255", "169.254.0.0 - 169.254.255.255"],
-        correctAnswers: [0],
-        type: 'single',
-        explanation: "La plage d'adresses IPv4 privées de classe A est 10.0.0.0 à 10.255.255.255 (10.0.0.0/8)."
+        question: "Quels sont les deux types de messages ICMPv6 qui doivent être autorisés via les listes de contrôle d'accès IPv6 pour permettre la résolution des adresses de couche 3 en adresses MAC de couche 2 ? (Choisissez-en deux.)",
+        options: ["sollicitations de voisins", "demandes d'écho", "publicités de voisins", "réponses en écho", "sollicitations de routeurs", "publicités du routeur"],
+        correctAnswers: [0, 2],
+        type: 'multiple',
+        explanation: "Les sollicitations de voisins et les publicités de voisins sont utilisées pour la résolution d'adresses IPv6 en adresses MAC."
     },
     {
         id: 130,
-        question: "Quelle technologie Ethernet à haute vitesse utilise des câbles en fibre optique ?",
-        options: ["1000BASE-T", "100BASE-TX", "10GBASE-SR", "10BASE-T"],
-        correctAnswers: [2],
+        question: "Un client utilise SLAAC pour obtenir une adresse IPv6 pour son interface. Une fois qu'une adresse a été générée et appliquée à l'interface, que doit faire le client avant de pouvoir commencer à utiliser cette adresse IPv6 ?",
+        options: ["Il doit envoyer un message DHCPv6 INFORMATION-REQUEST pour demander l'adresse du serveur DNS.", "Il doit envoyer un message DHCPv6 REQUEST au serveur DHCPv6 pour demander l'autorisation d'utiliser cette adresse.", "Il doit envoyer un message de sollicitation de routeur ICMPv6 pour déterminer quelle passerelle par défaut il doit utiliser.", "Il doit envoyer un message ICMPv6 Neighbor Solicitation pour s'assurer que l'adresse n'est pas déjà utilisée sur le réseau."],
+        correctAnswers: [3],
         type: 'single',
-        explanation: "10GBASE-SR utilise des câbles en fibre optique multimode pour le 10 Gigabit Ethernet."
+        explanation: "Avant d'utiliser une adresse IPv6 générée par SLAAC, le client doit effectuer une détection d'adresse dupliquée (DAD) via Neighbor Solicitation."
     },
     {
         id: 131,
-        question: "Quel protocole fournit une authentification sécurisée des utilisateurs pour l'accès aux équipements réseau ?",
-        options: ["SNMP", "SSH", "Telnet", "FTP"],
-        correctAnswers: [1],
+        question: "Deux pings ont été émis par un hôte sur un réseau local. Le premier ping a été émis vers l'adresse IP de la passerelle par défaut de l'hôte et il a échoué. Le deuxième ping a été émis vers l'adresse IP d'un hôte extérieur au réseau local et il a réussi. Quelle est la cause possible de l'échec du ping ?",
+        options: ["La passerelle par défaut n'est pas opérationnelle.", "Le périphérique de passerelle par défaut est configuré avec la mauvaise adresse IP.", "Des règles de sécurité sont appliquées au périphérique passerelle par défaut, l'empêchant de traiter les requêtes ping.", "La pile TCP/IP sur la passerelle par défaut ne fonctionne pas correctement."],
+        correctAnswers: [2],
         type: 'single',
-        explanation: "SSH fournit une authentification sécurisée et cryptée pour l'accès aux équipements réseau."
+        explanation: "Si le ping vers l'extérieur réussit mais pas vers la passerelle, c'est probablement que des règles de sécurité empêchent la passerelle de répondre aux pings."
     },
     {
         id: 132,
-        question: "Quelle commande affiche les statistiques de l'interface sur un routeur Cisco ?",
-        options: ["show ip route", "show interfaces", "show running-config", "show version"],
-        correctAnswers: [1],
+        question: "Une organisation se voit attribuer un bloc d'adresse IPv6 de 2001:db8:0:ca00::/56. Combien de sous-réseaux peuvent être créés sans utiliser de bits dans l'espace ID de l'interface ?",
+        options: ["256", "512", "1024", "4096"],
+        correctAnswers: [0],
         type: 'single',
-        explanation: "La commande show interfaces affiche les statistiques détaillées de toutes les interfaces du routeur."
+        explanation: "Avec un préfixe /56 et un ID d'interface standard de 64 bits, il reste 8 bits pour les sous-réseaux, soit 2^8 = 256 sous-réseaux."
     },
     {
         id: 133,
-        question: "Quel est le but principal d'un VLAN ?",
-        options: ["augmenter la bande passante", "segmenter le trafic réseau", "fournir un accès Internet", "connecter différents bâtiments"],
-        correctAnswers: [1],
+        question: "Quel masque de sous-réseau est nécessaire si un réseau IPv4 dispose de 40 appareils nécessitant des adresses IP et que l'espace d'adressage ne doit pas être gaspillé ?",
+        options: ["255.255.255.0", "255.255.255.240", "255.255.255.128", "255.255.255.192", "255.255.255.224"],
+        correctAnswers: [3],
         type: 'single',
-        explanation: "Le but principal d'un VLAN est de segmenter le trafic réseau en domaines de diffusion logiques séparés."
+        explanation: "Pour 40 appareils, 6 bits hôtes sont nécessaires. Le masque 255.255.255.192 (/26) donne 62 adresses hôtes utilisables."
     },
     {
         id: 134,
-        question: "Quelle est la distance maximale recommandée pour un câble UTP Cat6 dans un réseau Ethernet ?",
-        options: ["50 mètres", "100 mètres", "150 mètres", "200 mètres"],
-        correctAnswers: [1],
+        question: "Se référer à l'exposition. Si l'hôte A envoie un paquet IP à l'hôte B, quelle sera l'adresse de destination dans la trame lorsqu'il quittera l'hôte A ?",
+        options: ["DD:DD:DD:DD:DD:DD", "172.168.10.99", "CC:CC:CC:CC:CC:CC", "172.168.10.65", "BB:BB:BB:BB:BB:BB", "AA:AA:AA:AA:AA:AA"],
+        correctAnswers: [4],
         type: 'single',
-        explanation: "La distance maximale recommandée pour un câble UTP Cat6 en Ethernet est de 100 mètres."
+        explanation: "Lorsqu'un hôte envoie des informations à un réseau distant, l'adresse de destination sera l'adresse MAC attribuée à l'interface du routeur."
     },
     {
         id: 135,
-        question: "Quel protocole est utilisé pour résoudre les adresses IPv4 en adresses MAC ?",
-        options: ["DNS", "DHCP", "ARP", "ICMP"],
-        correctAnswers: [2],
+        question: "Quel est l'avantage d'utiliser le cloud computing dans les réseaux ?",
+        options: ["La technologie est intégrée aux appareils du quotidien, leur permettant de s'interconnecter avec d'autres appareils.", "Les capacités du réseau sont étendues sans nécessiter d'investissement dans de nouvelles infrastructures, du personnel ou des logiciels.", "Les utilisateurs finaux ont la liberté d'utiliser des outils personnels pour accéder à l'information.", "Les réseaux domestiques utilisent le câblage électrique existant pour connecter les appareils au réseau."],
+        correctAnswers: [1],
         type: 'single',
-        explanation: "ARP (Address Resolution Protocol) résout les adresses IPv4 en adresses MAC."
+        explanation: "Le cloud computing étend les capacités informatiques sans nécessiter d'investissement dans une nouvelle infrastructure, de formation de nouveau personnel ou d'octroi de licences pour de nouveaux logiciels."
     },
     {
         id: 136,
-        question: "Quelle est la fonction principale d'un routeur ?",
-        options: ["connecter des périphériques au sein d'un même réseau", "transférer des paquets entre différents réseaux", "fournir des services de pare-feu", "convertir les signaux analogiques en numériques"],
-        correctAnswers: [1],
-        type: 'single',
-        explanation: "La fonction principale d'un routeur est de transférer des paquets entre différents réseaux."
+        question: "Quelles sont les deux affirmations correctes concernant les adresses MAC et IP lors de la transmission de données si NAT n'est pas impliqué ? (Choisissez-en deux.)",
+        options: ["Les adresses IP de destination dans un en-tête de paquet restent constantes tout au long du chemin vers un hôte cible.", "Les adresses MAC de destination ne changeront jamais dans une trame qui traverse sept routeurs.", "Chaque fois qu'une trame est encapsulée avec une nouvelle adresse MAC de destination, une nouvelle adresse IP de destination est nécessaire.", "Les adresses MAC de destination et de source ont une signification locale et changent chaque fois qu'une trame passe d'un réseau local à un autre.", "Un paquet qui a traversé quatre routeurs a changé l'adresse IP de destination quatre fois."],
+        correctAnswers: [0, 3],
+        type: 'multiple',
+        explanation: "Les adresses IP restent constantes pendant la transmission, mais les adresses MAC changent à chaque saut entre réseaux locaux."
     },
     {
         id: 137,
-        question: "Quel type de câble est utilisé pour connecter directement deux ordinateurs ?",
-        options: ["câble droit", "câble croisé", "câble rollover", "câble coaxial"],
-        correctAnswers: [1],
+        question: "Quelle est l'une des principales caractéristiques de la couche de liaison de données ?",
+        options: ["Il génère les signaux électriques ou optiques qui représentent le 1 et le 0 sur le support.", "Il convertit un flux de bits de données en un code prédéfini.", "Il empêche le protocole de couche supérieure de connaître le support physique à utiliser dans la communication.", "Il accepte les paquets de couche 3 et décide du chemin par lequel transmettre le paquet à un réseau distant."],
+        correctAnswers: [2],
         type: 'single',
-        explanation: "Un câble croisé est utilisé pour connecter directement deux ordinateurs sans passer par un commutateur."
+        explanation: "La couche de liaison de données empêche le protocole de couche supérieure de connaître le support physique utilisé."
     },
     {
         id: 138,
-        question: "Quelle couche du modèle OSI est responsable de l'adressage logique ?",
-        options: ["couche 1", "couche 2", "couche 3", "couche 4"],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "La couche 3 (réseau) du modèle OSI est responsable de l'adressage logique (adresses IP)."
+        question: "Quelles sont les trois caractéristiques du procédé CSMA/CD ? (Choisissez-en trois.)",
+        options: ["L'appareil doté du jeton électronique est le seul à pouvoir transmettre après une collision.", "Un appareil écoute et attend que le média ne soit pas occupé avant de transmettre.", "Après avoir détecté une collision, les hôtes peuvent tenter de reprendre la transmission après l'expiration d'un délai aléatoire.", "Tous les appareils d'un segment voient les données transmises sur le support réseau.", "Un signal de brouillage indique que la collision est terminée et que les médias ne sont pas occupés.", "Les appareils peuvent être configurés avec une priorité de transmission plus élevée."],
+        correctAnswers: [1, 2, 3],
+        type: 'multiple',
+        explanation: "CSMA/CD: écoute avant transmission, délai aléatoire après collision, et tous les appareils voient les données transmises."
     },
     {
         id: 139,
@@ -1140,46 +1256,11 @@ export const ccnaQuestions: CCNAQuestion[] = [
         type: 'single',
         explanation: "La commutation store-and-forward vérifie les erreurs (FCS) avant de transmettre la trame."
     },
-    {
-        id: 140,
-        question: "Quel protocole de routage utilise le concept de 'distance administrative' ?",
-        options: ["uniquement OSPF", "uniquement EIGRP", "uniquement RIP", "tous les protocoles de routage"],
-        correctAnswers: [3],
-        type: 'single',
-        explanation: "Tous les protocoles de routage utilisent le concept de distance administrative pour déterminer la fiabilité d'une route."
-    },
-    {
-        id: 141,
-        question: "Quelle est la taille d'une adresse IPv6 ?",
-        options: ["32 bits", "64 bits", "96 bits", "128 bits"],
-        correctAnswers: [3],
-        type: 'single',
-        explanation: "Une adresse IPv6 a une taille de 128 bits."
-    },
-    {
-        id: 142,
-        question: "Quel protocole est utilisé pour transférer des fichiers de manière sécurisée ?",
-        options: ["FTP", "TFTP", "SFTP", "HTTP"],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "SFTP (SSH File Transfer Protocol) est utilisé pour transférer des fichiers de manière sécurisée."
-    },
-    {
-        id: 143,
-        question: "Quelle commande Cisco IOS est utilisée pour entrer en mode de configuration globale ?",
-        options: ["enable", "configure terminal", "interface", "line console 0"],
-        correctAnswers: [1],
-        type: 'single',
-        explanation: "La commande 'configure terminal' permet d'entrer en mode de configuration globale."
-    },
-    {
-        id: 144,
-        question: "Quel type de trafic utilise UDP plutôt que TCP ?",
-        options: ["navigation Web", "transfert de fichiers", "streaming vidéo en temps réel", "messagerie électronique"],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "Le streaming vidéo en temps réel utilise UDP car la vitesse est plus importante que la fiabilité."
-    },
+
+
+
+
+
     {
         id: 145,
         question: "Quelle est la fonction d'un serveur DNS ?",
@@ -1188,37 +1269,101 @@ export const ccnaQuestions: CCNAQuestion[] = [
         type: 'single',
         explanation: "Un serveur DNS résout les noms de domaine en adresses IP."
     },
+
+
+
+
+    {
+        id: 140,
+        question: "Quelles sont les deux commandes qui peuvent être utilisées sur un hôte Windows pour afficher la table de routage ? (Choisissez-en deux.)",
+        options: ["netstat -s", "route print", "show ip route", "netstat -r", "tracert"],
+        correctAnswers: [1, 3],
+        type: 'multiple',
+        explanation: "Sur un hôte Windows, les commandes route print ou netstat -r peuvent être utilisées pour afficher la table de routage."
+    },
+    {
+        id: 141,
+        question: "Quelles sont les deux fonctions fournies par la couche réseau ? (Choisissez-en deux.)",
+        options: ["diriger les paquets de données vers les hôtes de destination sur d'autres réseaux", "placer des données sur le support réseau", "transport de données entre les processus", "fournir des connexions de bout en bout dédiées", "fournir aux appareils finaux un identifiant de réseau unique"],
+        correctAnswers: [0, 4],
+        type: 'multiple',
+        explanation: "La couche réseau s'occupe de transmettre des données et fournit des identifiants uniques avec les adresses IP."
+    },
+    {
+        id: 142,
+        question: "Quelles sont les deux instructions décrivant les fonctionnalités d'une table de routage IPv4 ? (Choisissez-en deux.)",
+        options: ["Les interfaces directement connectées auront deux codes sources de route : C et S.", "L'itinéraire avec la valeur métrique la plus élevée est inclus.", "La commande netstat -r affiche la table de routage.", "La table de routage répertorie les adresses MAC.", "Il stocke des informations sur les itinéraires dérivés des interfaces actives.", "Une route statique par défaut a le code source S."],
+        correctAnswers: [4, 5],
+        type: 'multiple',
+        explanation: "La table de routage stocke des informations sur les itinéraires et les routes statiques ont le code S."
+    },
+    {
+        id: 143,
+        question: "Quelle caractéristique décrit un VPN ?",
+        options: ["logiciel sur un routeur qui filtre le trafic", "logiciel qui identifie les menaces à propagation rapide", "un protocole de tunneling qui offre aux utilisateurs distants un accès sécurisé", "un périphérique réseau qui filtre l'accès et le trafic"],
+        correctAnswers: [2],
+        type: 'single',
+        explanation: "Un VPN est un protocole de tunneling qui offre aux utilisateurs distants un accès sécurisé."
+    },
+    {
+        id: 144,
+        question: "Pourquoi un commutateur de couche 2 aurait-il besoin d'une adresse IP ?",
+        options: ["pour envoyer des trames de diffusion", "pour fonctionner comme passerelle par défaut", "pour permettre la gestion à distance", "pour recevoir des trames des PC connectés"],
+        correctAnswers: [2],
+        type: 'single',
+        explanation: "Un commutateur a besoin d'une adresse IP pour la gestion à distance."
+    },
     {
         id: 146,
-        question: "Quelle est la plage des ports bien connus (well-known ports) ?",
-        options: ["0 à 255", "0 à 1023", "1024 à 49151", "49152 à 65535"],
-        correctAnswers: [1],
+        question: "Un utilisateur envoie une requête HTTP à un serveur Web sur un réseau distant. Lors de l'encapsulation de cette requête, quelles informations sont ajoutées au champ d'adresse d'une trame pour indiquer la destination ?",
+        options: ["le domaine réseau de l'hôte de destination", "l'adresse IP de la passerelle par défaut", "l'adresse MAC de l'hôte de destination", "l'adresse MAC de la passerelle par défaut"],
+        correctAnswers: [3],
         type: 'single',
-        explanation: "Les ports bien connus (well-known ports) vont de 0 à 1023."
+        explanation: "Une trame est encapsulée avec l'adresse MAC de la passerelle par défaut comme destination pour atteindre un réseau distant."
     },
     {
         id: 147,
-        question: "Quel protocole de la couche transport garantit la livraison des données ?",
-        options: ["IP", "UDP", "TCP", "ICMP"],
-        correctAnswers: [2],
+        question: "Quel est l'avantage d'utiliser un protocole défini par une norme ouverte ?",
+        options: ["Une entreprise peut monopoliser le marché.", "Le protocole ne peut être exécuté que sur un équipement d'un fournisseur spécifique.", "Un protocole standard ouvert n'est pas contrôlé par les organismes de normalisation.", "Elle encourage la concurrence et favorise les choix."],
+        correctAnswers: [3],
         type: 'single',
-        explanation: "TCP garantit la livraison des données grâce à ses mécanismes d'accusé de réception et de retransmission."
+        explanation: "Un protocole standard ouvert sera généralement mis en œuvre par un large éventail de fournisseurs, encourageant la concurrence."
     },
     {
         id: 148,
-        question: "Quelle topologie réseau offre la plus haute tolérance aux pannes ?",
-        options: ["bus", "étoile", "anneau", "maillée complète"],
-        correctAnswers: [3],
-        type: 'single',
-        explanation: "La topologie maillée complète offre la plus haute tolérance aux pannes car chaque nœud est connecté à tous les autres."
+        question: "Les données sont envoyées depuis un PC source vers un serveur de destination. Quelles sont les trois instructions qui décrivent correctement la fonction de TCP ou UDP ? (Choisissez-en trois.)",
+        options: ["Le champ du port source identifie l'application ou le service qui gérera les données renvoyées au PC.", "Le processus TCP sélectionne aléatoirement le port de destination lors de l'établissement d'une session.", "Les segments UDP sont encapsulés dans des paquets IP pour être transportés.", "Le numéro de port de destination UDP identifie l'application ou le service sur le serveur.", "TCP est préféré lorsqu'une fonction nécessite une surcharge réseau plus faible.", "Le numéro de port source TCP identifie l'hôte expéditeur."],
+        correctAnswers: [0, 2, 3],
+        type: 'multiple',
+        explanation: "Les numéros de port source identifient l'application, les segments UDP sont encapsulés dans des paquets IP, et le port de destination UDP identifie le service."
     },
     {
         id: 149,
-        question: "Quel est le port par défaut pour HTTPS ?",
-        options: ["80", "21", "443", "25"],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "Le port par défaut pour HTTPS est 443."
+        question: "Faites correspondre chaque description avec le mécanisme TCP correspondant.",
+        type: 'matching',
+        leftItems: [
+            "nombre d'octets qu'un périphérique peut accepter",
+            "utilisé pour identifier les segments manquants",
+            "méthode de gestion des segments perdus",
+            "reçu par un expéditeur avant de transmettre plus de segments"
+        ],
+        rightItems: [
+            "acknowledgment",
+            "retransmission",
+            "FCS",
+            "sequence numbers",
+            "window size"
+        ],
+        correctMatches: {
+            0: 4,  // nombre d'octets → window size
+            1: 3,  // identifier segments manquants → sequence numbers
+            2: 1,  // gestion segments perdus → retransmission
+            3: 0   // reçu par expéditeur → acknowledgment
+        },
+        options: [],
+        correctAnswers: [],
+        explanation: "Window size pour le nombre d'octets, sequence numbers pour identifier les segments, retransmission pour gérer les pertes, acknowledgment reçu avant de transmettre.",
+        imageUrl: "https://itexamanswers.net/wp-content/uploads/2020/01/20.jpg"
     },
     {
         id: 150,
@@ -1230,11 +1375,11 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 151,
-        question: "Quel est le rôle de la couche application dans le modèle OSI ?",
-        options: ["transporter les données de bout en bout", "gérer les sessions de communication", "fournir des services réseau aux applications utilisateur", "assurer l'adressage logique"],
-        correctAnswers: [2],
+        question: "Un administrateur réseau souhaite avoir le même masque de sous-réseau pour trois sous-réseaux. Le site dispose de: Sous-réseau A: 10 adresses, Sous-réseau B: 8 adresses, Sous-réseau C: 2 adresses. Quel masque de sous-réseau unique serait approprié ?",
+        options: ["255.255.255.0", "255.255.255.240", "255.255.255.248", "255.255.255.252"],
+        correctAnswers: [1],
         type: 'single',
-        explanation: "La couche application fournit des services réseau directement aux applications utilisateur."
+        explanation: "Avec 10 hôtes maximum, 4 bits d'hôte sont nécessaires. Le masque /28 (255.255.255.240) fournit 14 adresses utilisables."
     },
     {
         id: 152,
@@ -1246,27 +1391,27 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 153,
-        question: "Quel mécanisme TCP est utilisé pour établir une connexion ?",
-        options: ["fenêtre glissante", "accusé de réception", "poignée de main à trois voies", "numérotation des séquences"],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "TCP utilise la poignée de main à trois voies (SYN, SYN-ACK, ACK) pour établir une connexion."
+        question: "Quelles sont les deux informations affichées dans la sortie de la commande show ip interface brief ? (Choisissez-en deux.)",
+        options: ["Adresses IP", "descriptions d'interface", "Adresses MAC", "adresses du prochain saut", "Statuts de couche 1", "réglages de vitesse et duplex"],
+        correctAnswers: [0, 4],
+        type: 'multiple',
+        explanation: "La commande show ip interface brief affiche l'adresse IP et l'état opérationnel aux couches 1 et 2."
     },
     {
         id: 154,
-        question: "Quelle est la fonction principale d'un commutateur de couche 2 ?",
-        options: ["router les paquets entre réseaux", "transférer les trames basées sur les adresses MAC", "filtrer le trafic basé sur les adresses IP", "gérer les connexions sans fil"],
-        correctAnswers: [1],
+        question: "Un utilisateur se plaint qu'une page Web externe prend plus de temps que d'habitude à charger. Quel outil le technicien doit-il utiliser afin de localiser où se situe le problème ?",
+        options: ["ping", "nslookup", "tracert", "ipconfig /displaydns"],
+        correctAnswers: [2],
         type: 'single',
-        explanation: "Un commutateur de couche 2 transfère les trames en fonction des adresses MAC."
+        explanation: "La commande tracert mappera le chemin du PC au serveur Web et mesurera les délais de transit."
     },
     {
         id: 155,
-        question: "Quel protocole est utilisé pour la découverte des appareils sur un réseau local Cisco ?",
-        options: ["SNMP", "CDP", "LLDP", "ARP"],
-        correctAnswers: [1],
+        question: "Quelle valeur, contenue dans un champ d'en-tête IPv4, est décrémentée par chaque routeur qui reçoit un paquet ?",
+        options: ["Longueur de l'en-tête", "Services différenciés", "Temps de vie", "Décalage des fragments"],
+        correctAnswers: [2],
         type: 'single',
-        explanation: "CDP (Cisco Discovery Protocol) est utilisé pour la découverte des appareils Cisco sur un réseau local."
+        explanation: "Le routeur décrémente le champ Time-to-Live (TTL) de 1 à chaque saut."
     },
     {
         id: 156,
@@ -1278,35 +1423,27 @@ export const ccnaQuestions: CCNAQuestion[] = [
     },
     {
         id: 157,
-        question: "Quel type d'adresse IPv4 permet la communication un-à-plusieurs ?",
-        options: ["unicast", "broadcast", "multicast", "anycast"],
-        correctAnswers: [2],
-        type: 'single',
-        explanation: "Les adresses multicast permettent la communication un-à-plusieurs à un groupe spécifique de destinataires."
+        question: "Un technicien réseau étudie l'utilisation du câblage à fibre optique. Quelles sont les deux questions à prendre en compte ? (Choisissez-en deux.)",
+        options: ["Le câblage à fibre optique nécessite une expertise en terminaison et épissage différente du cuivre.", "Le câblage à fibre optique nécessite une mise à la terre spécifique contre les EMI.", "Le câblage à fibre optique est sensible à la perte de signal due aux RFI.", "Le câble à fibre optique peut résister à une manipulation brutale.", "La fibre optique offre une capacité plus élevée mais est plus chère que le cuivre."],
+        correctAnswers: [0, 4],
+        type: 'multiple',
+        explanation: "La fibre optique est plus chère et nécessite des compétences différentes pour terminer et épisser."
     },
     {
         id: 158,
-        question: "Quelle commande Cisco IOS enregistre la configuration courante dans la NVRAM ?",
-        options: ["copy startup-config running-config", "copy running-config startup-config", "write memory", "Les deux B et C sont correctes"],
+        question: "Un utilisateur exécute un tracert sur un appareil distant. À quel moment un routeur cesserait-il de transférer le paquet ?",
+        options: ["lorsque le routeur reçoit un message ICMP Time Exceed", "lorsque la valeur RTT atteint zéro", "lorsque l'hôte répond avec un Echo Reply", "lorsque la valeur dans le champ TTL atteint zéro", "lorsque les valeurs Echo Request et Echo Reply atteignent zéro"],
         correctAnswers: [3],
         type: 'single',
-        explanation: "Les commandes 'copy running-config startup-config' et 'write memory' enregistrent toutes deux la configuration dans la NVRAM."
+        explanation: "Le routeur décrémente le TTL de 1 à chaque saut. Quand il atteint zéro, le paquet n'est plus transféré."
     },
     {
         id: 159,
-        question: "Quel protocole est utilisé pour synchroniser les horloges des appareils sur un réseau ?",
-        options: ["SNMP", "NTP", "SMTP", "SNTP"],
+        question: "Les utilisateurs signalent que l'accès au réseau est lent. Un employé avait téléchargé un programme tiers. Quel type de logiciel malveillant pourrait être introduit ?",
+        options: ["virus", "ver", "hameçonnage", "spam"],
         correctAnswers: [1],
         type: 'single',
-        explanation: "NTP (Network Time Protocol) est utilisé pour synchroniser les horloges des appareils sur un réseau."
-    },
-    {
-        id: 160,
-        question: "Quelle est la fonction du champ TTL dans un paquet IPv4 ?",
-        options: ["identifier le protocole de couche supérieure", "limiter le nombre de sauts qu'un paquet peut effectuer", "vérifier l'intégrité de l'en-tête", "indiquer la priorité du paquet"],
-        correctAnswers: [1],
-        type: 'single',
-        explanation: "Le champ TTL (Time to Live) limite le nombre de sauts qu'un paquet peut effectuer avant d'être rejeté."
+        explanation: "Un ver (worm) peut se propager sur le réseau et causer des ralentissements de performance."
     }
 ];
 
