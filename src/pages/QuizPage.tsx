@@ -1,0 +1,473 @@
+import { useState, useEffect, useRef } from 'react';
+import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
+
+type QuizScreen = 'start' | 'quiz' | 'results';
+
+export default function QuizPage() {
+    const [screen, setScreen] = useState<QuizScreen>('start');
+    const [questions, setQuestions] = useState<CCNAQuestion[]>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
+    const [showExplanation, setShowExplanation] = useState(false);
+    const [score, setScore] = useState(0);
+    const [answers, setAnswers] = useState<{ questionId: number; selected: number[]; correct: boolean }[]>([]);
+
+    // Timer state
+    const [elapsedTime, setElapsedTime] = useState(0);
+    const timerRef = useRef<number | null>(null);
+
+    // Start timer when quiz begins
+    useEffect(() => {
+        if (screen === 'quiz') {
+            timerRef.current = window.setInterval(() => {
+                setElapsedTime(prev => prev + 1);
+            }, 1000);
+        } else {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        }
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        };
+    }, [screen]);
+
+    // Format time as MM:SS
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const startQuiz = () => {
+        // Use all questions, shuffled
+        const quizQuestions = [...ccnaQuestions].sort(() => Math.random() - 0.5);
+        setQuestions(quizQuestions);
+        setCurrentIndex(0);
+        setSelectedAnswers([]);
+        setShowExplanation(false);
+        setScore(0);
+        setAnswers([]);
+        setElapsedTime(0);
+        setScreen('quiz');
+    };
+
+    const handleAnswerSelect = (index: number) => {
+        if (showExplanation) return;
+
+        const currentQ = questions[currentIndex];
+
+        if (currentQ.type === 'single') {
+            setSelectedAnswers([index]);
+            submitAnswer([index]);
+        } else {
+            setSelectedAnswers(prev => {
+                if (prev.includes(index)) {
+                    return prev.filter(i => i !== index);
+                } else {
+                    return [...prev, index];
+                }
+            });
+        }
+    };
+
+    const submitAnswer = (answersToSubmit: number[] = selectedAnswers) => {
+        const currentQ = questions[currentIndex];
+        const correctAns = currentQ.correctAnswers;
+
+        const isCorrect =
+            answersToSubmit.length === correctAns.length &&
+            answersToSubmit.every(a => correctAns.includes(a));
+
+        if (isCorrect) {
+            setScore(prev => prev + 1);
+        }
+
+        setShowExplanation(true);
+        setAnswers(prev => [...prev, {
+            questionId: currentQ.id,
+            selected: answersToSubmit,
+            correct: isCorrect
+        }]);
+    };
+
+    const nextQuestion = () => {
+        if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1);
+            setSelectedAnswers([]);
+            setShowExplanation(false);
+        } else {
+            setScreen('results');
+        }
+    };
+
+    const restartQuiz = () => {
+        setScreen('start');
+        setElapsedTime(0);
+    };
+
+    const currentQuestion = questions[currentIndex];
+    const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
+    const scorePercentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
+
+    // Start Screen
+    if (screen === 'start') {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
+                <div className="max-w-2xl mx-auto px-4">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 animate-fade-in-up">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mb-4 shadow-lg">
+                                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                            </div>
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                                Quiz CCNA
+                            </h1>
+                            <p className="text-gray-600 dark:text-gray-400">
+                                Testez vos connaissances sur l'Introduction aux Réseaux
+                            </p>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-3 gap-4 mb-8">
+                            <div className="bg-blue-50 dark:bg-slate-700/50 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{ccnaQuestions.length}</div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">Questions</div>
+                            </div>
+                            <div className="bg-purple-50 dark:bg-slate-700/50 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">v7.0</div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">Version CCNA</div>
+                            </div>
+                            <div className="bg-green-50 dark:bg-slate-700/50 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-green-600 dark:text-green-400">⏱️</div>
+                                <div className="text-sm text-gray-600 dark:text-gray-400">Chronométré</div>
+                            </div>
+                        </div>
+
+                        {/* Info */}
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                            <div className="flex items-start gap-3">
+                                <svg className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <div>
+                                    <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">Mode Examen</p>
+                                    <p className="text-blue-600 dark:text-blue-300 text-sm">
+                                        Les {ccnaQuestions.length} questions seront présentées dans un ordre aléatoire.
+                                        Un chronomètre suivra votre progression. Certaines questions nécessitent plusieurs réponses.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Start Button */}
+                        <button
+                            onClick={startQuiz}
+                            className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                            <span>Commencer l'Examen</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Quiz Screen
+    if (screen === 'quiz' && currentQuestion) {
+        const isMultipleChoice = currentQuestion.type === 'multiple';
+        const requiredSelections = currentQuestion.correctAnswers.length;
+        const canSubmit = isMultipleChoice && selectedAnswers.length === requiredSelections && !showExplanation;
+
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
+                <div className="max-w-3xl mx-auto px-4">
+                    {/* Progress Bar with Timer */}
+                    <div className="mb-6">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                                Question {currentIndex + 1} sur {questions.length}
+                            </span>
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {formatTime(elapsedTime)}
+                                </span>
+                                <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                                    Score: {score}/{currentIndex + (showExplanation ? 1 : 0)}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                                style={{ width: `${progress}%` }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Question Card */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 md:p-8 animate-fade-in-up">
+                        {/* Question */}
+                        <div className="mb-6">
+                            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 dark:text-white leading-relaxed">
+                                {currentQuestion.question}
+                            </h2>
+                            {isMultipleChoice && !showExplanation && (
+                                <p className="mt-2 text-sm text-purple-600 dark:text-purple-400 font-medium">
+                                    (Choisissez {requiredSelections} réponses)
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Image if present */}
+                        {currentQuestion.imageUrl && (
+                            <div className="mb-6">
+                                <img
+                                    src={currentQuestion.imageUrl}
+                                    alt="Diagramme de la question"
+                                    className="max-w-full h-auto rounded-lg mx-auto border border-gray-200 dark:border-slate-600"
+                                    style={{ maxHeight: '400px' }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Options */}
+                        <div className="space-y-3 mb-6">
+                            {currentQuestion.options.map((option, index) => {
+                                const isSelected = selectedAnswers.includes(index);
+                                const isCorrectAnswer = currentQuestion.correctAnswers.includes(index);
+                                const isWrongSelection = isSelected && !isCorrectAnswer;
+
+                                let buttonClass = 'bg-gray-50 dark:bg-slate-700/50 hover:bg-gray-100 dark:hover:bg-slate-700 border-2 border-transparent';
+
+                                if (showExplanation) {
+                                    if (isCorrectAnswer) {
+                                        buttonClass = 'bg-green-50 dark:bg-green-900/30 border-2 border-green-500 text-green-700 dark:text-green-400';
+                                    } else if (isWrongSelection) {
+                                        buttonClass = 'bg-red-50 dark:bg-red-900/30 border-2 border-red-500 text-red-700 dark:text-red-400';
+                                    }
+                                } else if (isSelected) {
+                                    buttonClass = 'bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-500';
+                                }
+
+                                return (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleAnswerSelect(index)}
+                                        disabled={showExplanation}
+                                        className={`w-full p-4 rounded-xl text-left transition-all ${buttonClass} ${!showExplanation ? 'cursor-pointer' : 'cursor-default'}`}
+                                    >
+                                        <div className="flex items-start gap-3">
+                                            <span className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-medium ${showExplanation && isCorrectAnswer
+                                                ? 'bg-green-500 text-white'
+                                                : showExplanation && isWrongSelection
+                                                    ? 'bg-red-500 text-white'
+                                                    : isSelected
+                                                        ? 'bg-blue-500 text-white'
+                                                        : 'bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-300'
+                                                }`}>
+                                                {isMultipleChoice ? (
+                                                    isSelected ? '✓' : String.fromCharCode(65 + index)
+                                                ) : (
+                                                    String.fromCharCode(65 + index)
+                                                )}
+                                            </span>
+                                            <span className="text-gray-700 dark:text-gray-300 pt-1">{option}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Submit Button for Multiple Choice */}
+                        {isMultipleChoice && !showExplanation && (
+                            <button
+                                onClick={() => submitAnswer()}
+                                disabled={!canSubmit}
+                                className={`w-full py-3 px-6 rounded-xl font-semibold transition-all duration-200 mb-4 ${canSubmit
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:scale-[1.02]'
+                                    : 'bg-gray-200 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                    }`}
+                            >
+                                Valider la réponse ({selectedAnswers.length}/{requiredSelections} sélectionnées)
+                            </button>
+                        )}
+
+                        {/* Explanation */}
+                        {showExplanation && (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6 animate-fade-in-up">
+                                <div className="flex items-start gap-3">
+                                    <svg className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">Explication</p>
+                                        <p className="text-blue-600 dark:text-blue-300 text-sm">{currentQuestion.explanation}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Next Button */}
+                        {showExplanation && (
+                            <button
+                                onClick={nextQuestion}
+                                className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
+                            >
+                                <span>{currentIndex < questions.length - 1 ? 'Question Suivante' : 'Voir les Résultats'}</span>
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Results Screen
+    if (screen === 'results') {
+        const incorrectAnswers = answers.filter(a => !a.correct);
+
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
+                <div className="max-w-3xl mx-auto px-4">
+                    {/* Results Card */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 animate-fade-in-up mb-6">
+                        {/* Score Circle */}
+                        <div className="text-center mb-8">
+                            <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 ${scorePercentage >= 80
+                                ? 'bg-gradient-to-br from-green-400 to-emerald-600'
+                                : scorePercentage >= 60
+                                    ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
+                                    : 'bg-gradient-to-br from-red-400 to-pink-600'
+                                }`}>
+                                <span className="text-4xl font-bold text-white">{scorePercentage}%</span>
+                            </div>
+
+                            {/* Celebration or Encouragement Message */}
+                            {scorePercentage >= 70 ? (
+                                <div className="animate-bounce">
+                                    <h2 className="text-3xl font-bold bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent mb-2">
+                                        🎉 YEPPPIIIII! 🎉
+                                    </h2>
+                                    <p className="text-xl font-semibold text-green-600 dark:text-green-400 mb-2">
+                                        Félicitations ! Tu es prêt(e) pour l'examen final Cisco !
+                                    </p>
+                                    <p className="text-2xl animate-pulse">
+                                        🚀 YEYYY! 🎊 🏆 🌟
+                                    </p>
+                                </div>
+                            ) : (
+                                <div>
+                                    <h2 className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-2">
+                                        Hmmm... 🤔
+                                    </h2>
+                                    <p className="text-lg text-gray-700 dark:text-gray-300 mb-2">
+                                        Tu as encore du temps !
+                                    </p>
+                                    <p className="text-xl font-semibold text-purple-600 dark:text-purple-400 animate-pulse">
+                                        Practice, practice, practice MOOOORRRRRE! 📚💪
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                        Avant l'examen final, révise encore !
+                                    </p>
+                                </div>
+                            )}
+
+                            <p className="text-gray-600 dark:text-gray-400 mt-4">
+                                Vous avez obtenu {score} sur {questions.length} questions
+                            </p>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-4 gap-4 mb-8">
+                            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{score}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Correctes</div>
+                            </div>
+                            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-red-600 dark:text-red-400">{incorrectAnswers.length}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Incorrectes</div>
+                            </div>
+                            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{questions.length}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Total</div>
+                            </div>
+                            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 text-center">
+                                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatTime(elapsedTime)}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Temps</div>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-4">
+                            <button
+                                onClick={restartQuiz}
+                                className="flex-1 py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <span>Réessayer</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Incorrect Answers Review */}
+                    {incorrectAnswers.length > 0 && (
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 md:p-8">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+                                Révision des réponses incorrectes ({incorrectAnswers.length})
+                            </h3>
+                            <div className="space-y-6">
+                                {incorrectAnswers.map((answer, idx) => {
+                                    const q = questions.find(q => q.id === answer.questionId);
+                                    if (!q) return null;
+                                    return (
+                                        <div key={idx} className="border-b border-gray-200 dark:border-slate-700 pb-6 last:border-0">
+                                            <p className="font-medium text-gray-900 dark:text-white mb-3">{q.question}</p>
+                                            {q.imageUrl && (
+                                                <img
+                                                    src={q.imageUrl}
+                                                    alt="Diagramme de la question"
+                                                    className="max-w-full h-auto rounded-lg mb-3 border border-gray-200 dark:border-slate-600"
+                                                    style={{ maxHeight: '200px' }}
+                                                />
+                                            )}
+                                            <div className="space-y-2 text-sm">
+                                                <p className="text-red-600 dark:text-red-400">
+                                                    Votre réponse : {answer.selected.map(i => q.options[i]).join(', ')}
+                                                </p>
+                                                <p className="text-green-600 dark:text-green-400">
+                                                    Bonne réponse : {q.correctAnswers.map(i => q.options[i]).join(', ')}
+                                                </p>
+                                                <p className="text-gray-600 dark:text-gray-400 mt-2 italic">
+                                                    {q.explanation}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    return null;
+}

@@ -17,6 +17,7 @@ import About from '@pages/About';
 import Contact from '@pages/Contact';
 import CycleIngenieurPage from '@pages/cycle-ingenieur/CycleIngenieurPage';
 import UniversityDetailsPage from '@pages/cycle-ingenieur/UniversityDetailsPage';
+import QuizPage from '@pages/QuizPage';
 import Footer from '@components/Footer';
 
 // Main app content component
@@ -107,6 +108,7 @@ function AppContent() {
         <Route path="/university/:id" element={<UniversityDetailsPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/quiz" element={<QuizPage />} />
 
         {/* Admin-only Routes */}
         {/* <Route 
@@ -122,6 +124,7 @@ function AppContent() {
         <Route path="/401" element={<ErrorPage errorCode="401" errorText="Unauthorized" errorDescription="You are not authorized to access this page." />} />
         <Route path="/404" element={<ErrorPage errorCode="404" errorText="Page Not Found" errorDescription="The page you are looking for does not exist." />} />
         <Route path="*" element={<Navigate to="/404" replace />} />
+
       </Routes>
 
       <Footer />

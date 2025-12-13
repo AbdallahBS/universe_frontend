@@ -72,6 +72,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                 >
                   Login
                 </button>
+
+                <button
+                  onClick={() => navigate('/quiz')}
+                  className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+                >
+                  <span>CCNA Quiz</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
 
               {/* Stats */}
