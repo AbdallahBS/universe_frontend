@@ -13,7 +13,7 @@ const developers = [
     id: 2,
     name: 'Abdallah Ben Salem',
     position: 'Full Stack Developer and a Hobbyist',
-    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4D03AQFsArP7ojg11g/profile-displayphoto-crop_800_800/B4DZsEkKjCLEAQ-/0/1765308163024?e=1767225600&v=beta&t=YXdyysvGAp_-qPi_RkRy5Bmzj2ZSBlQDU53qFcl9yWU")}`,
+    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4D03AQEv22YCKwLafA/profile-displayphoto-crop_800_800/B4DZsPjsWMH4AI-/0/1765492611119?e=1767225600&v=beta&t=L0m5xFW5XZBWQzAh8o76RVsFroPf9nEqmkoYWRIh0Sg")}`,
     contactLink: 'https://www.linkedin.com/in/abdallahbensalem/'
   },
 ];
@@ -45,7 +45,7 @@ const About: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mb-16 justify-items-center">
           {developers.map((developer, index) => (
             <div
               key={developer.id}

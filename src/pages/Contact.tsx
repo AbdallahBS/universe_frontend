@@ -81,17 +81,23 @@ const Contact: React.FC = () => {
                         {/* Contact Info Cards */}
                         <div className="space-y-4">
                             <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                    <Mail className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Mazen Jebali</h3>
+                                    <p className="text-slate-900 dark:text-white font-semibold">jebali.mazen@gmail.com</p>
+                                </div>
+                            </div>
+                            <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                                 <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                                     <Mail className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Email Us</h3>
+                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Abdallah Ben Salem</h3>
                                     <p className="text-slate-900 dark:text-white font-semibold">abdallah.benselam@gmail.com</p>
-                                    <p className="text-slate-900 dark:text-white font-semibold">jebali.mazen@gmail.com</p>
-
                                 </div>
                             </div>
-
                             <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                                 <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                                     <Phone className="w-6 h-6 text-white" />
@@ -103,7 +109,7 @@ const Contact: React.FC = () => {
                             </div>
 
                             <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                                     <MapPin className="w-6 h-6 text-white" />
                                 </div>
                                 <div>

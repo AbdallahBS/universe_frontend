@@ -105,20 +105,24 @@ const Footer: React.FC = () => {
                     <div>
                         <h3 className="text-lg font-semibold mb-4 text-white">Contact Us</h3>
                         <ul className="space-y-4">
-                            <li className="flex items-start space-x-3">
-                                <Mail className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
-                                <div className="text-sm">
-                                    <p className="text-slate-400">abdallah.benselam@gmail.com</p>
-                                    <p className="text-slate-400">jebali.mazen@gmail.com</p>
-                                </div>
+                            <li className="flex items-center space-x-3">
+                                <Mail className="w-5 h-5 text-purple-400 flex-shrink-0" />
+                                <span className="text-slate-400 text-sm">abdallah.benselam@gmail.com</span>
+                            </li>
+                            <li className="flex items-center space-x-3">
+                                <Mail className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                                <span className="text-slate-400 text-sm">jebali.mazen@gmail.com</span>
                             </li>
                             <li className="flex items-center space-x-3">
                                 <MapPin className="w-5 h-5 text-teal-400 flex-shrink-0" />
                                 <span className="text-slate-400 text-sm">El Haouria, Nabeul, Tunisia 🇹🇳</span>
                             </li>
                             <li className="flex items-center space-x-3">
-                                <Phone className="w-5 h-5 text-teal-400 flex-shrink-0" />
+                                <Phone className="w-5 h-5 text-purple-400 flex-shrink-0" />
                                 <span className="text-slate-400 text-sm">+216 20 580 395</span>
+                            </li>
+                            <li className="flex items-center space-x-3">
+                                <Phone className="w-5 h-5 text-cyan-400 flex-shrink-0" />
                                 <span className="text-slate-400 text-sm">+216 25 829 328</span>
                             </li>
                         </ul>
