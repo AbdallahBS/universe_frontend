@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
+import FeedbackCard from '../components/quiz/FeedbackCard';
 
 type QuizScreen = 'start' | 'quiz' | 'results';
 
@@ -13,6 +14,10 @@ export default function QuizPage() {
     const [score, setScore] = useState(0);
     const [answers, setAnswers] = useState<{ questionId: number; selected: number[]; correct: boolean; matchingAnswers?: { [key: number]: number } }[]>([]);
     const [matchingUserAnswers, setMatchingUserAnswers] = useState<{ [key: number]: number }>({});
+
+    // Feedback card state - show after question 3
+    const [showFeedbackCard, setShowFeedbackCard] = useState(false);
+    const [feedbackDismissed, setFeedbackDismissed] = useState(false);
 
     // Timer state
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -98,6 +103,10 @@ export default function QuizPage() {
 
     const nextQuestion = () => {
         if (currentIndex < questions.length - 1) {
+            // Show feedback card after completing question 3 (index 2)
+            if (currentIndex === 2 && !feedbackDismissed) {
+                setShowFeedbackCard(true);
+            }
             setCurrentIndex(prev => prev + 1);
             setSelectedAnswers([]);
             setShowExplanation(false);
@@ -368,6 +377,16 @@ export default function QuizPage() {
                         )}
                     </div>
                 </div>
+
+                {/* Feedback Card - appears after question 3 */}
+                {showFeedbackCard && !feedbackDismissed && (
+                    <FeedbackCard
+                        onClose={() => {
+                            setShowFeedbackCard(false);
+                            setFeedbackDismissed(true);
+                        }}
+                    />
+                )}
             </div>
         );
     }
