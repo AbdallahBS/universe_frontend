@@ -6,7 +6,7 @@ const developers = [
     id: 1,
     name: 'Mazen Jebali',
     position: 'Software Developer and a Hobbyist',
-    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4E03AQHrlrbVRZfLFA/profile-displayphoto-crop_800_800/B4EZqEI8b1KMAM-/0/1763153536424?e=1766620800&v=beta&t=pWBsGt5RSsKlKK9NACdvbKMKMs1rZGyoDfb12Ex2i2Q")}`,
+    avatar: `/mazen_portrait.png`,
     contactLink: 'https://www.linkedin.com/in/jebali-mazen/'
   },
   {

@@ -116,17 +116,16 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="max-w-md">
             <h1 className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
-              START YOUR
+              FIND YOUR SUITABLE
               <br />
-              <span className="text-teal-400">JOURNEY</span>
+              <span className="text-teal-400">INTERNSHIP</span>
               <br />
-              TODAY!
             </h1>
             <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
-              Join thousands of adventurers who have discovered amazing places, created unforgettable memories, and found their perfect escapes.
+               Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.
             </p>
-            <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400">
-              Your adventure begins with a single step.
+            <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400 text-center">
+              ' Don't search for an internship, let the internship find you. '
             </p>
           </div>
         </div>

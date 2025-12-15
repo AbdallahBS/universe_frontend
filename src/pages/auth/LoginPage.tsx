@@ -38,7 +38,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
       console.log('Login successful');
     } catch (err: any) {
       console.error('Login error:', err.message);
-      setError(err.message || 'Login failed. Please try again.');
+      setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +53,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
         navigate('/dashboard');
       } catch (err: any) {
         console.error('Google login error:', err);
-        setError(err.message || 'Google sign in failed. Please try again.');
+        setError('Google sign in failed. Please try again.');
       } finally {
         setIsGoogleLoading(false);
       }
@@ -89,21 +89,15 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="max-w-md">
-            <h1 className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
-              YOUR NEXT
-              <br />
-              <span className="text-teal-400">ADVENTURE</span>
-              <br />
-              AWAITS!
-            </h1>
-            <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
-              Log in to unlock exclusive deals, plan your dream escapes, and pick up where you left off. Whether it's mountains, beaches, or city lights.
-            </p>
-            <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400">
-              Your journey starts here.
-            </p>
-          </div>
+          <h1 className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
+            FIND YOUR SUITABLE
+            <br />
+            <span className="text-teal-400">INTERNSHIP</span>
+            <br />
+          </h1>
+          <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
+            Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.
+          </p>
         </div>
       </div>
 

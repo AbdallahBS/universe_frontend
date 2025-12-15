@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2 } from 'lucide-react';
 import TunisiaMap from '../components/TunisiaMap';
+import AdminOptions from '@components/AdminOptions';
 import { getSavedInternships, unsaveInternship } from '@services/savedInternshipsService';
 import { LinkedInPost } from 'types/resource';
 import { timeAgo } from '@utils/helpers';
@@ -15,7 +16,7 @@ interface SavedInternship extends LinkedInPost {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ }) => {
-  const { user } = useAuth();
+  const { user, userRoles, isLoading, stats } = useAuth();
   const navigate = useNavigate();
 
   const [savedInternships, setSavedInternships] = useState<SavedInternship[]>([]);
@@ -25,6 +26,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
   useEffect(() => {
     document.title = 'Universe | Dashboard';
     fetchSavedInternships();
+    console.log(stats);
   }, []);
 
   const fetchSavedInternships = async () => {
@@ -249,7 +251,14 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
           </div>
         </div>
 
-        {/* Section 3: Coming Soon - Tunisia Map Feature */}
+        {/* Section 4: Admin Panel - Only visible for admin users */}
+        {!isLoading && user && userRoles.includes('admin') && (
+          <div key={user?.id} className="mb-10 animate-fade-in-up animation-delay-400">
+            <AdminOptions />
+          </div>
+        )}
+
+        {/* Section 5: Coming Soon - Tunisia Map Feature */}
         <div className="animate-fade-in-up animation-delay-400">
           <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 rounded-3xl p-8 lg:p-12 shadow-2xl overflow-hidden">
             {/* Background decorations */}

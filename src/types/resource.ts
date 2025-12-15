@@ -11,7 +11,6 @@ export interface User {
   isVerified?: boolean;
   profilePicture?: string;
   oauthProviders?: OAuthProvider[];
-  roles?: string[];
 }
 
 /** internship object **/

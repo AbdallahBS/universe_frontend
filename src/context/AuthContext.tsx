@@ -1,9 +1,12 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
 import CookieManager from '../utils/cookies';
 import { User } from 'types/resource';
+import { getStats } from '../services/authService';
 
 type AuthContextValue = {
   user: User | null;
+  userRoles: string[];
+  stats : any;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -16,6 +19,8 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = useMemo(() => !!user, [user]);
@@ -24,11 +29,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const isAuth = await CookieManager.isAuthenticated();
+        /*const response : any = await getStats();
+        setStats(response.data);*/   
+
+        const me : any = await CookieManager.isAuthenticated();
+        const isAuth = !!me;
+
         const CookieUser = CookieManager.getUser();
 
         if (isAuth && CookieUser) {
           setUser(CookieUser);
+          setUserRoles(me.user.roles || []);
         }
 
       } catch (error) {
@@ -50,6 +61,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.user) {
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
+
+        const me : any = await CookieManager.isAuthenticated();
+        setUserRoles(me.user.roles || []);
       }
     } catch (error) {
       console.error('Login failed:', error);
@@ -66,6 +80,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (response.user) {
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
+
+        const me : any = await CookieManager.isAuthenticated();
+        setUserRoles(me.user.roles || []);
       }
     } catch (error) {
       console.error('Google login failed:', error);
@@ -83,18 +100,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Clear cookies and local state
       CookieManager.clearAuth();
       setUser(null);
+      setUserRoles([]);
     }
   };
 
   const value = useMemo(() => ({
     user,
+    userRoles,
+    stats,
     isAuthenticated,
     isLoading,
     login,
     loginWithGoogle,
     logout,
     setUser
-  }), [user, isAuthenticated, isLoading]);
+  }), [user, userRoles, isAuthenticated, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

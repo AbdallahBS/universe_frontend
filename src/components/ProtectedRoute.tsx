@@ -17,16 +17,12 @@ export const ProtectedRoute = ({
   requireVerified = false,
   disable = false
 }: ProtectedRouteProps) => {
-  const { user, isLoading } = useAuth();
+  const { user, userRoles, isLoading } = useAuth();
 
   // Manual mounting of user roles (remove that later, it's just for testing purposes)
 
   if (disable) {
     return <>{children}</>;
-  }
-
-  if (user) {
-    user.roles = ['candidate'];
   }
 
   const location = useLocation();
@@ -45,7 +41,7 @@ export const ProtectedRoute = ({
 
   // SECURITY: Check role-based access
   if (requiredRoles.length > 0 && user) {
-    if (!user.roles?.some(role => requiredRoles.includes(role))) {
+    if (!userRoles.some(role => requiredRoles.includes(role))) {
       return <Navigate to="/unauthorized" replace />;
     }
   }
