@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
 import FeedbackCard from '../components/quiz/FeedbackCard';
@@ -6,6 +7,8 @@ import FeedbackCard from '../components/quiz/FeedbackCard';
 type QuizScreen = 'start' | 'quiz' | 'results';
 
 export default function QuizPage() {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const [screen, setScreen] = useState<QuizScreen>('start');
     const [questions, setQuestions] = useState<CCNAQuestion[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -21,13 +24,47 @@ export default function QuizPage() {
 
     // Timer state
     const [elapsedTime, setElapsedTime] = useState(0);
+    const [timeLimit, setTimeLimit] = useState<number | null>(null); // in seconds
+    const [remainingTime, setRemainingTime] = useState<number | null>(null);
     const timerRef = useRef<number | null>(null);
+    const hasAutoSubmittedRef = useRef(false);
 
-    // Start timer when quiz begins
+    // Check for direct start from URL params
+    useEffect(() => {
+        const autoStart = searchParams.get('start');
+        const questionCount = searchParams.get('count');
+        const timeLimitParam = searchParams.get('time');
+
+        if (autoStart === 'true') {
+            const count = questionCount ? parseInt(questionCount) : undefined;
+            const time = timeLimitParam ? parseInt(timeLimitParam) * 60 : null; // Convert minutes to seconds
+            startQuiz(count, time);
+        }
+    }, [searchParams]);
+
+    // Timer logic
     useEffect(() => {
         if (screen === 'quiz') {
             timerRef.current = window.setInterval(() => {
                 setElapsedTime(prev => prev + 1);
+
+                if (timeLimit !== null) {
+                    setRemainingTime(prev => {
+                        if (prev === null) return prev;
+                        const newTime = prev - 1;
+
+                        // Auto-submit when time runs out
+                        if (newTime <= 0 && !hasAutoSubmittedRef.current) {
+                            hasAutoSubmittedRef.current = true;
+                            // Small delay to ensure state updates
+                            setTimeout(() => {
+                                autoSubmitQuiz();
+                            }, 100);
+                        }
+
+                        return Math.max(0, newTime);
+                    });
+                }
             }, 1000);
         } else {
             if (timerRef.current) {
@@ -39,7 +76,7 @@ export default function QuizPage() {
                 clearInterval(timerRef.current);
             }
         };
-    }, [screen]);
+    }, [screen, timeLimit]);
 
     // Format time as MM:SS
     const formatTime = (seconds: number) => {
@@ -48,9 +85,21 @@ export default function QuizPage() {
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    const startQuiz = () => {
-        // Use all questions, shuffled
-        const quizQuestions = [...ccnaQuestions].sort(() => Math.random() - 0.5);
+    // Auto-submit all remaining questions and show results
+    const autoSubmitQuiz = () => {
+        // Calculate final score for answered questions
+        setScreen('results');
+    };
+
+    const startQuiz = (questionCount?: number, timeLimitSeconds?: number | null) => {
+        // Shuffle questions
+        let quizQuestions = [...ccnaQuestions].sort(() => Math.random() - 0.5);
+
+        // Limit question count if specified
+        if (questionCount && questionCount > 0 && questionCount < quizQuestions.length) {
+            quizQuestions = quizQuestions.slice(0, questionCount);
+        }
+
         setQuestions(quizQuestions);
         setCurrentIndex(0);
         setSelectedAnswers([]);
@@ -59,6 +108,17 @@ export default function QuizPage() {
         setAnswers([]);
         setElapsedTime(0);
         setMatchingUserAnswers({});
+        hasAutoSubmittedRef.current = false;
+
+        // Set time limit
+        if (timeLimitSeconds) {
+            setTimeLimit(timeLimitSeconds);
+            setRemainingTime(timeLimitSeconds);
+        } else {
+            setTimeLimit(null);
+            setRemainingTime(null);
+        }
+
         setScreen('quiz');
     };
 
@@ -134,11 +194,19 @@ export default function QuizPage() {
     const restartQuiz = () => {
         setScreen('start');
         setElapsedTime(0);
+        setTimeLimit(null);
+        setRemainingTime(null);
+        hasAutoSubmittedRef.current = false;
     };
 
     const currentQuestion = questions[currentIndex];
     const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
-    const scorePercentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
+    const answeredQuestions = answers.length;
+    const scorePercentage = answeredQuestions > 0 ? Math.round((score / answeredQuestions) * 100) : 0;
+
+    // Timer warning states
+    const isTimeLow = remainingTime !== null && remainingTime <= 60; // Last minute
+    const isTimeCritical = remainingTime !== null && remainingTime <= 10; // Last 10 seconds
 
     // Start Screen
     if (screen === 'start') {
@@ -195,7 +263,7 @@ export default function QuizPage() {
 
                         {/* Start Button */}
                         <button
-                            onClick={startQuiz}
+                            onClick={() => startQuiz()}
                             className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2"
                         >
                             <span>Commencer l'Examen</span>
@@ -226,16 +294,44 @@ export default function QuizPage() {
                             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                                 Question {currentIndex + 1} sur {questions.length}
                             </span>
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {formatTime(elapsedTime)}
-                                </span>
+                            <div className="flex items-center gap-2 md:gap-4">
+                                {/* Countdown Timer (if time limit set) */}
+                                {remainingTime !== null && (
+                                    <span className={`text-sm font-bold flex items-center gap-1 px-3 py-1 rounded-full transition-all ${isTimeCritical
+                                        ? 'bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 animate-pulse'
+                                        : isTimeLow
+                                            ? 'bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400'
+                                            : 'bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400'
+                                        }`}>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {formatTime(remainingTime)}
+                                    </span>
+                                )}
+                                {/* Elapsed time (if no limit) */}
+                                {remainingTime === null && (
+                                    <span className="text-sm font-medium text-orange-600 dark:text-orange-400 flex items-center gap-1">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {formatTime(elapsedTime)}
+                                    </span>
+                                )}
                                 <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                                    Score: {score}/{currentIndex + (showExplanation ? 1 : 0)}
+                                    Score: {score}/{answeredQuestions}
                                 </span>
+                                {/* Cancel Button */}
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm('Êtes-vous sûr de vouloir annuler le quiz ?')) {
+                                            navigate('/exam-certificates');
+                                        }
+                                    }}
+                                    className="px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-full transition-all"
+                                >
+                                    Annuler
+                                </button>
                             </div>
                         </div>
                         <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
@@ -244,6 +340,16 @@ export default function QuizPage() {
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
+                        {/* Time bar if countdown active */}
+                        {timeLimit && remainingTime !== null && (
+                            <div className="h-1 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden mt-1">
+                                <div
+                                    className={`h-full transition-all duration-1000 ${isTimeCritical ? 'bg-red-500' : isTimeLow ? 'bg-orange-500' : 'bg-green-500'
+                                        }`}
+                                    style={{ width: `${(remainingTime / timeLimit) * 100}%` }}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     {/* Question Card */}
@@ -394,25 +500,42 @@ export default function QuizPage() {
     // Results Screen
     if (screen === 'results') {
         const incorrectAnswers = answers.filter(a => !a.correct);
+        const totalAnswered = answers.length;
+        const unanswered = questions.length - totalAnswered;
+        const finalScorePercentage = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
 
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
                 <div className="max-w-3xl mx-auto px-4">
                     {/* Results Card */}
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 animate-fade-in-up mb-6">
+                        {/* Time's Up Message (if timer ran out) */}
+                        {hasAutoSubmittedRef.current && (
+                            <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-4 mb-6">
+                                <div className="flex items-center gap-3">
+                                    <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p className="font-medium text-orange-700 dark:text-orange-400">
+                                        ⏰ Time's up! Your quiz has been automatically submitted.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Score Circle */}
                         <div className="text-center mb-8">
-                            <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 ${scorePercentage >= 80
+                            <div className={`inline-flex items-center justify-center w-32 h-32 rounded-full mb-4 ${finalScorePercentage >= 80
                                 ? 'bg-gradient-to-br from-green-400 to-emerald-600'
-                                : scorePercentage >= 60
+                                : finalScorePercentage >= 60
                                     ? 'bg-gradient-to-br from-yellow-400 to-orange-500'
                                     : 'bg-gradient-to-br from-red-400 to-pink-600'
                                 }`}>
-                                <span className="text-4xl font-bold text-white">{scorePercentage}%</span>
+                                <span className="text-4xl font-bold text-white">{finalScorePercentage}%</span>
                             </div>
 
                             {/* Celebration or Encouragement Message */}
-                            {scorePercentage >= 70 ? (
+                            {finalScorePercentage >= 70 ? (
                                 <div className="animate-bounce">
                                     <h2 className="text-3xl font-bold bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent mb-2">
                                         🎉 YEPPPIIIII! 🎉
@@ -436,7 +559,7 @@ export default function QuizPage() {
                             )}
 
                             <p className="text-gray-600 dark:text-gray-400 mt-4">
-                                Vous avez obtenu {score} sur {questions.length} questions
+                                Vous avez obtenu {score} sur {totalAnswered} questions répondues
                             </p>
                         </div>
 
@@ -451,14 +574,23 @@ export default function QuizPage() {
                                 <div className="text-xs text-gray-600 dark:text-gray-400">Incorrectes</div>
                             </div>
                             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 text-center">
-                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{questions.length}</div>
-                                <div className="text-xs text-gray-600 dark:text-gray-400">Total</div>
+                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{totalAnswered}</div>
+                                <div className="text-xs text-gray-600 dark:text-gray-400">Répondues</div>
                             </div>
                             <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-4 text-center">
                                 <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{formatTime(elapsedTime)}</div>
                                 <div className="text-xs text-gray-600 dark:text-gray-400">Temps</div>
                             </div>
                         </div>
+
+                        {/* Unanswered questions warning */}
+                        {unanswered > 0 && (
+                            <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-4 mb-6">
+                                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                    ⚠️ {unanswered} questions non répondues (non comptées dans le score)
+                                </p>
+                            </div>
+                        )}
 
                         {/* Action Buttons */}
                         <div className="flex gap-4">
@@ -497,7 +629,7 @@ export default function QuizPage() {
                                             )}
                                             <div className="space-y-2 text-sm">
                                                 <p className="text-red-600 dark:text-red-400">
-                                                    Votre réponse : {answer.selected.map(i => q.options[i]).join(', ')}
+                                                    Votre réponse : {answer.selected.map(i => q.options[i]).join(', ') || '(aucune réponse)'}
                                                 </p>
                                                 <p className="text-green-600 dark:text-green-400">
                                                     Bonne réponse : {q.correctAnswers.map(i => q.options[i]).join(', ')}

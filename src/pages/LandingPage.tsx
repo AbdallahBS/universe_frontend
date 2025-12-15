@@ -66,10 +66,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
     },
     {
       icon: <BookOpen className="w-7 h-7 text-white" />,
-      title: "CCNA Final Exam Practice",
-      description: "Prepare for your CCNA certification with comprehensive practice tests.",
+      title: "Exam Certificate Test",
+      description: "Practice for IT certifications like CCNA, CompTIA, and AWS with comprehensive exams.",
       gradient: "from-purple-500 to-pink-600",
-      route: "/quiz"
+      route: "/exam-certificates"
     },
     {
       icon: <Briefcase className="w-7 h-7 text-white" />,

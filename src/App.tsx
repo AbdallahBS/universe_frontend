@@ -18,6 +18,7 @@ import Contact from '@pages/Contact';
 import CycleIngenieurPage from '@pages/cycle-ingenieur/CycleIngenieurPage';
 import UniversityDetailsPage from '@pages/cycle-ingenieur/UniversityDetailsPage';
 import QuizPage from '@pages/QuizPage';
+import ExamCertificatesPage from '@pages/ExamCertificatesPage';
 import Footer from '@components/Footer';
 
 // Main app content component
@@ -108,7 +109,8 @@ function AppContent() {
         <Route path="/university/:id" element={<UniversityDetailsPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/quiz" element={<QuizPage />} />
+        <Route path="/exam-certificates" element={<ExamCertificatesPage />} />
+        <Route path="/exam-certificates/quiz" element={<QuizPage />} />
 
         {/* Admin-only Routes */}
         {/* <Route 
