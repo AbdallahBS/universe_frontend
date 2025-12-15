@@ -22,7 +22,7 @@ const Contact: React.FC = () => {
         e.preventDefault();
 
         // Create mailto link with form data
-        const mailtoRecipients = 'abdallah.benselam@gmail.com,jebali.mazen@gmail.com';
+        const mailtoRecipients = 'abdallahbenselam@gmail.com,jebali.mazen@gmail.com';
         const subject = encodeURIComponent(formData.subject || 'Contact from Universe Website');
         const body = encodeURIComponent(
             `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
@@ -70,7 +70,7 @@ const Contact: React.FC = () => {
                             <div className="absolute inset-0 bg-gradient-to-br from-teal-400/20 to-blue-400/20 rounded-3xl blur-2xl"></div>
                             <div className="relative overflow-hidden rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-2xl">
                                 <img
-                                    src="/contact-illustration.png"
+                                    src="/contactbanner.png"
                                     alt="Contact Illustration"
                                     className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-700"
                                 />
@@ -95,7 +95,7 @@ const Contact: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Abdallah Ben Salem</h3>
-                                    <p className="text-slate-900 dark:text-white font-semibold">abdallah.benselam@gmail.com</p>
+                                    <p className="text-slate-900 dark:text-white font-semibold">abdallahbenselam@gmail.com</p>
                                 </div>
                             </div>
                             <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
