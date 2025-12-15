@@ -20,6 +20,9 @@ import UniversityDetailsPage from '@pages/cycle-ingenieur/UniversityDetailsPage'
 import QuizPage from '@pages/QuizPage';
 import ExamCertificatesPage from '@pages/ExamCertificatesPage';
 import Footer from '@components/Footer';
+import UserManagementPage from '@pages/admin/UserManagementPage';
+import ContentManagementPage from '@pages/admin/ContentManagementPage';
+import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
 
 // Main app content component
 function AppContent() {
@@ -113,14 +116,33 @@ function AppContent() {
         <Route path="/exam-certificates/quiz" element={<QuizPage />} />
 
         {/* Admin-only Routes */}
-        {/* <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute requiredRoles={['admin']}>
-                <AdminPanel />
-              </ProtectedRoute>
-            } 
-          /> */}
+        {/* ADMIN ROUTES */}
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <UserManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/scrappers"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <ScrapperManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/contents"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <ContentManagementPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Error Routes */}
         <Route path="/401" element={<ErrorPage errorCode="401" errorText="Unauthorized" errorDescription="You are not authorized to access this page." />} />

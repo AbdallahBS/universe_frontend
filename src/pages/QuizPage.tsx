@@ -42,6 +42,11 @@ export default function QuizPage() {
         }
     }, [searchParams]);
 
+
+    useEffect(() => {
+        document.title = 'Universe | Quiz';
+      }, []);
+      
     // Timer logic
     useEffect(() => {
         if (screen === 'quiz') {
