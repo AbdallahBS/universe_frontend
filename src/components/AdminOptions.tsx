@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import {
   Users,
-  Settings,
   FileText,
-  BarChart3,
   Shield,
   Database,
-  Mail,
   Trash2,
   ChevronRight,
   Lock,
@@ -40,7 +37,7 @@ const AdminOptions: React.FC = () => {
       icon: Users,
       gradient: 'from-blue-500 to-cyan-600',
       textColor: 'text-blue-600 dark:text-blue-400',
-      action: () => console.log('Navigate to user management'),
+      action: () => navigate('/admin/users'),
       badge: '145'
     },
     {
@@ -50,7 +47,7 @@ const AdminOptions: React.FC = () => {
       icon: FileText,
       gradient: 'from-orange-500 to-red-600',
       textColor: 'text-orange-600 dark:text-orange-400',
-      action: () => console.log('Navigate to content management'),
+      action: () => navigate('/admin/contents'),
       badge: '23'
     },
     {
@@ -60,7 +57,7 @@ const AdminOptions: React.FC = () => {
       icon: Database,
       gradient: 'from-violet-500 to-purple-600',
       textColor: 'text-violet-600 dark:text-violet-400',
-      action: () => console.log('Navigate to database'),
+      action: () => navigate('/admin/scrappers'),
     },
     {
       id: 'monitoring',

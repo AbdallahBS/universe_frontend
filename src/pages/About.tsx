@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Users, ArrowRight, Code2, Share2, Facebook, Linkedin } from 'lucide-react';
 
 const developers = [
@@ -6,7 +6,7 @@ const developers = [
     id: 1,
     name: 'Mazen Jebali',
     position: 'Software Developer and a Hobbyist',
-    avatar: `/mazen_portrait.png`,
+    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4D03AQEW1D-kzawCsw/profile-displayphoto-crop_800_800/B4DZsjqIcRJkAM-/0/1765829818572?e=1767225600&v=beta&t=BqYj_2NZK95AHDRo2NHT81VnbpTOxAmZ6gLkTXno45c")}`,
     contactLink: 'https://www.linkedin.com/in/jebali-mazen/'
   },
   {
@@ -19,6 +19,10 @@ const developers = [
 ];
 
 const About: React.FC = () => {
+  useEffect(() => {
+    document.title = 'Universe | About';
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-24 pb-16">
       <div className="absolute inset-0 overflow-hidden">

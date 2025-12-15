@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Mail, Send, User, MessageSquare, Sparkles, ArrowRight, Phone, MapPin } from 'lucide-react';
 import { apiFetch } from '@services/api';
 
 const Contact: React.FC = () => {
+
+      useEffect(() => {
+        document.title = 'Universe | Contact';
+      }, []);
+      
     const [formData, setFormData] = useState({
         name: '',
         email: '',

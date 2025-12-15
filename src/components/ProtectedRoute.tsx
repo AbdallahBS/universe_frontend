@@ -42,7 +42,7 @@ export const ProtectedRoute = ({
   // SECURITY: Check role-based access
   if (requiredRoles.length > 0 && user) {
     if (!userRoles.some(role => requiredRoles.includes(role))) {
-      return <Navigate to="/unauthorized" replace />;
+      return <Navigate to="/401" replace />;
     }
   }
 

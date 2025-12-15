@@ -15,6 +15,11 @@ L.Icon.Default.mergeOptions({
 });
 
 const UniversityDetailsPage: React.FC = () => {
+
+    useEffect(() => {
+      document.title = 'Universe | Cycle Ingénieur';
+    }, []);
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, GraduationCap, Calculator, TrendingUp, Users, MapPin, Calendar, Award, ExternalLink, FileText, Download, AlertCircle } from 'lucide-react';
 import { universitiesData, University, scoreCalculationInfo, getUniversitiesBySpecialty } from '@data/cycleIngenieurData';
@@ -9,6 +9,11 @@ import ConcoursTimer from '@components/cycle/ConcoursTimer';
 import CandidatureGuide from '@components/cycle/CandidatureGuide';
 
 const CycleIngenieurPage: React.FC = () => {
+  
+  useEffect(() => {
+    document.title = 'Universe | Cycle Ingénieur';
+  }, []);
+
   const [searchParams] = useSearchParams();
   const initialType = (searchParams.get('type') as University['type']) || 'all';
 
