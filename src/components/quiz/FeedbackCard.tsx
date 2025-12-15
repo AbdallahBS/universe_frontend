@@ -1,3 +1,5 @@
+import { useAuth } from '@context/AuthContext';
+import { apiFetch } from '@services/api';
 import { useState } from 'react';
 
 interface FeedbackCardProps {
@@ -12,6 +14,8 @@ export default function FeedbackCard({ onClose }: FeedbackCardProps) {
     const [submitted, setSubmitted] = useState(false);
     const [error, setError] = useState('');
 
+    const {user} = useAuth();
+
     const handleSubmit = async () => {
         if (rating === 0) {
             setError('Please select a rating');
@@ -22,19 +26,17 @@ export default function FeedbackCard({ onClose }: FeedbackCardProps) {
         setError('');
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/feedback`, {
+            const data = await apiFetch<any> (`/api/feedback`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
+                json: {
                     rating,
                     message,
-                    userEmail: 'Quiz User'
-                }),
+                    userEmail: user?.email ?? 'Quiz User'
+                },
             });
-
-            const data = await response.json();
 
             if (data.success) {
                 setSubmitted(true);

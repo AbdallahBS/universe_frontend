@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Send, User, MessageSquare, Sparkles, ArrowRight, Phone, MapPin } from 'lucide-react';
+import { apiFetch } from '@services/api';
 
 const Contact: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -9,6 +10,9 @@ const Contact: React.FC = () => {
         message: ''
     });
     const [isHovered, setIsHovered] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [error, setError] = useState('');
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -18,21 +22,53 @@ const Contact: React.FC = () => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent) => {
+            e.preventDefault();
 
-        // Create mailto link with form data
-        const mailtoRecipients = 'abdallahbenselam@gmail.com,jebali.mazen@gmail.com';
-        const subject = encodeURIComponent(formData.subject || 'Contact from Universe Website');
-        const body = encodeURIComponent(
-            `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
-        );
-
-        // Open default email client
-        window.location.href = `mailto:${mailtoRecipients}?subject=${subject}&body=${body}`;
-    };
+            setIsSubmitting(true);
+            setError('');
+    
+            try {
+                const data = await apiFetch<any> (`/api/feedback/contact`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    json: formData
+                });
+    
+                if (data.success) {
+                    setSubmitted(true);
+                } else {
+                    setError(data.error || 'Failed to send feedback');
+                }
+            } catch (err) {
+                console.error('Error sending feedback:', err);
+                setError('Failed to send contact mail. Please try again.');
+            } finally {
+                setIsSubmitting(false);
+            }
+        };
 
     return (
+     <>
+        {submitted && (
+                <div className="fixed bottom-4 right-4 z-50 animate-fade-in-up">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl p-4 w-72 border border-green-200 dark:border-green-700">
+                        <div className="text-center">
+                            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1">Merci!</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Votre email a été envoyé</p>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-24 pb-16">
             {/* Floating background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -226,9 +262,14 @@ const Contact: React.FC = () => {
                                         />
                                     </div>
 
+                                    {/* Error Message */}
+                                        {error && (
+                                        <p className="text-xs text-red-500 mt-1">{error}</p>
+                                    )}
                                     {/* Submit Button */}
                                     <button
                                         type="submit"
+                                        disabled={isSubmitting}
                                         onMouseEnter={() => setIsHovered(true)}
                                         onMouseLeave={() => setIsHovered(false)}
                                         className="group relative w-full overflow-hidden bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-600 hover:from-teal-700 hover:via-teal-600 hover:to-cyan-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300"
@@ -256,7 +297,7 @@ const Contact: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div></>
     );
 };
 

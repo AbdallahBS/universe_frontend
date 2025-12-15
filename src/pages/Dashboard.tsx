@@ -1,7 +1,7 @@
 import { useAuth } from '@context/AuthContext';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2 } from 'lucide-react';
+import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2, TextSearchIcon } from 'lucide-react';
 import TunisiaMap from '../components/TunisiaMap';
 import AdminOptions from '@components/AdminOptions';
 import { getSavedInternships, unsaveInternship } from '@services/savedInternshipsService';
@@ -241,6 +241,30 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
                     Explore engineering path options
+                  </p>
+                </div>
+              </div>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 -translate-x-2 transition-all duration-300">
+                <span className="text-purple-500 dark:text-purple-400 text-2xl">→</span>
+              </div>
+            </button>
+
+            {/* Quiz CCNA Card */}
+            <button
+              onClick={() => navigate('/quiz')}
+              className="group relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-left overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <TextSearchIcon className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                    Quiz CCNA
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Test your knowledge of Introduction to Networks
                   </p>
                 </div>
               </div>
