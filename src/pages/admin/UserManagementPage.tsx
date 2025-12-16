@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Shield, Ban, UserCheck, Loader2 } from 'lucide-react';
-import { getUsers } from '@services/adminService';
+import { ArrowLeft, Search, Trash2, Shield, Ban, UserCheck, Loader2, UserX } from 'lucide-react';
+import { changerole, deleteUser, getUsers } from '@services/adminService';
 import LoadingSpinner from '@components/ui/LoadingSpinner';
 
 interface User {
@@ -11,7 +11,7 @@ interface User {
   lastname: string;
   roles: string[];
   createdAt: string;
-  updatedAt: string;
+  lastSeen: string;
 }
 
 const UserManagementPage: React.FC = () => {
@@ -51,17 +51,6 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
-  const getUsersList = async () => {
-    try {
-        const response = await getUsers();
-        setUsers(response.data);
-        setLoading(false);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        setLoading(false);
-    }
-  }
-
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'admin':
@@ -73,44 +62,67 @@ const UserManagementPage: React.FC = () => {
     }
   };
 
-  const handleBanUsers = async () => {
-    if (selectedUsers.length === 0) return;
-    setActionLoading('ban');
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Banned users:', selectedUsers);
-      setSelectedUsers([]);
-      setActionLoading(null);
-    }, 1000);
-  };
+    const getUsersList = async () => {
+    try {
+        setLoading(true);
+        const response = await getUsers();
+        setUsers(response.data);
+        console.log(response.data);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        setLoading(false);
+    }
+  }
 
   const handleDeleteUsers = async () => {
-    if (selectedUsers.length === 0) return;
-    setActionLoading('delete');
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Deleted users:', selectedUsers);
-      setSelectedUsers([]);
-      setActionLoading(null);
-    }, 1000);
+     try {
+        setLoading(true);
+        selectedUsers.forEach(async (userId) => {
+           await deleteUser(userId);
+        });
+        await getUsersList();
+        setLoading(false);
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        setLoading(false);
+    }
   };
 
   const handlePromoteToAdmin = async () => {
-    if (selectedUsers.length === 0) return;
-    setActionLoading('promote');
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Promoted users to admin:', selectedUsers);
-      setSelectedUsers([]);
-      setActionLoading(null);
-    }, 1000);
+    try {
+        setLoading(true);
+        selectedUsers.forEach(async (userId) => {
+           await changerole(userId, true);
+        });
+        await getUsersList();
+        setLoading(false);
+    } catch (error) {
+        console.error('Error promoting user:', error);
+        setLoading(false);
+    }
+  };
+
+    const handleDowngradeToUser = async () => {
+     try {
+        setLoading(true);
+        selectedUsers.forEach(async (userId) => {
+           await changerole(userId, false);
+        });
+        await getUsersList();
+        setLoading(false);
+    } catch (error) {
+        console.error('Error downgrading user:', error);
+        setLoading(false);
+    }
   };
 
   return (
   <>
     <LoadingSpinner loading={loading} />
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
+    {!loading && 
+    (<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-32 left-10 w-32 h-32 bg-blue-200/20 dark:bg-blue-500/10 rounded-full blur-xl animate-float"></div>
@@ -183,13 +195,13 @@ const UserManagementPage: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={handleBanUsers}
+                  onClick={handleDowngradeToUser}
                   disabled={actionLoading !== null}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
                 >
-                  {actionLoading === 'ban' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <Ban className="w-4 h-4" />
-                  Ban Users
+                  {actionLoading === 'downgrade' && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <UserX className="w-4 h-4" />
+                  Downgrade to Student
                 </button>
 
                 <button
@@ -282,7 +294,7 @@ const UserManagementPage: React.FC = () => {
                       {new Date(user.createdAt).toDateString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {new Date(user.updatedAt).toDateString()}
+                      {(user.lastSeen == null) ? "No opened sessions found" : new Date(user.lastSeen).toDateString()}
                     </td>
                   </tr>
                 ))}
@@ -300,6 +312,7 @@ const UserManagementPage: React.FC = () => {
         </div>
       </div>
     </div>
+    )}
   </>
   );
 };

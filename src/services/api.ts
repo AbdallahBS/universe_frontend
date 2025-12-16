@@ -138,8 +138,8 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
       }
 
       return retryData as T;
-    } catch (err) {
-      throw new Error("AUTH_EXPIRED");
+    } catch (err : any) {
+      throw new Error(err ?? "AUTH_EXPIRED");
     }
   }
 
