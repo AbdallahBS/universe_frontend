@@ -26,7 +26,6 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
   useEffect(() => {
     document.title = 'Universe | Dashboard';
     fetchSavedInternships();
-    console.log(stats);
   }, []);
 
   const fetchSavedInternships = async () => {
@@ -251,7 +250,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
 
             {/* Quiz CCNA Card */}
             <button
-              onClick={() => navigate('/quiz')}
+              onClick={() => navigate('/exam-certificates')}
               className="group relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 text-left overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 dark:from-purple-500/10 dark:to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -315,12 +314,12 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                 <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-slate-500">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-teal-400" />
-                    <span>5+ Cities</span>
+                    <span>{stats.usersCount.usersCount ?? "N/A"}+ Users</span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-slate-600"></div>
                   <div className="flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-teal-400" />
-                    <span>100+ Companies</span>
+                    <span>{stats.contentsCount.totalDocumentsCount ?? "N/A"}+ Posts</span>
                   </div>
                 </div>
               </div>

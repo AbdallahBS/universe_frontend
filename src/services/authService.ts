@@ -105,7 +105,7 @@ export async function googleLogin(idToken: string): Promise<TokensResponse> {
 
 export async function getStats() {
   try {
-    const data = await apiFetch<TokensResponse>('/v1/auth/stats');
+    const data = await apiFetch<any>('/v1/auth/stats');
     return data;
   } catch (err: any) {
     const message = typeof err?.message === 'string' ? err.message : 'Cannot fetch stats';

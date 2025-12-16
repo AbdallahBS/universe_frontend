@@ -1,71 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Shield, Ban, UserCheck, Loader2 } from 'lucide-react';
+import { getUsers } from '@services/adminService';
+import LoadingSpinner from '@components/ui/LoadingSpinner';
 
 interface User {
-  id: string;
+  _id: string;
   email: string;
   firstname: string;
   lastname: string;
-  role: 'user' | 'admin' | 'moderator';
-  joinedAt: string;
-  lastActive: string;
+  roles: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 const UserManagementPage: React.FC = () => {
+
+    useEffect(() => {
+        document.title = 'Universe | User Management';
+        getUsersList();
+    }, []);
+
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const [users] = useState<User[]>([
-    {
-      id: '1',
-      email: 'john@example.com',
-      firstname: 'John',
-      lastname: 'Doe',
-      role: 'user',
-      joinedAt: '2024-01-15',
-      lastActive: '2025-12-14',
-    },
-    {
-      id: '2',
-      email: 'jane@example.com',
-      firstname: 'Jane',
-      lastname: 'Smith',
-      role: 'admin',
-      joinedAt: '2023-06-20',
-      lastActive: '2025-12-15',
-    },
-    {
-      id: '3',
-      email: 'bob@example.com',
-      firstname: 'Bob',
-      lastname: 'Johnson',
-      role: 'moderator',
-      joinedAt: '2024-03-10',
-      lastActive: '2025-12-12',
-    },
-    {
-      id: '4',
-      email: 'alice@example.com',
-      firstname: 'Alice',
-      lastname: 'Williams',
-      role: 'user',
-      joinedAt: '2024-05-22',
-      lastActive: '2025-12-13',
-    },
-    {
-      id: '5',
-      email: 'charlie@example.com',
-      firstname: 'Charlie',
-      lastname: 'Brown',
-      role: 'user',
-      joinedAt: '2024-08-08',
-      lastActive: '2025-12-11',
-    },
-  ]);
+  const [users, setUsers] = useState<User[]>([]);
 
   const filteredUsers = users.filter(user =>
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,9 +47,20 @@ const UserManagementPage: React.FC = () => {
     if (selectedUsers.length === filteredUsers.length) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(filteredUsers.map(u => u.id));
+      setSelectedUsers(filteredUsers.map(u => u._id));
     }
   };
+
+  const getUsersList = async () => {
+    try {
+        const response = await getUsers();
+        setUsers(response.data);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        setLoading(false);
+    }
+  }
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -134,6 +107,9 @@ const UserManagementPage: React.FC = () => {
   };
 
   return (
+  <>
+    <LoadingSpinner loading={loading} />
+
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -261,16 +237,16 @@ const UserManagementPage: React.FC = () => {
               <tbody>
                 {filteredUsers.map((user, index) => (
                   <tr
-                    key={user.id}
+                    key={user._id}
                     className={`border-b border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors ${
-                      selectedUsers.includes(user.id) ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''
+                      selectedUsers.includes(user._id) ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''
                     }`}
                   >
                     <td className="px-6 py-4">
                       <input
                         type="checkbox"
-                        checked={selectedUsers.includes(user.id)}
-                        onChange={() => toggleUserSelection(user.id)}
+                        checked={selectedUsers.includes(user._id)}
+                        onChange={() => toggleUserSelection(user._id)}
                         className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                       />
                     </td>
@@ -290,16 +266,23 @@ const UserManagementPage: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(user.role)}`}>
-                        {user.role === 'admin' && <Shield className="w-3 h-3" />}
-                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        {user.roles.map((role) => (
+                          <span
+                            key={role}
+                            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(role)}`}
+                          >
+                            {role === 'admin' && <Shield className="w-3 h-3" />}
+                            {role.charAt(0).toUpperCase() + role.slice(1)}
+                          </span>
+                        ))}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {user.joinedAt}
+                      {new Date(user.createdAt).toDateString()}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {user.lastActive}
+                      {new Date(user.updatedAt).toDateString()}
                     </td>
                   </tr>
                 ))}
@@ -317,6 +300,7 @@ const UserManagementPage: React.FC = () => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 

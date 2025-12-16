@@ -29,8 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        /*const response : any = await getStats();
-        setStats(response.data);*/   
+        const response : any = await getStats();
+        setStats(response);  
 
         const me : any = await CookieManager.isAuthenticated();
         const isAuth = !!me;

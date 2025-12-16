@@ -3,6 +3,7 @@ import { Sparkles, ArrowRight, Globe, Users, Zap, GraduationCap, Briefcase, Book
 import { useNavigate } from 'react-router-dom';
 import About from './About';
 import Contact from './Contact';
+import { useAuth } from '@context/AuthContext';
 
 interface LandingPageProps {
 }
@@ -48,6 +49,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
     document.title = 'Universe';
   }, []);
   const navigate = useNavigate();
+  const {stats} = useAuth();
 
   const services = [
     {
@@ -144,16 +146,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
               {/* Stats */}
               <div className="flex items-center space-x-8 pt-8 animate-fade-in-up animation-delay-700">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">50PFE Offers</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">internships</div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.contentsCount.internshipOffersCount ?? "50"}+</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">Internship Offers found</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">2025</div>
                   <div className="text-sm text-slate-600 dark:text-slate-400">Engineering cycle paths</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">10+</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Documents</div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.contentsCount.totalDocumentsCount ?? "50"}+</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">Posts Available</div>
                 </div>
               </div>
             </div>

@@ -12,6 +12,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@context/AuthContext';
 
 interface AdminOption {
   id: string;
@@ -26,6 +27,7 @@ interface AdminOption {
 }
 
 const AdminOptions: React.FC = () => {
+  const {stats} = useAuth();
   const navigate = useNavigate();
   const [hoveredOption, setHoveredOption] = useState<string | null>(null);
 
@@ -103,14 +105,14 @@ const AdminOptions: React.FC = () => {
           <div className="text-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-green-500" />
-              <span className="text-sm font-bold text-green-600 dark:text-green-400">+12%</span>
+              <span className="text-sm font-bold text-green-600 dark:text-green-400">{stats.usersCount.addedUsersPercentage ?? "N/A"}%</span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">This month traffic</div>
           </div>
           <div className="text-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">1.2k</span>
+              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{stats.sessionsCount.activeUsers ?? "N/A"}</span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">Active users</div>
           </div>
