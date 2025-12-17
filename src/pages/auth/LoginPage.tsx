@@ -4,14 +4,18 @@ import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { LoginFormData } from 'types/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login, loginWithGoogle } = useAuth();
+
+  // Get redirect URL from params (for post-auth navigation)
+  const redirectUrl = searchParams.get('redirect') || '/dashboard';
   const [formData, setFormData] = useState<LoginFormData>({
     email: '',
     password: '',
@@ -32,9 +36,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
 
     try {
       await login(formData.email, formData.password);
-      // Login successful - the AuthContext will handle the state update
-      // You might want to redirect to a dashboard or home page here
-      navigate('/dashboard');
+      // Redirect to intended URL or dashboard
+      navigate(redirectUrl);
       console.log('Login successful');
     } catch (err: any) {
       console.error('Login error:', err.message);
@@ -50,7 +53,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
       setError(null);
       try {
         await loginWithGoogle(tokenResponse.access_token);
-        navigate('/dashboard');
+        navigate(redirectUrl);
       } catch (err: any) {
         console.error('Google login error:', err);
         setError('Google sign in failed. Please try again.');

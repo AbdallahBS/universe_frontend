@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
+import { ccna2Questions } from './data/ccna2QuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
 import FeedbackCard from '../components/quiz/FeedbackCard';
+
+type QuizModule = 'ccna1' | 'ccna2';
 
 type QuizScreen = 'start' | 'quiz' | 'results';
 
@@ -10,6 +13,7 @@ export default function QuizPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [screen, setScreen] = useState<QuizScreen>('start');
+    const [selectedModule, setSelectedModule] = useState<QuizModule>('ccna1');
     const [questions, setQuestions] = useState<CCNAQuestion[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
@@ -34,11 +38,16 @@ export default function QuizPage() {
         const autoStart = searchParams.get('start');
         const questionCount = searchParams.get('count');
         const timeLimitParam = searchParams.get('time');
+        const moduleParam = searchParams.get('module');
 
         if (autoStart === 'true') {
             const count = questionCount ? parseInt(questionCount) : undefined;
             const time = timeLimitParam ? parseInt(timeLimitParam) * 60 : null; // Convert minutes to seconds
-            startQuiz(count, time);
+            const module = (moduleParam === 'ccna1' || moduleParam === 'ccna2') ? moduleParam : 'ccna1';
+
+            // Set the selected module before starting
+            setSelectedModule(module);
+            startQuiz(count, time, module);
         }
     }, [searchParams]);
 
@@ -96,9 +105,13 @@ export default function QuizPage() {
         setScreen('results');
     };
 
-    const startQuiz = (questionCount?: number, timeLimitSeconds?: number | null) => {
+    const startQuiz = (questionCount?: number, timeLimitSeconds?: number | null, module?: QuizModule) => {
+        // Use selected module or default
+        const currentModule = module || selectedModule;
+        const sourceQuestions = currentModule === 'ccna2' ? ccna2Questions : ccnaQuestions;
+
         // Shuffle questions
-        let quizQuestions = [...ccnaQuestions].sort(() => Math.random() - 0.5);
+        let quizQuestions = [...sourceQuestions].sort(() => Math.random() - 0.5);
 
         // Limit question count if specified
         if (questionCount && questionCount > 0 && questionCount < quizQuestions.length) {
@@ -215,6 +228,8 @@ export default function QuizPage() {
 
     // Start Screen
     if (screen === 'start') {
+        const currentModuleQuestions = selectedModule === 'ccna2' ? ccna2Questions : ccnaQuestions;
+
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
                 <div className="max-w-2xl mx-auto px-4">
@@ -230,14 +245,40 @@ export default function QuizPage() {
                                 Quiz CCNA
                             </h1>
                             <p className="text-gray-600 dark:text-gray-400">
-                                Testez vos connaissances sur l'Introduction aux Réseaux
+                                {selectedModule === 'ccna1'
+                                    ? 'Introduction aux Réseaux'
+                                    : 'Switching, Routing & Wireless Essentials'}
                             </p>
+                        </div>
+
+                        {/* Module Selection Tabs */}
+                        <div className="flex mb-6 bg-gray-100 dark:bg-slate-700/50 rounded-xl p-1">
+                            <button
+                                onClick={() => setSelectedModule('ccna1')}
+                                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 ${selectedModule === 'ccna1'
+                                    ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-blue-400 shadow-md'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                            >
+                                <div className="text-sm font-bold">CCNA 1</div>
+                                <div className="text-xs opacity-75">Introduction aux Réseaux</div>
+                            </button>
+                            <button
+                                onClick={() => setSelectedModule('ccna2')}
+                                className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200 ${selectedModule === 'ccna2'
+                                    ? 'bg-white dark:bg-slate-600 text-purple-600 dark:text-purple-400 shadow-md'
+                                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                                    }`}
+                            >
+                                <div className="text-sm font-bold">CCNA 2</div>
+                                <div className="text-xs opacity-75">Switching & Routing</div>
+                            </button>
                         </div>
 
                         {/* Stats */}
                         <div className="grid grid-cols-3 gap-4 mb-8">
                             <div className="bg-blue-50 dark:bg-slate-700/50 rounded-xl p-4 text-center">
-                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{ccnaQuestions.length}</div>
+                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{currentModuleQuestions.length}</div>
                                 <div className="text-sm text-gray-600 dark:text-gray-400">Questions</div>
                             </div>
                             <div className="bg-purple-50 dark:bg-slate-700/50 rounded-xl p-4 text-center">
@@ -259,7 +300,7 @@ export default function QuizPage() {
                                 <div>
                                     <p className="font-medium text-blue-700 dark:text-blue-400 mb-1">Mode Examen</p>
                                     <p className="text-blue-600 dark:text-blue-300 text-sm">
-                                        Les {ccnaQuestions.length} questions seront présentées dans un ordre aléatoire.
+                                        Les {currentModuleQuestions.length} questions seront présentées dans un ordre aléatoire.
                                         Un chronomètre suivra votre progression. Certaines questions nécessitent plusieurs réponses.
                                     </p>
                                 </div>

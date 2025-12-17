@@ -45,14 +45,10 @@ function AppContent() {
       <Navigation currentPage={location.pathname} />
 
       <Routes>
-        {/* Public Routes */}
+        {/* Home Page - accessible to everyone */}
         <Route
           path="/"
-          element={
-            <PublicRoute>
-              <LandingPage />
-            </PublicRoute>
-          }
+          element={<LandingPage />}
         />
 
         {/* Auth Routes - redirect if already logged in */}

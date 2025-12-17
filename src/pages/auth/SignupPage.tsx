@@ -5,7 +5,7 @@ import Button from '../../components/ui/Button';
 import { SignupSchema } from '../../utils/validators';
 import { signup as signupService } from '../../services/authService';
 import { SignupFormData, SignupPayload } from 'types/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 interface SignupPageProps {
@@ -14,7 +14,11 @@ interface SignupPageProps {
 
 const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { loginWithGoogle } = useAuth();
+
+  // Get redirect URL from params (for post-auth navigation)
+  const redirectUrl = searchParams.get('redirect') || '/dashboard';
   const [formData, setFormData] = useState<SignupFormData>({
     firstname: '',
     lastname: '',
@@ -75,7 +79,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
       setServerError(null);
       try {
         await loginWithGoogle(tokenResponse.access_token);
-        navigate('/dashboard');
+        navigate(redirectUrl);
       } catch (err: any) {
         console.error('Google signup error:', err);
         setServerError(err.message || 'Google sign up failed. Please try again.');
@@ -122,7 +126,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
               <br />
             </h1>
             <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
-               Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.
+              Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.
             </p>
             <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400 text-center">
               ' Don't search for an internship, let the internship find you. '

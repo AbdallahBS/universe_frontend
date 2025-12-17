@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, Clock, ChevronLeft, ChevronRight, Award, BookOpen, Cloud, Monitor, X, Play, CheckCircle, Timer, HelpCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from '../components/AuthModal';
 
 interface CertificateModule {
     id: string;
@@ -29,7 +31,7 @@ interface CertificateCardProps {
 interface ModuleCarouselProps {
     modules: CertificateModule[];
     onClose: () => void;
-    onStartQuiz: (questionCount: number, timeLimit: number | null) => void;
+    onStartQuiz: (questionCount: number, timeLimit: number | null, moduleId: string) => void;
     isVisible: boolean;
 }
 
@@ -82,7 +84,7 @@ const ModuleCarousel: React.FC<ModuleCarouselProps> = ({ modules, onClose, onSta
     const handleStartQuiz = () => {
         setIsStarting(true);
         setTimeout(() => {
-            onStartQuiz(selectedQuestionCount, selectedTimeLimit);
+            onStartQuiz(selectedQuestionCount, selectedTimeLimit, currentModule.id);
         }, 500);
     };
 
@@ -405,8 +407,11 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
 
 export default function ExamCertificatesPage() {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
     const [showCarousel, setShowCarousel] = useState(false);
     const [selectedModules, setSelectedModules] = useState<CertificateModule[]>([]);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+    const [pendingQuizUrl, setPendingQuizUrl] = useState<string>('');
 
     const ccnaModules: CertificateModule[] = [
         {
@@ -425,8 +430,9 @@ export default function ExamCertificatesPage() {
             name: 'CCNA 2',
             description: 'Switching, Routing & Wireless - SRWE v7.0',
             fullDescription: 'Advance your networking skills with switching, VLANs, inter-VLAN routing, STP, EtherChannel, and wireless LAN concepts.',
-            isAvailable: false,
-            questionsCount: 150,
+            isAvailable: true,
+            route: '/quiz',
+            questionsCount: 174,
             duration: 'No Limit',
             imageUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&q=80'
         },
@@ -471,14 +477,25 @@ export default function ExamCertificatesPage() {
         setShowCarousel(true);
     };
 
-    const handleStartQuiz = (questionCount: number, timeLimit: number | null) => {
+    const handleStartQuiz = (questionCount: number, timeLimit: number | null, moduleId: string) => {
         const params = new URLSearchParams();
         params.set('start', 'true');
         params.set('count', questionCount.toString());
+        params.set('module', moduleId);
         if (timeLimit) {
             params.set('time', timeLimit.toString());
         }
-        navigate(`/exam-certificates/quiz?${params.toString()}`);
+        const quizUrl = `/exam-certificates/quiz?${params.toString()}`;
+
+        // Check if user is authenticated
+        if (!isAuthenticated) {
+            setPendingQuizUrl(quizUrl);
+            setShowAuthModal(true);
+            setShowCarousel(false);
+            return;
+        }
+
+        navigate(quizUrl);
     };
 
     const handleCloseCarousel = () => {
@@ -559,6 +576,15 @@ export default function ExamCertificatesPage() {
                     isVisible={showCarousel}
                 />
             )}
+
+            {/* Auth Modal - shown when user tries to start quiz without being logged in */}
+            <AuthModal
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
+                redirectUrl={pendingQuizUrl}
+                title="Sign in to start the quiz"
+                description="Create an account or sign in to track your progress and save your quiz results."
+            />
         </div>
     );
 }
