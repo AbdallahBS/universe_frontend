@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Trash2, Shield, Ban, UserCheck, Loader2, UserX } from 'lucide-react';
 import { changerole, deleteUser, getUsers } from '@services/adminService';
 import LoadingSpinner from '@components/ui/LoadingSpinner';
+import toast from 'react-hot-toast';
 
 interface User {
   _id: string;
@@ -72,50 +73,63 @@ const UserManagementPage: React.FC = () => {
     } catch (error) {
         console.error('Error fetching users:', error);
         setLoading(false);
+        toast.error('Error fetching users');
     }
   }
 
-  const handleDeleteUsers = async () => {
-     try {
-        setLoading(true);
-        selectedUsers.forEach(async (userId) => {
-           await deleteUser(userId);
-        });
-        await getUsersList();
-        setLoading(false);
-    } catch (error) {
-        console.error('Error deleting user:', error);
-        setLoading(false);
-    }
-  };
+const handleDeleteUsers = async () => {
+  try {
+    setLoading(true);
+    // Wait for ALL delete operations to complete
+    await Promise.all(
+      selectedUsers.map(userId => deleteUser(userId))
+    );
+    await getUsersList();
+    setSelectedUsers([]); // Clear selection after deletion
+    setLoading(false);
+    toast.success('Users deleted successfully');
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    setLoading(false);
+    toast.error('Error deleting user');
+  }
+};
 
-  const handlePromoteToAdmin = async () => {
-    try {
-        setLoading(true);
-        selectedUsers.forEach(async (userId) => {
-           await changerole(userId, true);
-        });
-        await getUsersList();
-        setLoading(false);
-    } catch (error) {
-        console.error('Error promoting user:', error);
-        setLoading(false);
-    }
-  };
+const handlePromoteToAdmin = async () => {
+  try {
+    setLoading(true);
+    // Wait for ALL promote operations to complete
+    await Promise.all(
+      selectedUsers.map(userId => changerole(userId, true))
+    );
+    await getUsersList();
+    setSelectedUsers([]); // Clear selection after promotion
+    setLoading(false);
+    toast.success('Users promoted successfully');
+  } catch (error) {
+    console.error('Error promoting user:', error);
+    setLoading(false);
+    toast.error('Error promoting user');
+  }
+};
 
-    const handleDowngradeToUser = async () => {
-     try {
-        setLoading(true);
-        selectedUsers.forEach(async (userId) => {
-           await changerole(userId, false);
-        });
-        await getUsersList();
-        setLoading(false);
-    } catch (error) {
-        console.error('Error downgrading user:', error);
-        setLoading(false);
-    }
-  };
+const handleDowngradeToUser = async () => {
+  try {
+    setLoading(true);
+    // Wait for ALL downgrade operations to complete
+    await Promise.all(
+      selectedUsers.map(userId => changerole(userId, false))
+    );
+    await getUsersList();
+    setSelectedUsers([]); // Clear selection after downgrade
+    setLoading(false);
+    toast.success('Users downgraded successfully');
+  } catch (error) {
+    console.error('Error downgrading user:', error);
+    setLoading(false);
+    toast.error('Error downgrading user');
+  }
+};
 
   return (
   <>

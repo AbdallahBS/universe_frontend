@@ -39,8 +39,7 @@ const AdminOptions: React.FC = () => {
       icon: Users,
       gradient: 'from-blue-500 to-cyan-600',
       textColor: 'text-blue-600 dark:text-blue-400',
-      action: () => navigate('/admin/users'),
-      badge: '145'
+      action: () => navigate('/admin/users')
     },
     {
       id: 'content',
@@ -49,8 +48,7 @@ const AdminOptions: React.FC = () => {
       icon: FileText,
       gradient: 'from-orange-500 to-red-600',
       textColor: 'text-orange-600 dark:text-orange-400',
-      action: () => navigate('/admin/contents'),
-      badge: '23'
+      action: () => navigate('/admin/contents')
     },
     {
       id: 'scrapper',
