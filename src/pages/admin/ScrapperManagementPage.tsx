@@ -1,88 +1,76 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Search, Trash2, Play, Pause, Edit, Loader2, Database, Clock, Zap, Plus, X, Save } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, Search, Trash2, Play, Pause, Edit, Loader2, Database, Clock, Zap, Plus, X, Save, FerrisWheel, Ban, PowerCircleIcon } from 'lucide-react';
 import ModalPortal from '@components/ModalPortal';
+import LoadingSpinner from '@components/ui/LoadingSpinner';
+import toast from 'react-hot-toast';
+import { isValidCron } from 'cron-validator';
+import { addScraper, changeScraperStatus, deleteScraper, getScrapers, startScrapers, updateScraper } from '@services/adminService';
 
 interface Scrapper {
-  id: string;
+  scrapperApifyId: string;
   name: string;
   source: string;
-  status: 'running' | 'stopped' | 'error';
+  status: 'running' | 'stopped' | 'disabled';
   lastRun: string;
-  postsScraped: number;
-  frequency: string;
+  totalScrappedResult: number;
+  frequency: {
+    schedule : string,
+    scheduleText : string
+  };
+  RequestBody: string;
 }
 
 const ScrapperManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedScrappers, setSelectedScrappers] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isStartDialogOpen, setIsStartDialogOpen] = useState(false);
   const [editingScrapper, setEditingScrapper] = useState<Scrapper | null>(null);
+  // Scrapper states
+  const [scrapperApifyId, setScrapperApifyId] = useState('');
   const [scrapperName, setScrapperName] = useState('');
   const [scrapperSource, setScrapperSource] = useState('');
+  const [totalScrappedResult, setTotalScrappedResult] = useState(0);
   const [requestBody, setRequestBody] = useState('');
+  const [customRequestBody, setCustomRequestBody] = useState('');
   const [cronSchedule, setCronSchedule] = useState('');
   const [cronError, setCronError] = useState('');
 
-  const [scrappers] = useState<Scrapper[]>([
-    {
-      id: '1',
-      name: 'LinkedIn Jobs Scraper',
-      source: 'LinkedIn',
-      status: 'running',
-      lastRun: '2025-12-15 14:30',
-      postsScraped: 2543,
-      frequency: 'Every 6 hours',
-    },
-    {
-      id: '2',
-      name: 'Indeed Internships Scraper',
-      source: 'Indeed',
-      status: 'running',
-      lastRun: '2025-12-15 13:00',
-      postsScraped: 1856,
-      frequency: 'Every 8 hours',
-    },
-    {
-      id: '3',
-      name: 'Facebook Jobs Scraper',
-      source: 'Facebook',
-      status: 'stopped',
-      lastRun: '2025-12-14 10:15',
-      postsScraped: 892,
-      frequency: 'Every 12 hours',
-    },
-    {
-      id: '4',
-      name: 'Twitter Opportunities Scraper',
-      source: 'Twitter/X',
-      status: 'error',
-      lastRun: '2025-12-15 11:45',
-      postsScraped: 345,
-      frequency: 'Every 4 hours',
-    },
-    {
-      id: '5',
-      name: 'University Portal Scraper',
-      source: 'University Portals',
-      status: 'running',
-      lastRun: '2025-12-15 15:00',
-      postsScraped: 3124,
-      frequency: 'Every 3 hours',
-    },
-  ]);
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [scrappers, setScrappers] = useState<Scrapper[]>([]);
+
+  const [disabledButtons, setDisabledButtons] = useState<string[]>([]);
 
   const filteredScrappers = scrappers.filter(scrapper =>
     scrapper.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     scrapper.source.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  useEffect(() => {
+    document.title = 'Universe | Scrapper Management';
+    getScrappersList();
+  }, []);
+
   const toggleScrapperSelection = (scraperId: string) => {
-    setSelectedScrappers(prev =>
-      prev.includes(scraperId)
+    setSelectedScrappers(prev => {
+      const next = prev.includes(scraperId)
         ? prev.filter(id => id !== scraperId)
-        : [...prev, scraperId]
+        : [...prev, scraperId];
+
+      let interrupted = false;
+      for (const scraperId of next) {
+        const scraper = scrappers.find(s => s.scrapperApifyId === scraperId);
+        if (scraper?.status === 'disabled') {
+          setDisabledButtons(["start", "disable"]);
+          interrupted = true;
+          break;
+        }
+      }
+      if (!interrupted) {setDisabledButtons(["enable"]);}
+      return next;
+    }
     );
   };
 
@@ -90,7 +78,7 @@ const ScrapperManagementPage: React.FC = () => {
     if (selectedScrappers.length === filteredScrappers.length) {
       setSelectedScrappers([]);
     } else {
-      setSelectedScrappers(filteredScrappers.map(s => s.id));
+      setSelectedScrappers(filteredScrappers.map(s => s.scrapperApifyId));
     }
   };
 
@@ -100,7 +88,7 @@ const ScrapperManagementPage: React.FC = () => {
         return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300';
       case 'stopped':
         return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300';
-      case 'error':
+      case 'disabled':
         return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
       default:
         return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300';
@@ -111,77 +99,179 @@ const ScrapperManagementPage: React.FC = () => {
     if (selectedScrappers.length === 0) return;
     
     // Get the selected scrappers' details
-    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s.id));
+    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s.scrapperApifyId));
     
-    // For simplicity, we'll show the first selected scrapper's settings
     if (selectedScrapperDetails.length > 0) {
       const scrapper = selectedScrapperDetails[0];
       setEditingScrapper(scrapper);
+      setScrapperApifyId(scrapper.scrapperApifyId)
       setScrapperName(scrapper.name);
       setScrapperSource(scrapper.source);
-      setRequestBody('{\n  "url": "https://example.com",\n  "selectors": {\n    "title": ".job-title",\n    "company": ".company-name"\n  }\n}');
-      setCronSchedule('0 */6 * * *');
+      setTotalScrappedResult(scrapper.totalScrappedResult);
+      setCustomRequestBody(scrapper.RequestBody);
+      setCronSchedule(scrapper.frequency.schedule);
       setIsStartDialogOpen(true);
     }
   };
 
-  const handleConfirmStart = () => {
-    setActionLoading('start');
-    setTimeout(() => {
-      console.log('Started scrappers:', selectedScrappers);
-      setSelectedScrappers([]);
-      setActionLoading(null);
-      setIsStartDialogOpen(false);
-    }, 1000);
+  const handleConfirmScraperStart = async () => {
+     try {
+        setActionLoading('start');
+        startScrapers({
+          name : scrapperName,
+          scrapperApifyId : scrapperApifyId,
+          totalScrappedResult : totalScrappedResult,
+          RequestBody : customRequestBody
+        });
+        toast.success('Scrapper started successfully');
+        setActionLoading(null);
+        await changeScraperStatus(scrapperApifyId, 'running');
+        await getScrappersList();
+        setIsStartDialogOpen(false);
+    } catch (error) {
+        console.error('Error scrapping result:', error);
+        setActionLoading(null);
+        toast.error('Error scrapping result');
+    }
   };
 
-  const handleStopScrappers = async () => {
-    if (selectedScrappers.length === 0) return;
-    setActionLoading('stop');
-    setTimeout(() => {
-      console.log('Stopped scrappers:', selectedScrappers);
+  const getScrappersList = async() => {
+    try {
+        setLoading(true);
+        const response = await getScrapers();
+        setScrappers(response);
+        setLoading(false);
+    } catch (error) {
+        console.error('Error fetching scrapers:', error);
+        setLoading(false);
+        toast.error('Error fetching scrapers');
+    } finally {
       setSelectedScrappers([]);
-      setActionLoading(null);
-    }, 1000);
-  };
+    }
+  }
 
-  const handleRestartScrappers = async () => {
+  const openModifyDialog = async () => {
     if (selectedScrappers.length === 0) return;
     
     // Get the selected scrappers' details
-    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s.id));
+    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s.scrapperApifyId));
     
-    // For simplicity, we'll show the first selected scrapper for editing
     if (selectedScrapperDetails.length > 0) {
       const scrapper = selectedScrapperDetails[0];
       openEditDialog(scrapper);
     }
+  }
+
+  const handleModifyScrappers = async () => {
+      try {
+        if (!scrapperName.trim() || !scrapperSource.trim() || !requestBody.trim() || !cronSchedule.trim()) {
+          alert('Please fill in all fields');
+          return;
+        }
+      
+        if (!validateCronSchedule(cronSchedule)) {
+          setCronError('Invalid cron schedule format');
+          return;
+        }
+
+        if (jsonError) { return };
+
+        setActionLoading("modify");
+        await updateScraper({
+          scrapperApifyId : scrapperApifyId,
+          name : scrapperName,
+          status: editingScrapper!.status,
+          source : scrapperSource,
+          RequestBody : requestBody,
+          frequency : {
+            schedule : cronSchedule,
+            scheduleText : ""
+          }
+        });
+        toast.success('Scrapper updated successfully');
+        await getScrappersList();
+    } catch (error) {
+        console.error('Error modifying scraper:', error);
+        toast.error('Error modifying scraper');
+    } finally {
+      setActionLoading(null);
+      setIsDialogOpen(false);
+    }
+  };
+
+const handleEnableScrappers = async () => {
+    try {
+      if (selectedScrappers.length === 0) return;
+      setActionLoading('enable');
+      await Promise.all(
+          selectedScrappers.map(scrapperApifyId => changeScraperStatus(scrapperApifyId, "stopped"))
+      );
+      await getScrappersList();
+      toast.success('Scrappers enabled');
+      setActionLoading(null);
+    } catch (error) {
+        console.error('Error occured:', error);
+        setActionLoading(null);
+        toast.error('Error occured');
+    }
+  };
+
+  const handleDisableScrappers = async () => {
+    try {
+      if (selectedScrappers.length === 0) return;
+      setActionLoading('disable');
+      await Promise.all(
+          selectedScrappers.map(scrapperApifyId => changeScraperStatus(scrapperApifyId, "disabled"))
+      );
+      await getScrappersList();
+      toast.success('Scrappers disabled');
+      setActionLoading(null);
+    } catch (error) {
+        console.error('Error occured:', error);
+        setActionLoading(null);
+        toast.error('Error occured');
+    }
   };
 
   const handleDeleteScrappers = async () => {
-    if (selectedScrappers.length === 0) return;
-    setActionLoading('delete');
-    setTimeout(() => {
-      console.log('Deleted scrappers:', selectedScrappers);
-      setSelectedScrappers([]);
+    try {
+      if (selectedScrappers.length === 0) return;
+      setActionLoading('delete');
+      await Promise.all(
+          selectedScrappers.map(scrapperApifyId => deleteScraper (scrapperApifyId))
+      );
+      await getScrappersList();
+      toast.success('Scrappers deleted');
       setActionLoading(null);
-    }, 1000);
+    } catch (error) {
+        console.error('Error occured:', error);
+        setActionLoading(null);
+        toast.error('Error occured');
+    }
   };
 
-  const validateCronSchedule = (schedule: string): boolean => {
-    // Basic cron validation: 5 or 6 fields separated by spaces
-    const cronRegex = /^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([12]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-6]))$/;
-    const extendedCronRegex = /^(\*|([0-5]?\d)) (\*|([01]?\d|2[0-3])) (\*|([12]?\d|3[01])) (\*|([1-9]|1[0-2])) (\*|([0-6])) (\*|\d{4})$/;
-    
-    // Also allow special strings
-    const specialStrings = ['@yearly', '@annually', '@monthly', '@weekly', '@daily', '@midnight', '@hourly'];
-    
-    if (specialStrings.includes(schedule.toLowerCase())) {
-      return true;
-    }
-    
-    return cronRegex.test(schedule) || extendedCronRegex.test(schedule);
-  };
+const validateCronSchedule = (schedule: string): boolean => {
+  const specialStrings = [
+    '@yearly',
+    '@annually',
+    '@monthly',
+    '@weekly',
+    '@daily',
+    '@midnight',
+    '@hourly',
+  ];
+
+  const normalized = schedule.trim().toLowerCase();
+
+  // Allow special cron strings
+  if (specialStrings.includes(normalized)) {
+    return true;
+  }
+
+  // Validate standard cron syntax (5 fields)
+  return isValidCron(normalized);
+};
+
 
   const handleCronChange = (value: string) => {
     setCronSchedule(value);
@@ -194,9 +284,10 @@ const ScrapperManagementPage: React.FC = () => {
 
   const openAddDialog = () => {
     setEditingScrapper(null);
+    setScrapperApifyId('');
     setScrapperName('');
     setScrapperSource('');
-    setRequestBody('');
+    setRequestBody('{}');
     setCronSchedule('');
     setCronError('');
     setIsDialogOpen(true);
@@ -204,37 +295,57 @@ const ScrapperManagementPage: React.FC = () => {
 
   const openEditDialog = (scrapper: Scrapper) => {
     setEditingScrapper(scrapper);
+    setScrapperApifyId(scrapper.scrapperApifyId);
     setScrapperName(scrapper.name);
     setScrapperSource(scrapper.source);
-    setRequestBody('{}'); // Placeholder
-    setCronSchedule('0 */6 * * *'); // Placeholder
-    setCronError('');
+    setRequestBody(scrapper.RequestBody);
+    setCronSchedule(scrapper.frequency.schedule); 
+    setCronError(''); // Placeholder
     setIsDialogOpen(true);
   };
 
-  const handleSaveScrapper = () => {
-    if (!scrapperName.trim() || !scrapperSource.trim() || !requestBody.trim() || !cronSchedule.trim()) {
-      alert('Please fill in all fields');
-      return;
+  const handleSaveScrapper = async () => {
+    try {
+      if (!scrapperName.trim() || !scrapperSource.trim() || !requestBody.trim() || !cronSchedule.trim()) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      if (!validateCronSchedule(cronSchedule)) {
+        setCronError('Invalid cron schedule format');
+        return;
+      }
+
+      if (jsonError) { return };
+
+      await addScraper({
+        scrapperApifyId : scrapperApifyId,
+        name : scrapperName,
+        status: "stopped",
+        source : scrapperSource,
+        RequestBody : requestBody,
+        frequency : {
+          schedule : cronSchedule,
+          scheduleText : ""
+        }
+      })
+      
+      toast.success('Scrapper added successfully');
+      await getScrappersList();
+    } catch (error) {
+        console.error('Error adding scraper:', error);
+        toast.error('Error adding scraper');
+    } finally {
+      setActionLoading(null);
+      setIsDialogOpen(false);
     }
-
-    if (!validateCronSchedule(cronSchedule)) {
-      setCronError('Invalid cron schedule format');
-      return;
-    }
-
-    // Save logic here
-    console.log('Saving scrapper:', {
-      name: scrapperName,
-      source: scrapperSource,
-      requestBody,
-      cronSchedule,
-    });
-
-    setIsDialogOpen(false);
   };
 
   return (
+  <>
+    <LoadingSpinner loading={loading} fullScreen/>
+    {
+      !loading && (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
       {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -273,9 +384,9 @@ const ScrapperManagementPage: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-3xl font-bold text-red-600 dark:text-red-400">
-                    {scrappers.filter(s => s.status === 'error').length}
+                    {scrappers.filter(s => s.status === 'disabled').length}
                   </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Errors</div>
+                  <div className="text-sm text-slate-600 dark:text-slate-400">Disabled</div>
                 </div>
                 <button
                   onClick={openAddDialog}
@@ -314,31 +425,42 @@ const ScrapperManagementPage: React.FC = () => {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={handleStartScrappers}
-                  disabled={actionLoading !== null}
+                  disabled={actionLoading !== null || disabledButtons.includes('start')}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
                 >
                   {actionLoading === 'start' && <Loader2 className="w-4 h-4 animate-spin" />}
                   <Play className="w-4 h-4" />
-                  Start
+                  Start Now
                 </button>
 
                 <button
-                  onClick={handleStopScrappers}
-                  disabled={actionLoading !== null}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
-                >
-                  {actionLoading === 'stop' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <Pause className="w-4 h-4" />
-                  Stop
-                </button>
-
-                <button
-                  onClick={handleRestartScrappers}
-                  disabled={actionLoading !== null}
+                  onClick={openModifyDialog}
+                  disabled={actionLoading !== null || disabledButtons.includes('modify')}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
                 >
+                  {actionLoading === 'modify' && <Loader2 className="w-4 h-4 animate-spin" />}
                   <Edit className="w-4 h-4" />
                   Modify
+                </button>
+
+                <button
+                  onClick={handleEnableScrappers}
+                  disabled={actionLoading !== null || disabledButtons.includes('enable')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                >
+                  {actionLoading === 'enable' && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <PowerCircleIcon className="w-4 h-4" />
+                  Enable
+                </button>
+
+                <button
+                  onClick={handleDisableScrappers}
+                  disabled={actionLoading !== null || disabledButtons.includes('disable')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                >
+                  {actionLoading === 'disable' && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <Ban className="w-4 h-4" />
+                  Disable
                 </button>
 
                 <button
@@ -389,17 +511,17 @@ const ScrapperManagementPage: React.FC = () => {
               <tbody>
                 {filteredScrappers.map((scrapper) => (
                   <tr
-                    key={scrapper.id}
+                    key={scrapper.scrapperApifyId}
                     onClick={() => openEditDialog(scrapper)}
                     className={`border-b border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer ${
-                      selectedScrappers.includes(scrapper.id) ? 'bg-violet-50/50 dark:bg-violet-900/20' : ''
+                      selectedScrappers.includes(scrapper.scrapperApifyId) ? 'bg-violet-50/50 dark:bg-violet-900/20' : ''
                     }`}
                   >
                     <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
-                        checked={selectedScrappers.includes(scrapper.id)}
-                        onChange={() => toggleScrapperSelection(scrapper.id)}
+                        checked={selectedScrappers.includes(scrapper.scrapperApifyId)}
+                        onChange={() => toggleScrapperSelection(scrapper.scrapperApifyId)}
                         className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-violet-600 focus:ring-2 focus:ring-violet-500 cursor-pointer"
                       />
                     </td>
@@ -422,7 +544,7 @@ const ScrapperManagementPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${
                           scrapper.status === 'running' ? 'bg-green-500 animate-pulse' :
-                          scrapper.status === 'error' ? 'bg-red-500' :
+                          scrapper.status === 'disabled' ? 'bg-red-500' :
                           'bg-slate-400'
                         }`}></div>
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(scrapper.status)}`}>
@@ -433,16 +555,16 @@ const ScrapperManagementPage: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                         <Clock className="w-4 h-4" />
-                        {scrapper.lastRun}
+                        {scrapper.lastRun === "non specified" ? scrapper.lastRun : new Date(scrapper.lastRun).toLocaleString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
-                      {scrapper.postsScraped.toLocaleString()}
+                      {scrapper.totalScrappedResult ? scrapper.totalScrappedResult.toLocaleString() : 0}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                         <Zap className="w-4 h-4" />
-                        {scrapper.frequency}
+                        {scrapper.frequency.scheduleText}
                       </div>
                     </td>
                   </tr>
@@ -480,6 +602,20 @@ const ScrapperManagementPage: React.FC = () => {
 
               {/* Dialog Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Scrapper ID */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                    Scrapper Id (Apify ID)
+                  </label>
+                  <input
+                    type="text"
+                    value={scrapperApifyId}
+                    onChange={(e) => setScrapperApifyId(e.target.value)}
+                    placeholder="e.g., APIFY_..."
+                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                  />
+                </div>
+
                 {/* Scrapper Name */}
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
@@ -515,14 +651,37 @@ const ScrapperManagementPage: React.FC = () => {
                   </label>
                   <textarea
                     value={requestBody}
-                    onChange={(e) => setRequestBody(e.target.value)}
-                    placeholder='{"url": "https://example.com", "selectors": {...}}'
+                    onChange={(e) => {
+                      const nextValue = e.target.value;
+                    
+                      setRequestBody((prev) => {
+                        try {
+                          if (nextValue.trim()) {
+                            JSON.parse(nextValue);
+                          }
+                          setJsonError(null);
+                        } catch (err: any) {
+                          setJsonError(err.message);
+                        }
+                      
+                        return nextValue;
+                      });
+                    }}
                     rows={8}
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm"
+                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm
+                      border ${
+                        jsonError
+                          ? 'border-red-500 focus:border-red-500'
+                          : 'border-slate-300 dark:border-slate-600 focus:border-violet-500'
+                      }
+                    `}
                   />
                   <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                     Enter the JSON configuration for your scraper
                   </p>
+                  {jsonError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
+                  )}
                 </div>
 
                 {/* Cron Schedule */}
@@ -563,13 +722,24 @@ const ScrapperManagementPage: React.FC = () => {
                 >
                   Cancel
                 </button>
-                <button
+                {editingScrapper && (
+                  <button
+                  onClick={handleModifyScrappers}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
+                >
+                  <Save className="w-4 h-4" />
+                  Update Scrapper
+                </button>
+                )}
+                {!editingScrapper && (
+                  <button
                   onClick={handleSaveScrapper}
                   className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
                 >
                   <Save className="w-4 h-4" />
-                  {editingScrapper ? 'Update' : 'Create'} Scrapper
+                  Create Scrapper
                 </button>
+                )}
               </div>
             </div>
           </div>
@@ -596,6 +766,20 @@ const ScrapperManagementPage: React.FC = () => {
 
               {/* Dialog Content */}
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/* Scrapper ID */}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                    Scrapper Id (Apify ID)
+                  </label>
+                  <input
+                    type="text"
+                    disabled={true}
+                    value={scrapperApifyId}
+                    placeholder="e.g., APIFY_..."
+                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                  />
+                </div>
+
                 {/* Scrapper Name */}
                 <div>
                   <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
@@ -621,9 +805,39 @@ const ScrapperManagementPage: React.FC = () => {
                   <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
                     Request Body (JSON)
                   </label>
-                  <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono text-sm whitespace-pre-wrap">
-                    {requestBody}
-                  </div>
+                  <textarea
+                    value={requestBody}
+                    onChange={(e) => {
+                      const nextValue = e.target.value;
+                    
+                      setRequestBody((prev) => {
+                        try {
+                          if (nextValue.trim()) {
+                            JSON.parse(nextValue);
+                          }
+                          setJsonError(null);
+                        } catch (err: any) {
+                          setJsonError(err.message);
+                        }
+                      
+                        return nextValue;
+                      });
+                    }}
+                    rows={8}
+                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm
+                      border ${
+                        jsonError
+                          ? 'border-red-500 focus:border-red-500'
+                          : 'border-slate-300 dark:border-slate-600 focus:border-violet-500'
+                      }
+                    `}
+                  />
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                    Enter the JSON configuration for your scraper
+                  </p>
+                  {jsonError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
+                  )}
                 </div>
 
                 {/* Cron Schedule */}
@@ -632,7 +846,7 @@ const ScrapperManagementPage: React.FC = () => {
                     Cron Schedule
                   </label>
                   <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono">
-                    {cronSchedule}
+                    RUNNING NOW
                   </div>
                 </div>
 
@@ -654,7 +868,7 @@ const ScrapperManagementPage: React.FC = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleConfirmStart}
+                  onClick={handleConfirmScraperStart}
                   disabled={actionLoading !== null}
                   className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors shadow-lg"
                 >
@@ -676,7 +890,8 @@ const ScrapperManagementPage: React.FC = () => {
         </ModalPortal>
         )}
       </div>
-    </div>
+    </div>)}
+  </>
   );
 };
 

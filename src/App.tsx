@@ -23,7 +23,7 @@ import Footer from '@components/Footer';
 import UserManagementPage from '@pages/admin/UserManagementPage';
 import ContentManagementPage from '@pages/admin/ContentManagementPage';
 import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
-import { Toaster } from 'react-hot-toast';
+import CustomToaster from '@components/customToaster';
 
 // Main app content component
 function AppContent() {
@@ -44,7 +44,7 @@ function AppContent() {
   return (
     <div className="relative min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
       <Navigation currentPage={location.pathname} />
-      <Toaster position="bottom-right" />
+      <CustomToaster />
 
       <Routes>
         {/* Home Page - accessible to everyone */}

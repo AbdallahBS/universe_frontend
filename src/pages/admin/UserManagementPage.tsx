@@ -68,7 +68,6 @@ const UserManagementPage: React.FC = () => {
         setLoading(true);
         const response = await getUsers();
         setUsers(response.data);
-        console.log(response.data);
         setLoading(false);
     } catch (error) {
         console.error('Error fetching users:', error);
