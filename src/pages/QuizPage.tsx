@@ -4,6 +4,9 @@ import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
 import { ccna2Questions } from './data/ccna2QuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
 import FeedbackCard from '../components/quiz/FeedbackCard';
+import { useAuth } from '../context/AuthContext';
+import { saveQuizAttempt } from '../services/quizService';
+import { QuestionResult, SaveAttemptPayload } from '../types/quiz';
 
 type QuizModule = 'ccna1' | 'ccna2';
 
@@ -12,6 +15,7 @@ type QuizScreen = 'start' | 'quiz' | 'results';
 export default function QuizPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
     const [screen, setScreen] = useState<QuizScreen>('start');
     const [selectedModule, setSelectedModule] = useState<QuizModule>('ccna1');
     const [questions, setQuestions] = useState<CCNAQuestion[]>([]);
@@ -32,6 +36,12 @@ export default function QuizPage() {
     const [remainingTime, setRemainingTime] = useState<number | null>(null);
     const timerRef = useRef<number | null>(null);
     const hasAutoSubmittedRef = useRef(false);
+
+    // Save attempt state
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [savedAttemptId, setSavedAttemptId] = useState<string | null>(null);
+    const hasSavedRef = useRef(false);
 
     // Check for direct start from URL params
     useEffect(() => {
@@ -54,8 +64,8 @@ export default function QuizPage() {
 
     useEffect(() => {
         document.title = 'Universe | Quiz';
-      }, []);
-      
+    }, []);
+
     // Timer logic
     useEffect(() => {
         if (screen === 'quiz') {
@@ -91,6 +101,63 @@ export default function QuizPage() {
             }
         };
     }, [screen, timeLimit]);
+
+    // Save quiz attempt when reaching results screen
+    useEffect(() => {
+        const saveAttempt = async () => {
+            // Only save if authenticated, on results screen, not already saved, and has answers
+            if (!isAuthenticated || screen !== 'results' || hasSavedRef.current || answers.length === 0) {
+                return;
+            }
+
+            hasSavedRef.current = true;
+            setIsSaving(true);
+            setSaveError(null);
+
+            try {
+                // Build question results array
+                const questionResults: QuestionResult[] = answers.map(answer => {
+                    const q = questions.find(q => q.id === answer.questionId);
+                    if (!q) return null;
+                    return {
+                        questionId: q.id,
+                        questionText: q.question,
+                        options: q.options,
+                        userAnswers: answer.selected,
+                        correctAnswers: q.correctAnswers,
+                        isCorrect: answer.correct,
+                        explanation: q.explanation || '',
+                        imageUrl: q.imageUrl
+                    };
+                }).filter(Boolean) as QuestionResult[];
+
+                const totalAnswered = answers.length;
+                const correctCount = answers.filter(a => a.correct).length;
+                const percentage = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+                const payload: SaveAttemptPayload = {
+                    module: selectedModule,
+                    totalQuestions: totalAnswered,
+                    correctAnswers: correctCount,
+                    scorePercentage: percentage,
+                    timeTaken: elapsedTime,
+                    questionResults
+                };
+
+                const response = await saveQuizAttempt(payload);
+                setSavedAttemptId(response.data.attemptId);
+                console.log('Quiz attempt saved successfully:', response.data.attemptId);
+            } catch (error) {
+                console.error('Failed to save quiz attempt:', error);
+                setSaveError(error instanceof Error ? error.message : 'Failed to save attempt');
+                hasSavedRef.current = false; // Allow retry
+            } finally {
+                setIsSaving(false);
+            }
+        };
+
+        saveAttempt();
+    }, [screen, isAuthenticated, answers, questions, selectedModule, elapsedTime]);
 
     // Format time as MM:SS
     const formatTime = (seconds: number) => {
@@ -210,17 +277,13 @@ export default function QuizPage() {
     };
 
     const restartQuiz = () => {
-        setScreen('start');
-        setElapsedTime(0);
-        setTimeLimit(null);
-        setRemainingTime(null);
-        hasAutoSubmittedRef.current = false;
+        // Navigate to exam certificates page (carousel) to start a new quiz
+        navigate('/exam-certificates');
     };
 
     const currentQuestion = questions[currentIndex];
     const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
     const answeredQuestions = answers.length;
-    const scorePercentage = answeredQuestions > 0 ? Math.round((score / answeredQuestions) * 100) : 0;
 
     // Timer warning states
     const isTimeLow = remainingTime !== null && remainingTime <= 60; // Last minute
@@ -638,6 +701,49 @@ export default function QuizPage() {
                             </div>
                         )}
 
+                        {/* Save Status Indicator */}
+                        {isAuthenticated && (
+                            <div className={`rounded-xl p-4 mb-6 ${isSaving ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800' :
+                                saveError ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800' :
+                                    savedAttemptId ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' :
+                                        'bg-gray-50 dark:bg-slate-700/50'
+                                }`}>
+                                <div className="flex items-center gap-3">
+                                    {isSaving && (
+                                        <>
+                                            <svg className="w-5 h-5 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <p className="text-blue-700 dark:text-blue-400 text-sm font-medium">
+                                                Sauvegarde de votre tentative...
+                                            </p>
+                                        </>
+                                    )}
+                                    {!isSaving && saveError && (
+                                        <>
+                                            <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <p className="text-red-700 dark:text-red-400 text-sm font-medium">
+                                                Erreur: {saveError}
+                                            </p>
+                                        </>
+                                    )}
+                                    {!isSaving && savedAttemptId && (
+                                        <>
+                                            <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <p className="text-green-700 dark:text-green-400 text-sm font-medium">
+                                                ✓ Tentative sauvegardée avec succès !
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Action Buttons */}
                         <div className="flex gap-4">
                             <button
@@ -649,6 +755,17 @@ export default function QuizPage() {
                                 </svg>
                                 <span>Réessayer</span>
                             </button>
+                            {savedAttemptId && (
+                                <button
+                                    onClick={() => navigate('/quiz-history')}
+                                    className="flex-1 py-4 px-6 bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-200 font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 border border-gray-200 dark:border-slate-600"
+                                >
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    <span>Voir Historique</span>
+                                </button>
+                            )}
                         </div>
                     </div>
 

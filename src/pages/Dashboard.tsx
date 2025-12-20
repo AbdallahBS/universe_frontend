@@ -1,9 +1,10 @@
 import { useAuth } from '@context/AuthContext';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2, TextSearchIcon } from 'lucide-react';
+import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2, TextSearchIcon, Trophy } from 'lucide-react';
 import TunisiaMap from '../components/TunisiaMap';
 import AdminOptions from '@components/AdminOptions';
+import QuizAttemptsList from '@components/QuizAttemptsList';
 import { getSavedInternships, unsaveInternship } from '@services/savedInternshipsService';
 import { LinkedInPost } from 'types/resource';
 import { timeAgo } from '@utils/helpers';
@@ -193,7 +194,16 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
           )}
         </div>
 
-        {/* Section 3: Quick Actions */}
+        {/* Section 3: Quiz Attempts */}
+        <div className="mb-10 animate-fade-in-up animation-delay-250">
+          <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-orange-500" />
+            Recent Quiz Attempts
+          </h2>
+          <QuizAttemptsList maxItems={6} />
+        </div>
+
+        {/* Section 4: Quick Actions */}
         <div className="mb-10 animate-fade-in-up animation-delay-300">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <Rocket className="w-5 h-5 text-teal-500" />

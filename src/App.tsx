@@ -19,6 +19,8 @@ import CycleIngenieurPage from '@pages/cycle-ingenieur/CycleIngenieurPage';
 import UniversityDetailsPage from '@pages/cycle-ingenieur/UniversityDetailsPage';
 import QuizPage from '@pages/QuizPage';
 import ExamCertificatesPage from '@pages/ExamCertificatesPage';
+import QuizHistoryPage from '@pages/QuizHistoryPage';
+import AttemptDetailPage from '@pages/AttemptDetailPage';
 import Footer from '@components/Footer';
 import UserManagementPage from '@pages/admin/UserManagementPage';
 import ContentManagementPage from '@pages/admin/ContentManagementPage';
@@ -112,6 +114,24 @@ function AppContent() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/exam-certificates" element={<ExamCertificatesPage />} />
         <Route path="/exam-certificates/quiz" element={<QuizPage />} />
+
+        {/* Quiz History Routes - Protected */}
+        <Route
+          path="/quiz-history"
+          element={
+            <ProtectedRoute>
+              <QuizHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quiz-history/:id"
+          element={
+            <ProtectedRoute>
+              <AttemptDetailPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin-only Routes */}
         {/* ADMIN ROUTES */}
