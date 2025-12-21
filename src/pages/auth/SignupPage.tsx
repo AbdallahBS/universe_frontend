@@ -3,8 +3,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { SignupSchema } from '../../utils/validators';
-import { signup as signupService } from '../../services/authService';
-import { SignupFormData, SignupPayload } from 'types/auth';
+import { SignupFormData } from 'types/auth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -15,7 +14,7 @@ interface SignupPageProps {
 const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { loginWithGoogle } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
 
   // Get redirect URL from params (for post-auth navigation)
   const redirectUrl = searchParams.get('redirect') || '/dashboard';
@@ -57,15 +56,14 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
 
     setIsLoading(true);
     try {
-      const payload: SignupPayload = {
+      await signup({
         firstname: formData.firstname,
         lastname: formData.lastname,
         email: formData.email,
         password: formData.password,
-      };
-      await signupService(payload);
+      });
       onSignupSuccess?.(formData.email);
-      navigate('/verify-email')
+      navigate('/verify-email');
     } catch (err: any) {
       setServerError(err?.message || 'Signup failed');
     } finally {

@@ -6,9 +6,10 @@ import { getStats } from '../services/authService';
 type AuthContextValue = {
   user: User | null;
   userRoles: string[];
-  stats : any;
+  stats: any;
   isAuthenticated: boolean;
   isLoading: boolean;
+  signup: (payload: { firstname: string; lastname: string; email: string; password: string }) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -29,10 +30,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const response : any = await getStats();
-        setStats(response);  
+        const response: any = await getStats();
+        setStats(response);
 
-        const me : any = await CookieManager.isAuthenticated();
+        const me: any = await CookieManager.isAuthenticated();
         const isAuth = !!me;
 
         const CookieUser = CookieManager.getUser();
@@ -52,6 +53,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
+  const signup = async (payload: { firstname: string; lastname: string; email: string; password: string }) => {
+    try {
+      const { signup: signupService } = await import('../services/authService');
+      const response = await signupService(payload);
+
+      // Store user data in cookie (tokens are already set by backend)
+      if (response.user) {
+        CookieManager.set('user', JSON.stringify(response.user), 30);
+        setUser(response.user);
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    }
+  };
+
   const login = async (email: string, password: string) => {
     try {
       const { login: loginService } = await import('../services/authService');
@@ -62,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
 
-        const me : any = await CookieManager.isAuthenticated();
+        const me: any = await CookieManager.isAuthenticated();
         setUserRoles(me.user.roles || []);
       }
     } catch (error) {
@@ -81,7 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
 
-        const me : any = await CookieManager.isAuthenticated();
+        const me: any = await CookieManager.isAuthenticated();
         setUserRoles(me.user.roles || []);
       }
     } catch (error) {
@@ -110,6 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     stats,
     isAuthenticated,
     isLoading,
+    signup,
     login,
     loginWithGoogle,
     logout,

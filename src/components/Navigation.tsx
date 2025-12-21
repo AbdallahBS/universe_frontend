@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, User, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, Sun, Moon, User, LogOut, ChevronDown, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
@@ -189,6 +189,13 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                       <User className="h-4 w-4" />
                       <span>Dashboard</span>
                     </button>
+                    <button
+                      onClick={() => handleNavClick('/profile')}
+                      className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Profile & Settings</span>
+                    </button>
 
                     <div className="border-t border-slate-200 dark:border-slate-700 my-1"></div>
 
@@ -293,9 +300,9 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
             Engineering Cycle
           </button>
           <span
-                className="text-slate-400 dark:text-slate-500 cursor-not-allowed block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors"
-              >
-                Alternance
+            className="text-slate-400 dark:text-slate-500 cursor-not-allowed block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors"
+          >
+            Alternance
           </span>
           <button
             onClick={() => handleNavClick("/about")}
@@ -350,6 +357,12 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                   className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   Dashboard
+                </button>
+                <button
+                  onClick={() => handleNavClick('/profile')}
+                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Profile & Settings
                 </button>
 
                 <button

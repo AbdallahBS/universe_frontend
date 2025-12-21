@@ -23,4 +23,20 @@ export const SignupSchema = z
 
 export type SignupForm = z.infer<typeof SignupSchema>;
 
+/**
+ * Reset Password Schema
+ * Reuses the same password regex as signup for consistency
+ */
+export const ResetPasswordSchema = z
+  .object({
+    password: z.string().regex(passwordRegex, {
+      message: 'Password must be 8+ chars, include upper, lower, and a number',
+    }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
+export type ResetPasswordForm = z.infer<typeof ResetPasswordSchema>;

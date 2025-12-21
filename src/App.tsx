@@ -9,10 +9,13 @@ import LandingPage from '@pages/LandingPage';
 import LoginPage from '@pages/auth/LoginPage';
 import SignupPage from '@pages/auth/SignupPage';
 import VerifyEmailPage from '@pages/auth/VerifyEmailPage';
-import ForgotPassword from '@pages/auth/ForgotPassword';
+import ForgotPasswordPage from '@pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from '@pages/auth/ResetPasswordPage';
+
 import { PublicRoute } from '@components/PublicRoute';
 import { ProtectedRoute } from '@components/ProtectedRoute';
 import Dashboard from '@pages/Dashboard';
+import ProfilePage from '@pages/ProfilePage';
 import About from '@pages/About';
 import Contact from '@pages/Contact';
 import CycleIngenieurPage from '@pages/cycle-ingenieur/CycleIngenieurPage';
@@ -26,6 +29,7 @@ import UserManagementPage from '@pages/admin/UserManagementPage';
 import ContentManagementPage from '@pages/admin/ContentManagementPage';
 import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
 import CustomToaster from '@components/customToaster';
+import VerificationBanner from '@components/VerificationBanner';
 
 // Main app content component
 function AppContent() {
@@ -46,6 +50,7 @@ function AppContent() {
   return (
     <div className="relative min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
       <Navigation currentPage={location.pathname} />
+      <VerificationBanner />
       <CustomToaster />
 
       <Routes>
@@ -73,14 +78,19 @@ function AppContent() {
           }
         />
 
-        {/* Password Reset */}
+        {/* Password Reset Routes */}
         <Route
-          path="/password-reset"
+          path="/forgot-password"
           element={
             <PublicRoute>
-              <ForgotPassword />
+              <ForgotPasswordPage />
             </PublicRoute>
           }
+        />
+        {/* Reset password - accessible even when logged in (user clicks email link) */}
+        <Route
+          path="/reset-password"
+          element={<ResetPasswordPage />}
         />
 
         {/* Email Verification */}
@@ -97,9 +107,17 @@ function AppContent() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireVerified={true}>
               {/* Dashboard component for authenticated users */}
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute requireVerified={false}>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
@@ -115,11 +133,11 @@ function AppContent() {
         <Route path="/exam-certificates" element={<ExamCertificatesPage />} />
         <Route path="/exam-certificates/quiz" element={<QuizPage />} />
 
-        {/* Quiz History Routes - Protected */}
+        {/* Quiz History Routes - Protected (requires email verification) */}
         <Route
           path="/quiz-history"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireVerified={true}>
               <QuizHistoryPage />
             </ProtectedRoute>
           }
@@ -127,7 +145,7 @@ function AppContent() {
         <Route
           path="/quiz-history/:id"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute requireVerified={true}>
               <AttemptDetailPage />
             </ProtectedRoute>
           }

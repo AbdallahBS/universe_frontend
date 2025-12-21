@@ -11,20 +11,26 @@ interface PublicRouteProps {
 }
 
 // Prevents authenticated users from accessing login/signup
-export const PublicRoute = ({ 
-  children, 
+export const PublicRoute = ({
+  children,
   disable = false
 }: PublicRouteProps) => {
   const { user, isLoading } = useAuth();
-  
+
   if (disable) {
     return <>{children}</>;
   }
 
   if (isLoading) {
-    return <LoadingSpinner loading={isLoading} fullScreen/>;
+    return <LoadingSpinner loading={isLoading} fullScreen />;
   }
 
+  // If user exists but is not verified, redirect to verify-email
+  if (user && !user.isVerified) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
+  // If user is authenticated and verified, redirect to dashboard
   if (user) {
     return <Navigate to="/dashboard" replace />;
   }

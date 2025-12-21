@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { verifyEmail, requestEmailVerification } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import CookieManager from '../../utils/cookies';
 
 interface VerifyEmailPageProps {
   userEmail?: string;
@@ -10,16 +13,72 @@ interface VerifyEmailPageProps {
 
 const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
+  const [searchParams] = useSearchParams();
   const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [isAutoVerifying, setIsAutoVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resendSuccess, setResendSuccess] = useState(false);
   const [success, setSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
 
+  // Get token from URL if present (from email link)
+  const tokenFromUrl = searchParams.get('token');
+
+  // Get display email (from user context or prop)
+  const displayEmail = user?.email || userEmail || 'your email address';
+
+  // Redirect if user is already verified
+  useEffect(() => {
+    if (user?.isVerified && !tokenFromUrl) {
+      navigate('/dashboard');
+    }
+  }, [user?.isVerified, tokenFromUrl, navigate]);
+
+  // Auto-verify if token is present in URL
+  useEffect(() => {
+    const autoVerifyWithToken = async () => {
+      // If user is already verified, just redirect to dashboard
+      if (user?.isVerified) {
+        setSuccess(true);
+        setTimeout(() => navigate('/dashboard'), 1000);
+        return;
+      }
+
+      if (tokenFromUrl && !success && !isAutoVerifying) {
+        setIsAutoVerifying(true);
+        setError(null);
+
+        try {
+          await verifyEmail({ token: tokenFromUrl });
+
+          // Update user verification status in context and cookie
+          if (user) {
+            const updatedUser = { ...user, isVerified: true };
+            setUser(updatedUser);
+            CookieManager.set('user', JSON.stringify(updatedUser), 30);
+          }
+
+          setSuccess(true);
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 2000);
+        } catch (err: any) {
+          setError(err?.message || 'Token verification failed. Please try entering the code manually.');
+        } finally {
+          setIsAutoVerifying(false);
+        }
+      }
+    };
+
+    autoVerifyWithToken();
+  }, [tokenFromUrl, success, isAutoVerifying, navigate]);
+
   // Countdown timer for resend button
   useEffect(() => {
-    document.title = 'Universe | Auth';
+    document.title = 'Universe | Verify Email';
 
     if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -34,9 +93,17 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
 
     try {
       await verifyEmail({ code: verificationCode });
+
+      // Update user verification status in context and cookie
+      if (user) {
+        const updatedUser = { ...user, isVerified: true };
+        setUser(updatedUser);
+        CookieManager.set('user', JSON.stringify(updatedUser), 30);
+      }
+
       setSuccess(true);
       setTimeout(() => {
-         navigate('/login')
+        navigate('/dashboard');
       }, 2000);
     } catch (err: any) {
       setError(err?.message || 'Verification failed');
@@ -47,10 +114,12 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
 
   const handleResendCode = async () => {
     setError(null);
+    setResendSuccess(false);
     setIsResending(true);
 
     try {
       await requestEmailVerification();
+      setResendSuccess(true);
       setTimeLeft(60); // 60 seconds cooldown
     } catch (err: any) {
       setError(err?.message || 'Failed to resend verification code');
@@ -65,24 +134,43 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
     setVerificationCode(numericValue);
   };
 
+  // Show loading state for auto-verification
+  if (isAutoVerifying) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-teal-50 dark:from-slate-900 dark:to-slate-800">
+        <div className="max-w-md w-full mx-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 text-center border border-slate-200 dark:border-slate-700">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 dark:border-teal-400 mx-auto mb-6"></div>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+              Verifying Your Email...
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400">
+              Please wait while we verify your email address.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-teal-50 dark:from-slate-900 dark:to-slate-800">
         <div className="max-w-md w-full mx-4">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 text-center border border-slate-200 dark:border-slate-700">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
               Email Verified!
             </h2>
-            <p className="text-slate-600 mb-6">
-              Your email has been successfully verified. You can now sign in to your account.
+            <p className="text-slate-600 dark:text-slate-400 mb-6">
+              Your email has been successfully verified. Redirecting to your dashboard...
             </p>
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 mx-auto"></div>
-            <p className="text-sm text-slate-500 mt-2">Redirecting to login...</p>
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-teal-600 dark:border-teal-400 mx-auto"></div>
+            <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">Redirecting...</p>
           </div>
         </div>
       </div>
@@ -90,7 +178,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex mt-16">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-teal-900 via-slate-800 to-slate-900 overflow-hidden">
         {/* Background Pattern */}
@@ -98,11 +186,11 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(14,165,233,0.3),transparent_50%)]"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(6,182,212,0.2),transparent_50%)]"></div>
         </div>
-        
+
         {/* Floating Elements */}
         <div className="absolute top-32 left-20 w-24 h-24 bg-teal-500/20 rounded-full animate-float animation-delay-1000"></div>
         <div className="absolute bottom-32 right-32 w-16 h-16 bg-white/10 rounded-full animate-pulse animation-delay-500"></div>
-        
+
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="max-w-md">
@@ -122,29 +210,35 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
       </div>
 
       {/* Right Side - Verification Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-white px-8 py-12">
+      <div className="w-full lg:w-1/2 flex items-center justify-center bg-white dark:bg-slate-900 px-8 py-12">
         <div className="max-w-md w-full animate-fade-in-left">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
               VERIFY EMAIL
             </h2>
-            <p className="text-slate-600">
+            <p className="text-slate-600 dark:text-slate-400">
               Enter the 6-digit code sent to
             </p>
-            <p className="text-teal-600 font-medium">
-              {userEmail || 'your email address'}
+            <p className="text-teal-600 dark:text-teal-400 font-medium">
+              {displayEmail}
             </p>
           </div>
 
           <form onSubmit={handleVerify} className="space-y-6">
             {error && (
-              <div className="w-full rounded-md border border-red-200 bg-red-50 text-red-700 px-4 py-2" role="alert">
+              <div className="w-full rounded-md border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-4 py-2" role="alert">
                 {error}
+              </div>
+            )}
+
+            {resendSuccess && (
+              <div className="w-full rounded-md border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-2" role="alert">
+                ✓ Verification code sent! Check your email.
               </div>
             )}
 
@@ -160,9 +254,9 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
                 maxLength={6}
                 className="text-center text-2xl tracking-widest font-mono"
               />
-              
+
               <div className="text-center">
-                <p className="text-sm text-slate-500 mb-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                   Didn't receive the code?
                 </p>
                 <Button
@@ -171,7 +265,7 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
                   size="sm"
                   onClick={handleResendCode}
                   loading={isResending}
-                  disabled={timeLeft > 0}
+                  disabled={timeLeft > 0 || isResending}
                   className="w-full"
                 >
                   {timeLeft > 0 ? `Resend in ${timeLeft}s` : 'Resend Code'}
@@ -191,12 +285,12 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
             </Button>
 
             <div className="text-center">
-              <p className="text-slate-600">
+              <p className="text-slate-600 dark:text-slate-400">
                 Wrong email?{' '}
                 <button
                   type="button"
-                  onClick={() =>  navigate('/signup')}
-                  className="text-teal-600 hover:text-teal-800 font-medium transition-colors"
+                  onClick={() => navigate('/signup')}
+                  className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-medium transition-colors"
                 >
                   Go back to signup
                 </button>
@@ -210,3 +304,4 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
 };
 
 export default VerifyEmailPage;
+
