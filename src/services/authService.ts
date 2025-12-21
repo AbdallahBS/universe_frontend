@@ -79,7 +79,7 @@ export async function logout(): Promise<{ message: string }> {
     const data = await apiFetch<{ message: string }>('/v1/auth/logout', {
       method: 'POST',
       json: {}, // Empty body - backend reads refresh token from cookies
-      requireAuth: false,
+      requireAuth: true,
     });
     return data;
   } catch (err: any) {
@@ -105,7 +105,7 @@ export async function googleLogin(idToken: string): Promise<TokensResponse> {
 
 export async function getStats() {
   try {
-    const data = await apiFetch<any>('/v1/auth/stats');
+    const data = await apiFetch<any>('/v1/auth/stats', { requireAuth: false });
     return data;
   } catch (err: any) {
     const message = typeof err?.message === 'string' ? err.message : 'Cannot fetch stats';

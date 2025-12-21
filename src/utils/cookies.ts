@@ -35,7 +35,7 @@ export class CookieManager {
   // Check if user is authenticated (has access token cookie)
   static async isAuthenticated(): Promise<any> {
     try {
-        const data = await apiFetch<any>('/v1/auth/me');
+        const data = await apiFetch<any>('/v1/auth/me', { requireAuth: true });
         return data;
       } catch (err: any) {
         return false;

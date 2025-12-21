@@ -5,7 +5,7 @@ import { TokensResponse } from 'types/network';
 export async function getUsers(): Promise<any> {  
   try {
     const data = await apiFetch<TokensResponse>(`/api/admin/users`, {
-      requireAuth: false,
+      requireAuth: true,
     });
     return data;
   } catch (err: any) {
@@ -17,7 +17,7 @@ export async function getUsers(): Promise<any> {
 export async function changerole(id: string, isPromote: boolean): Promise<any> {  
   try {
     const data = await apiFetch<TokensResponse>(`/api/admin/user/changerole`, {
-      requireAuth: false,
+      requireAuth: true,
       method: 'POST',
       json: {userId : id, promote : isPromote},
     });
@@ -31,7 +31,7 @@ export async function changerole(id: string, isPromote: boolean): Promise<any> {
 export async function deleteUser(id: string): Promise<any> {  
   try {
     const data = await apiFetch<TokensResponse>(`/api/admin/user`, {
-      requireAuth: false,
+      requireAuth: true,
       method: 'DELETE',
       json: {userId : id},
     });
@@ -46,7 +46,7 @@ export async function deleteUser(id: string): Promise<any> {
 export async function getScrapers(): Promise<any> {  
   try {
     const data = await apiFetch<TokensResponse>(`/api/scrapers`, {
-      requireAuth: false,
+      requireAuth: true,
     });
     return data;
   } catch (err: any) {
@@ -59,7 +59,7 @@ export async function startScrapers(scraper : any): Promise<any> {
   try {
     const data = await apiFetch<TokensResponse>(`/api/scrapers/run`, {
       method: 'POST',
-      requireAuth: false,
+      requireAuth: true,
       json: {
         name : scraper.name,
         scrapperApifyId : scraper.scrapperApifyId,
@@ -78,7 +78,7 @@ export async function changeScraperStatus(scraperId : string, status : string): 
   try {
     const data = apiFetch<TokensResponse>(`/api/scrapers/status/${scraperId}?status=${status}`, {
       method: 'PATCH',
-      requireAuth: false
+      requireAuth: true
     });
     return data;
   } catch (err: any) {
@@ -91,7 +91,7 @@ export async function updateScraper (scraper : any): Promise<any> {
   try {
     const data = apiFetch<TokensResponse>(`/api/scrapers/${scraper.scrapperApifyId}`, {
       method: 'PUT',
-      requireAuth: false,
+      requireAuth: true,
       json : scraper
     });
     return data;
@@ -105,7 +105,7 @@ export async function deleteScraper (scrapperApifyId : string): Promise<any> {
   try {
     const data = apiFetch<TokensResponse>(`/api/scrapers/${scrapperApifyId}`, {
       method: 'DELETE',
-      requireAuth: false
+      requireAuth: true
     });
     return data;
   } catch (err: any) {
@@ -118,7 +118,7 @@ export async function addScraper (scraper : any): Promise<any> {
   try {
     const data = apiFetch<TokensResponse>(`/api/scrapers`, {
       method: 'POST',
-      requireAuth: false,
+      requireAuth: true,
       json : scraper
     });
     return data;

@@ -78,7 +78,7 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
     body: opts.json !== undefined ? JSON.stringify(opts.json) : undefined,
     signal: opts.signal
   };
-
+  
   let response = await fetch(url, requestInit);
 
   // Extract response body
@@ -106,7 +106,7 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
     response.status === 400;
 
   //if (opts.requireAuth && tokenExpired) {
-  if (tokenExpired) {
+  if (tokenExpired && opts.requireAuth) {
     // ---------- TOKEN REFRESH LOGIC ----------
     try {
       if (!isRefreshing) {
