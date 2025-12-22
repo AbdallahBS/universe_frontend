@@ -14,6 +14,7 @@ type AuthContextValue = {
   loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
+  refreshUser: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -121,6 +122,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Refresh user data from backend
+  const refreshUser = async () => {
+    try {
+      const me: any = await CookieManager.isAuthenticated();
+      if (me && me.user) {
+        CookieManager.set('user', JSON.stringify(me.user), 30);
+        setUser(me.user);
+        setUserRoles(me.user.roles || []);
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
+
   const value = useMemo(() => ({
     user,
     userRoles,
@@ -131,7 +146,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     loginWithGoogle,
     logout,
-    setUser
+    setUser,
+    refreshUser
   }), [user, userRoles, isAuthenticated, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

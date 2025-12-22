@@ -1,59 +1,90 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-    User,
-    Mail,
-    CheckCircle2,
-    ArrowLeft,
-    Key,
-    Send
-} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@context/AuthContext';
 import { requestPasswordReset } from '@services/authService';
+import { updateProfile, uploadProfilePicture, deleteAccount } from '@services/userService';
+import { ProfileCard, PasswordResetCard, DangerZoneCard } from '@components/profile';
 
 /**
  * ProfilePage Component
  * 
  * Allows authenticated users to:
- * - View their profile information
+ * - View and edit their profile information
+ * - Upload/change profile picture
  * - Request a password reset email
+ * - Delete their account
  */
 const ProfilePage: React.FC = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, refreshUser, logout } = useAuth();
 
-    // UI state
-    const [loading, setLoading] = useState(false);
-    const [emailSent, setEmailSent] = useState(false);
+    // Loading states
+    const [savingProfile, setSavingProfile] = useState(false);
+    const [uploadingPicture, setUploadingPicture] = useState(false);
+
+    // Feedback states
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         document.title = 'Universe | Profile';
     }, []);
 
     /**
-     * Handle password reset request
-     * Sends an email with a reset link to the user
+     * Handle profile update
      */
-    const handleRequestPasswordReset = async () => {
-        if (!user?.email) return;
-
-        setLoading(true);
+    const handleProfileUpdate = async (data: { firstname: string; lastname: string }) => {
+        setError('');
+        setSuccess('');
+        setSavingProfile(true);
 
         try {
-            await requestPasswordReset(user.email);
-            setEmailSent(true);
+            await updateProfile(data);
+            await refreshUser();
+            setSuccess('Profile updated successfully!');
+            setTimeout(() => setSuccess(''), 3000);
         } catch (err: any) {
-            // Still show success for security (same as forgot password)
-            setEmailSent(true);
+            setError(err.message || 'Failed to update profile');
         } finally {
-            setLoading(false);
+            setSavingProfile(false);
         }
     };
 
-    // Get user initials for avatar
-    const getInitials = () => {
-        if (!user) return 'U';
-        return `${user.firstname?.charAt(0) || ''}${user.lastname?.charAt(0) || ''}`.toUpperCase();
+    /**
+     * Handle profile picture upload
+     */
+    const handlePictureUpload = async (file: File) => {
+        setError('');
+        setUploadingPicture(true);
+
+        try {
+            await uploadProfilePicture(file);
+            await refreshUser();
+            setSuccess('Profile picture updated!');
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err: any) {
+            setError(err.message || 'Failed to upload profile picture');
+        } finally {
+            setUploadingPicture(false);
+        }
+    };
+
+    /**
+     * Handle password reset request
+     */
+    const handlePasswordReset = async () => {
+        if (!user?.email) return;
+        await requestPasswordReset(user.email);
+    };
+
+    /**
+     * Handle account deletion
+     */
+    const handleDeleteAccount = async (password: string) => {
+        await deleteAccount(password);
+        await logout();
+        navigate('/');
     };
 
     return (
@@ -74,103 +105,37 @@ const ProfilePage: React.FC = () => {
                     <span className="font-medium">Back to Dashboard</span>
                 </button>
 
-                {/* Profile Card */}
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50 mb-8 animate-fade-in-up">
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                        <User className="w-6 h-6 text-teal-500" />
-                        Profile
-                    </h1>
-
-                    <div className="flex items-center gap-6 mb-6">
-                        {/* Avatar */}
-                        {user?.profilePicture ? (
-                            <img
-                                src={user.profilePicture}
-                                alt={user.firstname}
-                                className="w-20 h-20 rounded-full object-cover border-4 border-teal-500/30 dark:border-teal-400/30 shadow-lg"
-                            />
-                        ) : (
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg border-4 border-teal-500/30 dark:border-teal-400/30">
-                                {getInitials()}
-                            </div>
-                        )}
-
-                        {/* User info */}
-                        <div>
-                            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                                {user?.firstname} {user?.lastname}
-                            </h2>
-                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 mt-1">
-                                <Mail className="w-4 h-4" />
-                                <span>{user?.email}</span>
-                            </div>
-                            {user?.isVerified && (
-                                <div className="flex items-center gap-1 text-green-600 dark:text-green-400 mt-1 text-sm">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    <span>Email verified</span>
-                                </div>
-                            )}
-                        </div>
+                {/* Error/Success Messages */}
+                {error && (
+                    <div className="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+                        {error}
                     </div>
-                </div>
+                )}
+                {success && (
+                    <div className="mb-4 p-4 rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400">
+                        {success}
+                    </div>
+                )}
 
-                {/* Change Password Card */}
-                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50 animate-fade-in-up animation-delay-200">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                        <Key className="w-5 h-5 text-teal-500" />
-                        Change Password
-                    </h2>
+                {/* Profile Card */}
+                <ProfileCard
+                    user={user}
+                    onProfileUpdate={handleProfileUpdate}
+                    onPictureUpload={handlePictureUpload}
+                    savingProfile={savingProfile}
+                    uploadingPicture={uploadingPicture}
+                    error={error}
+                    setError={setError}
+                />
 
-                    {emailSent ? (
-                        // Success state - email sent
-                        <div className="text-center py-4">
-                            <div className="flex justify-center mb-4">
-                                <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-teal-100 dark:from-green-900/50 dark:to-teal-900/50 rounded-full flex items-center justify-center animate-float">
-                                    <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
-                                </div>
-                            </div>
-                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                                Check Your Email
-                            </h3>
-                            <p className="text-slate-600 dark:text-slate-400 mb-6">
-                                We've sent a password reset link to <strong className="text-slate-900 dark:text-white">{user?.email}</strong>.
-                                Click the link in the email to set your new password.
-                            </p>
-                            <button
-                                onClick={() => setEmailSent(false)}
-                                className="text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors"
-                            >
-                                Didn't receive? Send again
-                            </button>
-                        </div>
-                    ) : (
-                        // Request password reset
-                        <div>
-                            <p className="text-slate-600 dark:text-slate-400 mb-6">
-                                To change your password, we'll send a reset link to your email address.
-                                Click the link to set a new password.
-                            </p>
+                {/* Password Reset Card */}
+                <PasswordResetCard
+                    email={user?.email}
+                    onRequestReset={handlePasswordReset}
+                />
 
-                            <button
-                                onClick={handleRequestPasswordReset}
-                                disabled={loading}
-                                className="w-full inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                            >
-                                {loading ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
-                                        <span>Sending...</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Send className="mr-2 w-5 h-5" />
-                                        <span>Send Password Reset Email</span>
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    )}
-                </div>
+                {/* Danger Zone Card */}
+                <DangerZoneCard onDeleteAccount={handleDeleteAccount} />
             </div>
         </div>
     );

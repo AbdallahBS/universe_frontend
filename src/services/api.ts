@@ -7,6 +7,7 @@ interface ApiFetchOptions {
   headers?: Record<string, string>;
   credentials?: RequestCredentials;
   json?: unknown;
+  body?: FormData; // For file uploads
   signal?: AbortSignal;
   requireAuth?: boolean;
 }
@@ -42,11 +43,11 @@ async function refreshTokens(): Promise<void> {
       const responseData = isJson ? await response.json().catch(() => null) : await response.text();
 
       if (!response.ok) {
-         const errorCode =
-    responseData?.error?.code ||
-    responseData?.code ||
-    responseData?.message ||
-    response.statusText;
+        const errorCode =
+          responseData?.error?.code ||
+          responseData?.code ||
+          responseData?.message ||
+          response.statusText;
 
         isRefreshing = false;
         refreshPromise = null;
@@ -68,17 +69,30 @@ async function refreshTokens(): Promise<void> {
 export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Promise<T> {
   const url = `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
+  // Determine body and headers
+  let bodyToSend: BodyInit | undefined;
+  let contentTypeHeader: Record<string, string> = {};
+
+  if (opts.body instanceof FormData) {
+    // FormData: let browser set Content-Type with boundary
+    bodyToSend = opts.body;
+  } else if (opts.json !== undefined) {
+    // JSON: set Content-Type and stringify
+    bodyToSend = JSON.stringify(opts.json);
+    contentTypeHeader = { "Content-Type": "application/json" };
+  }
+
   const requestInit: RequestInit = {
     method: opts.method ?? "GET",
     credentials: opts.credentials ?? "include",
     headers: {
-      ...(opts.json ? { "Content-Type": "application/json" } : {}),
+      ...contentTypeHeader,
       ...(opts.headers ?? {})
     },
-    body: opts.json !== undefined ? JSON.stringify(opts.json) : undefined,
+    body: bodyToSend,
     signal: opts.signal
   };
-  
+
   let response = await fetch(url, requestInit);
 
   // Extract response body
@@ -111,7 +125,7 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
     try {
       if (!isRefreshing) {
         console.log("start refreshing...");
-        
+
         // Start refresh
         await refreshTokens();
       } else {
@@ -138,7 +152,7 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
       }
 
       return retryData as T;
-    } catch (err : any) {
+    } catch (err: any) {
       throw new Error(err ?? "AUTH_EXPIRED");
     }
   }

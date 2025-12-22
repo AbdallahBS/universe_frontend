@@ -44,8 +44,8 @@ export interface Media {
 }
 
 export interface PostedAt {
-  date: string; // e.g. "2025-08-22 18:41:54"
-  relative: string; // e.g. "4 months ago • Visible to anyone on or off LinkedIn"
+  date: string; 
+  relative: string; 
   timestamp: number;
 }
 
