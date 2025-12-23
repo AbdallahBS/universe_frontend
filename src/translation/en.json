@@ -1,0 +1,272 @@
+{
+  "nav": {
+    "home": "Home",
+    "internships": "Internships",
+    "engineering": "Engineering Cycle",
+    "alternance": "Alternance",
+    "about": "About",
+    "contact": "Contact",
+    "signin": "Sign In",
+    "signup": "Sign Up"
+  },
+
+  "hero": {
+    "joinAdventure": "Join the Adventure",
+    "titleLine1": "Universe,",
+    "titleLine2": "let's change",
+    "titleLine3": "together",
+    "description": "With UNIVERSE, navigating university life in Tunisia becomes easier. Discover PFE offers, internships, engineering cycle paths, and alternance opportunities — all in one place. Build the future you deserve.",
+    "joinUs": "Join Us",
+    "login": "Login"
+  },
+
+  "stats": {
+    "internships": "Internship Offers found",
+    "engineering": "Engineering cycle paths",
+    "posts": "Posts Available"
+  },
+
+  "highlights": {
+    "futureTitle": "Your Future",
+    "futureDesc": "Build the future you deserve",
+    "communityTitle": "Community",
+    "communityDesc": "Connect & explore",
+    "instantTitle": "Instant",
+    "instantDesc": "Access to all resources"
+  },
+
+  "services": {
+    "title": "Our Services",
+    "subtitle1": "Explore Our",
+    "subtitle2": "Services",
+    "description": "Everything you need to succeed in your academic and professional journey",
+
+    "engineering": {
+      "title": "Engineering Cycle 2025",
+      "description": "Explore engineering cycle paths and discover the best schools for your future career",
+      "explore": "Explore"
+    },
+
+    "pfe": {
+      "title": "PFE Internships",
+      "description": "Find the perfect PFE internship opportunities from top companies in Tunisia",
+      "explore": "Explore"
+    },
+
+    "certifications": {
+      "title": "Exam Certificate Test",
+      "description": "Practice for IT certifications like CCNA, CompTIA, and AWS with comprehensive exams",
+      "explore": "Explore"
+    },
+
+    "alternance": {
+      "comingSoon": "Coming Soon",
+      "title": "Alternance",
+      "description": "Discover work-study programs combining education with professional experience"
+    }
+  },
+
+  "internships": {
+    "title1": "Available",
+    "title2": "Internships",
+    "subtitle": "Discover exciting opportunities to kickstart your career and gain valuable experience",
+    "chooseCategory": "Choose Your Category",
+    "filterHint": "Select categories to filter your result",
+    "search": "Search by title, company, or keyword..."
+  },
+
+  "filters": {
+    "offers": "Internship Offers",
+    "requests": "Internship Requests",
+    "jobs": "Job Offers",
+    "news": "News & Announcements",
+    "events": "Events & Trainings",
+    "education": "Educational Content",
+    "updates": "General Updates",
+    "marketing": "Marketing & Promotion",
+    "other": "Other"
+  },
+
+  "engineeringSchools": {
+    "title": "Engineering Schools in Tunisia",
+    "description": "Discover the best engineering schools, calculate your scores, and prepare for admission",
+    "search": "Search for a school",
+    "placeholder": "School name, city...",
+    "chooseSpecialty": "Choose a specialty",
+    "allSpecialties": "All Specialties"
+  },
+
+  "notice": {
+    "whatsNew": "What's New? 🎉",
+    "title": "2025 Notice Available! 📢",
+    "description": "You can download the new 2025 notice and see all the details",
+    "download": "Download Notice (PDF)",
+    "universities": "Universities",
+    "calculateScore": "Calculate Your Score",
+    "annexes": "Annexes",
+    "requirements": "Requirements",
+    "officialLink": "Official website link:"
+  },
+
+  "team": {
+    "title": "Our Team",
+    "subtitle1": "Universe",
+    "subtitle2": "Developers",
+    "roles": {
+      "softwareDeveloper": "Software Developer",
+      "fullStackDeveloper": "Full Stack Developer"
+    }
+  },
+
+  "support": {
+    "title": "Support Our Development Mission",
+    "subtitle": "Love what we do?",
+    "description": "You could share our platform with your friends to make it more diverse and accessible for everyone. Every share and recommendation helps fuel and maintain our passion for developing this platform."
+  },
+
+  "contact": {
+    "title" : "Get In Touch",
+    "subtitle1": "Contact",
+    "subtitle2": "Us",
+    "description": "Have questions, feedback, or just want to say hello? We'd love to hear from you!",
+    "availability": "Available 24/7 via Email",
+    "location": "El Haouria, Nabeul, Tunisia 🇹🇳",
+    "sendMessage": "Send us a Message",
+    "formNote": "Fill out the form below and we'll get back to you as soon as possible.",
+    "send": "Send Message",
+    "emailNote": "This will open your default email client"
+  },
+
+  "footer": {
+    "description": "Your gateway to discovering internships opportunities, exploring engineering programs, and building your future career",
+    "pages": "Pages",
+    "company": "Company",
+    "home": "Home",
+    "internships": "Internships",
+    "engineering": "Engineering Cycle",
+    "about": "About Us",
+    "contact": "Contact",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+
+  "internshipDetail": {
+    "featured": "Featured Internship",
+    "quickInfo": "Quick Info",
+    "about": "About this Opportunity",
+    "viewOriginal": "View Original Post",
+    "engagementStats": "Engagement Stats"
+  },
+
+  "universityDetail": {
+    "overview": "Overview",
+    "specialtiesScores": "Specialties & Scores",
+    "location": "Location",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "university": "University",
+    "officialWebsite": "Official Website",
+    "admissionScores": "Admission Scores",
+    "studyPlans": "Study Plans by Specialty",
+    "universityLocation": "University Location"
+  },
+
+  "scoreCalculator": {
+    "title": "Calculate Your Score",
+    "subtitle": "Enter your grades and see your Score A and Global Score",
+
+    "firstYear": "First Year",
+    "firstYearAvg": "First Year Average",
+
+    "secondYear": "Second Year",
+    "secondYearAvg": "Second Year Average",
+
+    "ranking": "Classement",
+    "classSize": "Class Size",
+    "noteFrench": "Note Français",
+    "noteEnglish": "Note Anglais",
+
+    "otherInfo": "Other Information",
+    "birthYear": "Birth Year",
+    "baccalaureateAvg": "Baccalaureate Average",
+
+    "scoreE": "Score E (If you have it)",
+    "scoreEHint": "Leave empty if you don't have it",
+    "scoreEHelp": "Don't know how to calculate Score E? We'll help you, especially if you're DSI",
+
+    "compareSchools": "Compare with Schools",
+
+    "scoreA": "Score A",
+    "admissionScore": "Admission Score",
+
+    "scoreGlobal": "Score Global",
+    "scoreFormula": "Score A × 0.7 + Score E × 0.3",
+    "scoreNoE": "If you don't have Score E, Global Score is calculated based on Score A only",
+
+    "howCalculated": "How Score is Calculated:"
+  },
+
+  "annexes": {
+    "title": "Annexes",
+    "pdf": "PDF",
+    "submitNote": "Annex to submit with your application",
+    "download": "Download Annex (PDF)",
+    "independent": "Independent Institutes Annexes (Indépendant)",
+    "importantNote": "Important Note ⚠️: Many institutes have not yet published their annexes for this year. We recommend following their official websites. You can find the links to all institutes below 🔍",
+    "available": "Currently Available Annexes:",
+    "officialLinks": "Official Institute Website Links:",
+    "followNote": "You can visit these websites to follow the latest news and download new annexes when they are published 🌐"
+  },
+
+  "dashboard": {
+    "welcome": "Welcome back!",
+    "savedInternships": "Saved Internships",
+    "recentQuizzes": "Recent Quiz Attempts",
+    "quickActions": "Quick Actions",
+
+    "browseInternships": "Browse Internships",
+    "browseDesc": "Discover PFE offers & opportunities",
+
+    "engineeringCycle": "Cycle Ingénieur",
+    "engineeringDesc": "Explore engineering path options",
+
+    "quizCCNA": "Quiz CCNA",
+    "quizDesc": "Test your knowledge of Introduction to Networks"
+  },
+
+  "certificationExams": {
+    "title": "Certification Exams",
+    "subtitle": "Exam Certificate Tests",
+    "description": "Prepare for your IT certifications with comprehensive practice exams. Choose a certification below to get started.",
+
+    "comingSoonTitle": "More Certifications Coming Soon",
+    "comingSoonDesc": "We're constantly adding new certification practice exams. Stay tuned for CompTIA Network+, Security+, Azure certifications, and more!"
+  },
+
+  "auth": {
+    "heroTitle": "FIND YOUR",
+    "heroTitle2": "SUITABLE INTERNSHIP",
+    "heroDescription": "Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.",
+
+    "quote": "Don't search for an internship, let the internship find you.",
+
+    "createAccount": "Create Account",
+    "createSubtitle": "Join us today! Please fill in your details.",
+
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter your last name",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+
+    "terms": "I agree to the",
+    "terms2": "Terms of Service and Privacy Policy",
+
+    "welcomeBack": "Welcome Back!",
+    "loginSubtitle": "Welcome back! Please enter your details."
+  }
+}

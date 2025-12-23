@@ -1,13 +1,15 @@
 import React from 'react';
 import { HandHeartIcon, Heart, Laugh, Lightbulb, LucideGitCompareArrows, MessageCircle, PartyPopper, ThumbsUp } from 'lucide-react';
 import { Stats } from 'types/resource';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 interface StatsSectionProps {
   stats: Stats
 }
 
 const StatsSection: React.FC<StatsSectionProps> = ({ stats }) => {
-
+  const {t} = useTranslation();
   // Build reaction items dynamically
   const reactionItems = [
     { key: 'like', value: stats.like, icon: ThumbsUp, label: 'Likes', color: 'text-blue-500 dark:text-blue-400', bgColor: 'bg-blue-100 dark:bg-blue-900/50' },
@@ -22,9 +24,9 @@ const StatsSection: React.FC<StatsSectionProps> = ({ stats }) => {
     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
       <div className="p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            Engagement Stats
-          </h2>
+          <TransText as='h2' className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+            {t('internshipDetail.engagementStats')}
+          </TransText>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-teal-500/10 to-blue-500/10 dark:from-teal-500/20 dark:to-blue-500/20 border border-teal-200 dark:border-teal-700">
             <span className="text-sm font-bold text-teal-600 dark:text-teal-400">
               {stats.total_reactions.toLocaleString()}

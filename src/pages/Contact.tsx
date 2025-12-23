@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Mail, Send, User, MessageSquare, Sparkles, ArrowRight, Phone, MapPin } from 'lucide-react';
 import { apiFetch } from '@services/api';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 const Contact: React.FC = () => {
 
       useEffect(() => {
         document.title = 'Universe | Contact';
       }, []);
+
+    const {t} = useTranslation();
       
     const [formData, setFormData] = useState({
         name: '',
@@ -88,18 +92,18 @@ const Contact: React.FC = () => {
                 <div className="text-center space-y-4 mb-16 animate-fade-in-up">
                     <div className="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/50 rounded-full px-4 py-2 shadow-lg">
                         <Mail className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Get In Touch</span>
+                        <TransText className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('contact.title')}</TransText>
                     </div>
 
-                    <h1 className="text-5xl font-bold text-slate-900 dark:text-white">
-                        Contact{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-cyan-600 dark:from-teal-400 dark:via-blue-400 dark:to-cyan-400">
-                            Us
-                        </span>
-                    </h1>
-                    <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-                        Have questions, feedback, or just want to say hello? We'd love to hear from you!
-                    </p>
+                    <TransText as='h1' className="text-5xl font-bold text-slate-900 dark:text-white">
+                        {t('contact.subtitle1')}{' '}
+                        <TransText className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-cyan-600 dark:from-teal-400 dark:via-blue-400 dark:to-cyan-400">
+                            {t('contact.subtitle2')}
+                        </TransText>
+                    </TransText>
+                    <TransText as='p' className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                        {t('contact.description')}
+                    </TransText>
                 </div>
 
                 {/* Main Content - Two Column Layout */}
@@ -122,19 +126,22 @@ const Contact: React.FC = () => {
                         {/* Contact Info Cards */}
                         <div className="space-y-4">
                             <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                    <Mail className="w-6 h-6 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Mazen Jebali</h3>
-                                    <p className="text-slate-900 dark:text-white font-semibold">jebali.mazen@gmail.com</p>
-                                </div>
-                            </div>
-                            <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
                                 <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                                     <Mail className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
+                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Universe TN official Gmail</h3>
+                                    <p className="text-slate-900 dark:text-white font-semibold">contact.universetn@gmail.com</p>
+                                </div>
+                            </div>
+                            <div className="group flex items-center space-x-4 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                    <Mail className="w-6 h-6 text-white" />
+                                </div>
+                                <div>
+                                    <h2 className='text-lg font-bold text-slate-900 dark:text-white mb-2'>Creators Gmails</h2>
+                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Mazen Jebali</h3>
+                                    <p className="text-slate-900 dark:text-white font-semibold">jebali.mazen@gmail.com</p><br />
                                     <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Abdallah Ben Salem</h3>
                                     <p className="text-slate-900 dark:text-white font-semibold">abdallahbenselam@gmail.com</p>
                                 </div>
@@ -145,7 +152,7 @@ const Contact: React.FC = () => {
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Our Team</h3>
-                                    <p className="text-slate-900 dark:text-white font-semibold">Available 24/7 via Email</p>
+                                    <p className="text-slate-900 dark:text-white font-semibold">Available 24/7 via Phone and Email</p>
                                 </div>
                             </div>
 
@@ -175,12 +182,12 @@ const Contact: React.FC = () => {
                                 </div>
 
                                 <div className="mb-8">
-                                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                                        Send us a Message
-                                    </h2>
-                                    <p className="text-slate-600 dark:text-slate-400">
-                                        Fill out the form below and we'll get back to you as soon as possible.
-                                    </p>
+                                    <TransText as='h2' className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                                        {t('contact.sendMessage')}
+                                    </TransText>
+                                    <TransText as='p' className="text-slate-600 dark:text-slate-400">
+                                        {t('contact.formNote')}
+                                    </TransText>
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -284,7 +291,7 @@ const Contact: React.FC = () => {
 
                                         <span className="relative flex items-center justify-center space-x-3">
                                             <Send className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
-                                            <span>Send Message</span>
+                                            <TransText>{t('contact.send')}</TransText>
                                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                                         </span>
                                     </button>

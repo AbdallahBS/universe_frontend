@@ -5,12 +5,15 @@ import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { LoginFormData } from 'types/auth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   const navigate = useNavigate();
+  const {t} = useTranslation();
   const [searchParams] = useSearchParams();
   const { login, loginWithGoogle } = useAuth();
 
@@ -92,15 +95,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <h1 className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
-            FIND YOUR SUITABLE
-            <br />
-            <span className="text-teal-400">INTERNSHIP</span>
-            <br />
-          </h1>
-          <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
-            Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.
-          </p>
+            <TransText as='h1' className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
+              {t("auth.heroTitle")}
+              <br />
+              <TransText className="text-teal-400">{t("auth.heroTitle2")}</TransText>
+              <br />
+            </TransText>
+            <TransText as='p' className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
+              {t("auth.heroDescription")}
+            </TransText>
+            <TransText as='p' className="text-lg text-teal-300 animate-fade-in-up animation-delay-400 text-center">
+              {t("auth.quote")}
+            </TransText>
         </div>
       </div>
 
@@ -108,12 +114,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white dark:bg-slate-900 px-8 py-12">
         <div className="max-w-md w-full animate-fade-in-right">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              WELCOME BACK!
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400">
-              Welcome back! Please enter your details.
-            </p>
+            <TransText as='h2' className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              {t("auth.welcomeBack")}
+            </TransText>
+            <TransText as='p' className="text-slate-600 dark:text-slate-400">
+              {t("auth.loginSubtitle")}
+            </TransText>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -124,7 +130,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
             )}
 
             <InputField
-              label="Email"
+              label={t("auth.email")}
               type="email"
               id="email"
               value={formData.email}
@@ -132,12 +138,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
                 setFormData(prev => ({ ...prev, email: value }));
                 if (error) setError(null);
               }}
-              placeholder="Enter your email"
+              placeholder={t("auth.emailPlaceholder")}
               required
             />
 
             <InputField
-              label="Password"
+              label={t("auth.password")}
               type="password"
               id="password"
               value={formData.password}

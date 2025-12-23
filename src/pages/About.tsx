@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { Users, ArrowRight, Code2, Share2, Facebook, Linkedin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 const developers = [
   {
@@ -23,6 +25,8 @@ const About: React.FC = () => {
     document.title = 'Universe | About';
   }, []);
 
+  const {t} = useTranslation();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-24 pb-16">
       <div className="absolute inset-0 overflow-hidden">
@@ -35,15 +39,15 @@ const About: React.FC = () => {
         <div className="text-center space-y-4 mb-16 animate-fade-in-up">
           <div className="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/50 rounded-full px-4 py-2 shadow-lg">
             <Users className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Our Team</span>
+            <TransText className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('team.title')}</TransText>
           </div>
 
-          <h1 className="text-5xl font-bold text-slate-900 dark:text-white">
-            Universe{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-cyan-600 dark:from-teal-400 dark:via-blue-400 dark:to-cyan-400">
-              Developers
-            </span>
-          </h1>
+          <TransText as='h1' className="text-5xl font-bold text-slate-900 dark:text-white">
+            {t('team.subtitle1')}{' '}
+            <TransText className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-cyan-600 dark:from-teal-400 dark:via-blue-400 dark:to-cyan-400">
+              {t('team.subtitle2')}
+            </TransText>
+          </TransText>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
            
           </p>
@@ -91,16 +95,16 @@ const About: React.FC = () => {
             <div className="relative z-10 max-w-2xl">
               <div className="flex items-center space-x-2 mb-4">
                 <Share2 className="w-6 h-6 text-teal-600 dark:text-teal-400 fill-teal-600 dark:fill-teal-400" />
-                <span className="text-sm font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider">Support Our Development Mission</span>
+                <TransText className="text-sm font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider">{t('support.title')}</TransText>
               </div>
 
-              <h2 className="text-4xl font-bold text-slate-900 dark:text-white mb-3">
-                Love what we do?
-              </h2>
+              <TransText as='h2' className="text-4xl font-bold text-slate-900 dark:text-white mb-3">
+                {t('support.subtitle')}
+              </TransText>
 
-              <p className="text-lg text-slate-700 dark:text-slate-300 mb-6">
-                Your could share our platform with your friends to make it more diverse and accessible for everyone. Every share and recommandation helps to fuels and maintain our passion for this platform development process.
-              </p>
+              <TransText as='p' className="text-lg text-slate-700 dark:text-slate-300 mb-6">
+                {t('support.description')}
+              </TransText>
               <div className='flex gap-2'>
                 <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("universe.tn")}`} target='_blank'
                   className="group inline-flex items-center space-x-3 bg-gradient-to-r from-teal-600 to-teal-600 hover:from-teal-700 hover:to-teal-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">

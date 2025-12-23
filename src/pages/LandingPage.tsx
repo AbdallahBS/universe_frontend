@@ -4,14 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import About from './About';
 import Contact from './Contact';
 import { useAuth } from '@context/AuthContext';
+import TransText from '@components/TransText';
+import { useTranslation } from 'react-i18next';
 
 interface LandingPageProps {
 }
 
 interface ServiceCardProps {
   icon: React.ReactNode;
-  title: string;
-  description: string;
+  title: any;
+  description: any;
   gradient: string;
   onClick?: () => void;
   isComingSoon?: boolean;
@@ -50,33 +52,34 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
   }, []);
   const navigate = useNavigate();
   const { stats } = useAuth();
+  const {t} = useTranslation();
 
   const services = [
     {
       icon: <GraduationCap className="w-7 h-7 text-white" />,
-      title: "Cycle Ingénieur 2025",
-      description: "Explore engineering cycle paths and discover the best schools for your future career.",
+      title: <TransText>{t('services.engineering.title')}</TransText>,
+      description: <TransText>{t('services.engineering.description')}</TransText>,
       gradient: "from-teal-500 to-cyan-600",
       route: "/cycle-ingenieur"
     },
     {
       icon: <Briefcase className="w-7 h-7 text-white" />,
-      title: "Internships PFE",
-      description: "Find the perfect PFE internship opportunities from top companies in Tunisia.",
+      title: <TransText>{t('services.pfe.title')}</TransText>,
+      description: <TransText>{t('services.pfe.description')}</TransText>,
       gradient: "from-blue-500 to-indigo-600",
       route: "/internships"
     },
     {
       icon: <BookOpen className="w-7 h-7 text-white" />,
-      title: "Exam Certificate Test",
-      description: "Practice for IT certifications like CCNA, CompTIA, and AWS with comprehensive exams.",
+      title: <TransText>{t('services.certifications.title')}</TransText>,
+      description: <TransText>{t('services.certifications.description')}</TransText>,
       gradient: "from-purple-500 to-pink-600",
       route: "/exam-certificates"
     },
     {
       icon: <Briefcase className="w-7 h-7 text-white" />,
-      title: "Alternance",
-      description: "Discover work-study programs combining education with professional experience.",
+      title: <TransText>{t('services.alternance.title')}</TransText>,
+      description: <TransText>{t('services.alternance.description')}</TransText>,
       gradient: "from-orange-500 to-amber-600",
       isComingSoon: true
     }
@@ -105,24 +108,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
               {/* Badge */}
               <div className="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/50 rounded-full px-4 py-2 shadow-lg animate-fade-in-up animation-delay-200">
                 <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Join the Adventure</span>
+                <TransText className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('hero.joinAdventure')}</TransText>
               </div>
 
               {/* Main Headline */}
               <div className="space-y-4">
-                <h1 className="text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-tight animate-fade-in-up animation-delay-400">
-                  Universe,
+                <TransText as="h1" className="text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-tight animate-fade-in-up animation-delay-400">
+                  {t('hero.titleLine1')}
                   <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
-                    let's change
-                  </span>
+                  <TransText className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
+                    {t('hero.titleLine2')}
+                  </TransText>
                   <br />
-                  together
-                </h1>
+                  <TransText>{t('hero.titleLine3')}</TransText>
+                </TransText>
 
-                <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg animate-fade-in-up animation-delay-500">
-                  With UNIVERSE, navigating university life in Tunisia becomes easier. Discover PFE offers, internships, engineering cycle paths, and alternance opportunities — all in one place. Build the future you deserve.
-                </p>
+                <TransText as='p' className='text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg animate-fade-in-up animation-delay-500'>{t('hero.description')}</TransText>
               </div>
 
               {/* Buttons */}
@@ -131,7 +132,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                   onClick={() => navigate('/signup')}
                   className="group inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-teal-600 to-blue-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                 >
-                  <span>Join Us</span>
+                  <TransText>{t('hero.joinUs')}</TransText>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
 
@@ -139,7 +140,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                   onClick={() => navigate('/login')}
                   className="inline-flex items-center justify-center px-8 py-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm text-slate-700 dark:text-slate-200 font-semibold rounded-xl border border-slate-200 dark:border-slate-600 hover:bg-white dark:hover:bg-slate-700 hover:shadow-lg transform hover:scale-105 transition-all duration-300"
                 >
-                  Login
+                  <TransText>{t('hero.login')}</TransText>
                 </button>
               </div>
 
@@ -147,15 +148,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
               <div className="flex items-center space-x-8 pt-8 animate-fade-in-up animation-delay-700">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.contentsCount?.internshipOffersCount ?? "50"}+</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Internship Offers found</div>
+                  <TransText as='div' className="text-sm text-slate-600 dark:text-slate-400">{t('stats.internships')}</TransText>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">2025</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Engineering cycle paths</div>
+                  <TransText as='div' className="text-sm text-slate-600 dark:text-slate-400">{t('stats.engineering')}</TransText>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats?.contentsCount?.totalDocumentsCount ?? "50"}+</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Posts Available</div>
+                  <TransText as='div' className="text-sm text-slate-600 dark:text-slate-400">{t('stats.posts')}</TransText>
                 </div>
               </div>
             </div>
@@ -181,8 +182,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                       <Globe className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-white">Your Future</div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Build the future you deserve</div>
+                      <TransText as='div' className="font-semibold text-slate-900 dark:text-white">{t('highlights.futureTitle')}</TransText>
+                      <TransText as='div' className="text-sm text-slate-600 dark:text-slate-400">{t('highlights.futureDesc')}</TransText>
                     </div>
                   </div>
                 </div>
@@ -193,8 +194,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                       <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-white">Community</div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Connect & explore</div>
+                      <TransText as='div' className="font-semibold text-slate-900 dark:text-white">{t('highlights.communityDesc')}</TransText>
+                      <TransText as='div' className="text-sm text-slate-600 dark:text-slate-400">{t('highlights.communityTitle')}</TransText>
                     </div>
                   </div>
                 </div>
@@ -205,8 +206,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
                       <Zap className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                     </div>
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-white">Instant</div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">Access to all resources</div>
+                      <TransText as='div' className="font-semibold text-slate-900 dark:text-white">{t('highlights.instantDesc')}</TransText>
                     </div>
                   </div>
                 </div>
@@ -223,17 +223,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
           <div className="text-center space-y-4 mb-12 animate-fade-in-up">
             <div className="inline-flex items-center space-x-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-teal-200/50 dark:border-teal-700/50 rounded-full px-4 py-2 shadow-lg">
               <Sparkles className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Our Services</span>
+              <TransText className="text-sm font-medium text-slate-700 dark:text-slate-200">{t('services.title')}</TransText>
             </div>
             <h2 className="text-4xl font-bold text-slate-900 dark:text-white">
-              Explore Our{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
-                Services
-              </span>
+              <TransText>{t('services.subtitle1')}</TransText>{' '}
+              <TransText className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
+                {t('services.subtitle2')}
+              </TransText>
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Everything you need to succeed in your academic and professional journey
-            </p>
+            <TransText as='p' className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+              {t('services.description')}
+            </TransText>
           </div>
 
           {/* Services Grid */}

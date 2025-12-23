@@ -10,6 +10,8 @@ import { timeAgo } from '@utils/helpers';
 import InternshipFilters from '@components/internship_post/internshipFilter';
 import SectionCarousel from '@components/internship_post/sectionCarousel';
 import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 // Thumbnail component with error handling
 const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: string }> = ({ src, alt, className = "" }) => {
@@ -47,6 +49,7 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
   const [loading, setLoading] = useState(true);
   const {isLoading} = useAuth();
   const { page } = useParams();
+  const {t} = useTranslation();
   /****************** */
 
   /** Internships and pagination */
@@ -166,15 +169,15 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8 animate-fade-in-up">
             <div className="text-center space-y-4">
-              <h1 className="text-5xl font-bold text-slate-900 dark:text-white">
-                Available{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
-                  Internships
-                </span>
-              </h1>
-              <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-                Discover exciting opportunities to kickstart your career and gain valuable experience
-              </p>
+              <TransText as='h1' className="text-5xl font-bold text-slate-900 dark:text-white">
+                {t('internships.title1')}{' '}
+                <TransText className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
+                  {t('internships.title2')}
+                </TransText>
+              </TransText>
+              <TransText as='p' className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                {t('internships.subtitle')}
+              </TransText>
             </div>
 
           {loading ? (

@@ -5,6 +5,8 @@ import { getUniversityById, University } from '@data/cycleIngenieurData';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 // Fix for default marker icons in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -19,7 +21,8 @@ const UniversityDetailsPage: React.FC = () => {
     useEffect(() => {
       document.title = 'Universe | Cycle Ingénieur';
     }, []);
-
+  
+  const {t} = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -221,7 +224,7 @@ const UniversityDetailsPage: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
           >
-            Overview
+            <TransText>{t("universityDetail.overview")}</TransText>
           </button>
           <button
             onClick={() => setActiveTab('specialties')}
@@ -230,7 +233,7 @@ const UniversityDetailsPage: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
           >
-            Specialties & Scores
+            <TransText>{t("universityDetail.specialtiesScores")}</TransText>
           </button>
           <button
             onClick={() => setActiveTab('location')}
@@ -239,7 +242,7 @@ const UniversityDetailsPage: React.FC = () => {
                 : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-700'
               }`}
           >
-            Location
+            <TransText>{t("universityDetail.location")}</TransText>
           </button>
         </div>
 
@@ -254,21 +257,21 @@ const UniversityDetailsPage: React.FC = () => {
                 <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                   <MapPin className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                   <div>
-                    <div className="font-medium text-slate-800 dark:text-white">Address</div>
+                    <TransText as='div' className="font-medium text-slate-800 dark:text-white">{t("universityDetail.address")}</TransText>
                     <div className="text-sm text-slate-600 dark:text-slate-400">{university.address}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                   <Phone className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                   <div>
-                    <div className="font-medium text-slate-800 dark:text-white">Phone</div>
+                    <TransText as='div' className="font-medium text-slate-800 dark:text-white">{t("universityDetail.phone")}</TransText>
                     <div className="text-sm text-slate-600 dark:text-slate-400">{university.phone}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                   <Mail className="w-6 h-6 text-slate-500 dark:text-slate-400" />
                   <div>
-                    <div className="font-medium text-slate-800 dark:text-white">Email</div>
+                    <TransText as='div' className="font-medium text-slate-800 dark:text-white">{t("universityDetail.email")}</TransText>
                     <div className="text-sm text-slate-600 dark:text-slate-400">{university.email}</div>
                   </div>
                 </div>
@@ -279,11 +282,11 @@ const UniversityDetailsPage: React.FC = () => {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                    <div className="font-medium text-indigo-800 dark:text-indigo-300 mb-2">University</div>
+                    <TransText as='div' className="font-medium text-indigo-800 dark:text-indigo-300 mb-2">{t("universityDetail.university")}</TransText>
                     <div className="text-indigo-700 dark:text-indigo-400">{university.university}</div>
                   </div>
                   <div className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-                    <div className="font-medium text-purple-800 dark:text-purple-300 mb-2">Official Website</div>
+                    <TransText as='div' className="font-medium text-purple-800 dark:text-purple-300 mb-2">{t("universityDetail.officialWebsite")}</TransText>
                     <a
                       href={`https://${university.website}`}
                       target="_blank"
@@ -307,7 +310,7 @@ const UniversityDetailsPage: React.FC = () => {
             <>
               {/* Detailed Scores */}
               <div className="mb-8">
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Admission Scores {university.lastYearScores.year}</h3>
+                <TransText as='h3' className="text-2xl font-bold text-slate-800 dark:text-white mb-6">{t("universityDetail.admissionScores")} {university.lastYearScores.year}</TransText>
                 <div className="grid gap-6">
                   {getFilteredScores().map((score, index) => (
                     <div key={index} className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-xl p-6 border border-indigo-200 dark:border-indigo-700">
@@ -330,7 +333,7 @@ const UniversityDetailsPage: React.FC = () => {
 
               {/* Specialties with Plans d'Étude */}
               <div className="mb-8">
-                <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-6">Study Plans by Specialty</h3>
+                <TransText as='h3' className="text-xl font-bold text-slate-800 dark:text-white mb-6">{t("universityDetail.studyPlans")}</TransText>
                 <div className="grid gap-6">
                   {getFilteredSpecialties().map((specialty, index) => (
                     <div key={index} className="border border-slate-200 dark:border-slate-600 rounded-lg p-6 hover:shadow-lg transition-shadow">
@@ -403,7 +406,7 @@ const UniversityDetailsPage: React.FC = () => {
           {activeTab === 'location' && (
             <>
               <div className="mb-6">
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">University Location</h3>
+                <TransText as='h3' className="text-2xl font-bold text-slate-800 dark:text-white mb-6">{t("universityDetail.universityLocation")}</TransText>
 
               </div>
 

@@ -7,6 +7,8 @@ import CycleFilters from '@components/cycle/CycleFilters';
 import ScoreCalculator from '@components/cycle/ScoreCalculator';
 import ConcoursTimer from '@components/cycle/ConcoursTimer';
 import CandidatureGuide from '@components/cycle/CandidatureGuide';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 const CycleIngenieurPage: React.FC = () => {
   
@@ -15,6 +17,7 @@ const CycleIngenieurPage: React.FC = () => {
   }, []);
 
   const [searchParams] = useSearchParams();
+  const {t} = useTranslation();
   const initialType = (searchParams.get('type') as University['type']) || 'all';
 
   const [selectedType, setSelectedType] = useState<University['type'] | 'all'>(initialType);
@@ -103,14 +106,14 @@ const CycleIngenieurPage: React.FC = () => {
           <div className="text-center mb-12">
             <div className="inline-flex items-center px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium mb-6">
               <GraduationCap className="w-4 h-4 mr-2" />
-              Engineering Cycle
+              <TransText>{t('nav.engineering')}</TransText> 
             </div>
-            <h1 className="text-2xl md:text-10xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-              Engineering Schools in Tunisia
-            </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
-              Discover the best engineering schools, calculate your scores, and prepare for admission
-            </p>
+            <TransText as='h1' className="text-2xl md:text-10xl font-bold mb-6 bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+              {t('engineeringSchools.title')}
+            </TransText>
+            <TransText as='p' className="text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
+              {t('engineeringSchools.description')}
+            </TransText>
           </div>
 
 
@@ -119,23 +122,23 @@ const CycleIngenieurPage: React.FC = () => {
         <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <AlertCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <h3 className="text-xl font-bold text-green-800 dark:text-green-300">What's New? 🎉</h3>
+            <TransText as='h3' className="text-xl font-bold text-green-800 dark:text-green-300">{t('notice.whatsNew')}</TransText>
           </div>
           <div className="space-y-4">
             <div className="flex items-start gap-3 bg-white dark:bg-slate-800 rounded-lg p-4 border border-green-100 dark:border-green-800">
               <Calendar className="w-5 h-5 text-green-600 dark:text-green-400 mt-1" />
               <div>
-                <h4 className="font-medium text-slate-800 dark:text-slate-200 mb-1">2025 Notice Available! 📢</h4>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                  You can download the new 2025 notice and see all the details
-                </p>
+                <TransText as='h4' className="font-medium text-slate-800 dark:text-slate-200 mb-1">{t('notice.title')}</TransText>
+                <TransText as='p' className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                  {t('notice.description')}
+                </TransText>
                 <a
                   href="/assets/PREAVIS_2025.pdf"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-800/50 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-700 transition-colors"
                   download
                 >
                   <Download className="w-4 h-4" />
-                  <span>Download Notice (PDF)</span>
+                  <TransText>{t('notice.download')}</TransText>
                 </a>
               </div>
             </div>
@@ -151,7 +154,7 @@ const CycleIngenieurPage: React.FC = () => {
               }`}
           >
             <GraduationCap className="w-4 h-4 inline mr-2" />
-            Universities
+            <TransText>{t('notice.universities')}</TransText>
           </button>
           <button
             onClick={() => setActiveTab('calculator')}
@@ -161,7 +164,7 @@ const CycleIngenieurPage: React.FC = () => {
               }`}
           >
             <Calculator className="w-4 h-4 inline mr-2" />
-            Calculate Your Score
+            <TransText>{t('notice.calculateScore')}</TransText>
           </button>
           <button
             onClick={() => setActiveTab('annexes')}
@@ -171,7 +174,7 @@ const CycleIngenieurPage: React.FC = () => {
               }`}
           >
             <FileText className="w-4 h-4 inline mr-2" />
-            Annexes
+            <TransText>{t('notice.annexes')}</TransText>
           </button>
           <button
             onClick={() => setActiveTab('requirements')}
@@ -181,7 +184,7 @@ const CycleIngenieurPage: React.FC = () => {
               }`}
           >
             <Award className="w-4 h-4 inline mr-2" />
-            Requirements
+            <TransText>{t('notice.requirements')}</TransText>
           </button>
         </div>
 
@@ -263,7 +266,7 @@ const CycleIngenieurPage: React.FC = () => {
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 mb-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <FileText className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Annexes</h2>
+              <TransText as='h2' className="text-2xl font-bold text-slate-800 dark:text-white">{t('annexes.title')}</TransText>
             </div>
 
             {/* Specific Schools Section */}
@@ -280,14 +283,14 @@ const CycleIngenieurPage: React.FC = () => {
                       <Download className="w-5 h-5 text-indigo-600 dark:text-indigo-400 mt-1" />
                       <div>
                         <h4 className="font-medium text-slate-800 dark:text-white mb-1">PDF</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Annex to submit with your application</p>
+                        <TransText as='p' className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t('annexes.submitNote')}</TransText>
                         <a
                           href="/assets/ANNEXE.pdf"
                           className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-800/50 transition-colors"
                           download
                         >
                           <Download className="w-4 h-4" />
-                          <span>Download Annex (PDF)</span>
+                          <TransText>{t('annexes.download')}</TransText>
                         </a>
                       </div>
                     </div>
@@ -298,17 +301,16 @@ const CycleIngenieurPage: React.FC = () => {
 
               {/* Independent Schools Section */}
               <div className="bg-purple-50 dark:bg-purple-900/30 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-purple-800 dark:text-purple-300 mb-3">Independent Institutes Annexes (Indépendant)</h3>
+                <TransText as='h3' className="text-xl font-bold text-purple-800 dark:text-purple-300 mb-3">{t('annexes.independent')}</TransText>
                 <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-6">
-                  <p className="text-lg text-slate-700 dark:text-slate-300">
-                    ⚠️ Important Note: Many institutes have not yet published their annexes for this year.
-                    We recommend following their official websites. You can find the links to all institutes below 🔍
-                  </p>
+                  <TransText as='p' className="text-lg text-slate-700 dark:text-slate-300">
+                    {t('annexes.importantNote')}
+                  </TransText>
                 </div>
 
                 {/* Available Annexes */}
                 <div className="mb-6">
-                  <h4 className="font-medium text-purple-900 dark:text-purple-300 mb-4">Currently Available Annexes:</h4>
+                  <TransText as='h4' className="font-medium text-purple-900 dark:text-purple-300 mb-4">{t('annexes.available')}</TransText>
                   <div className="grid md:grid-cols-2 gap-4">
 
                     <div className="bg-white dark:bg-slate-700 rounded-lg p-4 border border-purple-100 dark:border-purple-800 hover:border-purple-300 dark:hover:border-purple-600 transition-colors">
@@ -388,10 +390,10 @@ const CycleIngenieurPage: React.FC = () => {
 
                 {/* University Websites */}
                 <div className="bg-white dark:bg-slate-700 rounded-lg p-6 border border-purple-100 dark:border-purple-800">
-                  <h4 className="font-medium text-purple-900 dark:text-purple-300 mb-4">Official Institute Website Links:</h4>
-                  <p className="text-slate-700 dark:text-slate-300 mb-4">
-                    You can visit these websites to follow the latest news and download new annexes when they are published 🌐
-                  </p>
+                  <TransText as='h4' className="font-medium text-purple-900 dark:text-purple-300 mb-4">{t('annexes.officialLinks')}</TransText>
+                  <TransText as='p' className="text-slate-700 dark:text-slate-300 mb-4">
+                    {t('annexes.followNote')}
+                  </TransText>
                   <div className="grid md:grid-cols-2 gap-4">
 
                     <a
@@ -460,7 +462,7 @@ const CycleIngenieurPage: React.FC = () => {
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <Award className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Requirements</h2>
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">{t('notice.requirements')}</h2>
               </div>
               <div className="flex gap-3">
                 <a
@@ -487,23 +489,23 @@ const CycleIngenieurPage: React.FC = () => {
               <div className="bg-green-50 dark:bg-green-900/30 rounded-lg p-6 mb-6">
                 <div className="flex items-center gap-3 mb-4">
                   <AlertCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <h3 className="text-xl font-bold text-green-800 dark:text-green-300">What's New? 🎉</h3>
+                  <TransText as='h3' className="text-xl font-bold text-green-800 dark:text-green-300">{t('notice.whatsNew')}</TransText>
                 </div>
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3 bg-white dark:bg-slate-700 rounded-lg p-4 border border-green-100 dark:border-green-800">
+                  <div className="flex items-start gap-3 bg-white dark:bg-slate-800 rounded-lg p-4 border border-green-100 dark:border-green-800">
                     <Calendar className="w-5 h-5 text-green-600 dark:text-green-400 mt-1" />
                     <div>
-                      <h4 className="font-medium text-slate-800 dark:text-white mb-1">2025 Notice Available Now! 📢</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                        You can download the new 2025 notice and see all the details
-                      </p>
+                      <TransText as='h4' className="font-medium text-slate-800 dark:text-slate-200 mb-1">{t('notice.title')}</TransText>
+                      <TransText as='p' className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                        {t('notice.description')}
+                      </TransText>
                       <a
                         href="/assets/PREAVIS_2025.pdf"
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-800/50 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-700 transition-colors"
                         download
                       >
                         <Download className="w-4 h-4" />
-                        <span>Download Notice (PDF)</span>
+                        <TransText>{t('notice.download')}</TransText>
                       </a>
                     </div>
                   </div>

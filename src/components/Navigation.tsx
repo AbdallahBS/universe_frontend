@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Menu, X, Sun, Moon, User, LogOut, ChevronDown, Settings } from "lucide-react";
+import { Menu, X, Sun, Moon, User, LogOut, ChevronDown, Settings, Languages } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
+import TransText from "./TransText";
 
 interface NavigationProps {
   currentPage: String;
@@ -10,13 +12,24 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem('language') || 'tn';
+  });
   const { isDark, toggleTheme } = useTheme();
   const { user, isAuthenticated, logout } = useAuth();
   const profileRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleLanguage = () => {
+    const newLanguage = language === 'en' ? 'tn' : 'en';
+    setLanguage(newLanguage);
+    localStorage.setItem('language', newLanguage);
+    i18n.changeLanguage(newLanguage === 'en' ? 'en' : 'ar');
+  };
 
   const handleNavClick = (page: string) => {
     navigate(page);
@@ -84,7 +97,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                   }`}
               >
-                Home
+                <TransText>{t('nav.home')}</TransText>
               </button>
 
               <button
@@ -94,7 +107,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                   }`}
               >
-                Internships
+                <TransText>{t('nav.internships')}</TransText>
               </button>
               <button
                 onClick={() => handleNavClick("/cycle-ingenieur")}
@@ -103,12 +116,12 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                   }`}
               >
-                Engineering Cycle
+                <TransText>{t('nav.engineering')}</TransText>
               </button>
               <span
                 className="text-slate-400 dark:text-slate-500 cursor-not-allowed px-3 py-2 rounded-md text-sm font-medium"
               >
-                Alternance
+                <TransText>{t('nav.alternance')}</TransText>
               </span>
               <button
                 onClick={() => handleNavClick("/about")}
@@ -117,7 +130,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                   }`}
               >
-                About
+                <TransText>{t('nav.about')}</TransText>
               </button>
               <button
                 onClick={() => handleNavClick("/contact")}
@@ -126,13 +139,24 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
                   }`}
               >
-                Contact
+                <TransText>{t('nav.contact')}</TransText>
               </button>
             </div>
           </div>
 
           {/* Desktop Auth Buttons & Theme Toggle */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Language Toggle Button */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-semibold text-sm"
+              aria-label="Toggle language"
+              title={language === 'en' ? 'Switch to Darja' : 'Switch to English'}
+            >
+              <Languages className="h-5 w-5" />
+              <span>{language === 'en' ? 'EN' : 'TN'}</span>
+            </button>
+
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -219,7 +243,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                     : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                 >
-                  Sign In
+                  <TransText>{t('nav.signin')}</TransText>
                 </button>
                 <button
                   onClick={() => handleNavClick("/signup")}
@@ -228,7 +252,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                     : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                 >
-                  Sign Up
+                  <TransText>{t('nav.signup')}</TransText>
                 </button>
               </>
             )}
@@ -236,6 +260,17 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
 
           {/* Mobile Hamburger Button & Theme Toggle */}
           <div className="md:hidden flex items-center space-x-2">
+            {/* Mobile Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-semibold text-sm"
+              aria-label="Toggle language"
+              title={language === 'en' ? 'Switch to Darja' : 'Switch to English'}
+            >
+              <Languages className="h-5 w-5" />
+              {language === 'en' ? 'EN' : 'TN'}
+            </button>
+
             {/* Mobile Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -279,7 +314,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
           >
-            Home
+            <TransText>{t('nav.home')}</TransText>
           </button>
           <button
             onClick={() => handleNavClick("/internships")}
@@ -288,7 +323,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
           >
-            Internships
+            <TransText>{t('nav.internships')}</TransText>
           </button>
           <button
             onClick={() => handleNavClick("/cycle-ingenieur")}
@@ -297,12 +332,12 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
           >
-            Engineering Cycle
+            <TransText>{t('nav.engineering')}</TransText>
           </button>
           <span
             className="text-slate-400 dark:text-slate-500 cursor-not-allowed block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors"
           >
-            Alternance
+            <TransText>{t('nav.alternance')}</TransText>
           </span>
           <button
             onClick={() => handleNavClick("/about")}
@@ -311,7 +346,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
           >
-            About
+            <TransText>{t('nav.about')}</TransText>
           </button>
           <button
             onClick={() => handleNavClick("/contact")}
@@ -320,7 +355,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
               }`}
           >
-            Contact
+            <TransText>{t('nav.contact')}</TransText>
           </button>
 
           {/* Mobile Auth Section */}
@@ -381,7 +416,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                     : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                 >
-                  Sign In
+                  <TransText>{t('nav.signin')}</TransText>
                 </button>
                 <button
                   onClick={() => handleNavClick("/signup")}
@@ -390,7 +425,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
                     : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
                     }`}
                 >
-                  Sign Up
+                  <TransText>{t('nav.signup')}</TransText>
                 </button>
               </>
             )}

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, TrendingUp, X, AlertCircle } from 'lucide-react';
 import { getUniversitiesByLicense, availableSpecialties, University, universitiesData } from '@data/cycleIngenieurData';
+import TransText from '@components/TransText';
+import { useTranslation } from 'react-i18next';
 
 const ScoreCalculator: React.FC = () => {
+  const {t} = useTranslation();
   const [scores, setScores] = useState({
     // First Year
     moyenne1ereAnnee: '',
@@ -181,8 +184,8 @@ const ScoreCalculator: React.FC = () => {
             <Calculator className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white">Calculate Your Score</h3>
-            <p className="text-slate-600 dark:text-slate-400">Enter your grades and see your Score A and Global Score</p>
+            <TransText as='h3' className="text-2xl font-bold text-slate-800 dark:text-white">{t("scoreCalculator.title")}</TransText>
+            <TransText as='p' className="text-slate-600 dark:text-slate-400">{t("scoreCalculator.subtitle")}</TransText>
           </div>
         </div>
 
@@ -413,7 +416,7 @@ const ScoreCalculator: React.FC = () => {
                       className="w-full py-2 px-4 bg-emerald-100 dark:bg-emerald-900/50 hover:bg-emerald-200 dark:hover:bg-emerald-800/50 text-emerald-700 dark:text-emerald-300 rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
                     >
                       <Calculator className="w-4 h-4" />
-                      Don't know how to calculate Score E? We'll help you, especially if you're DSI
+                      <TransText>{t("scoreCalculator.scoreEHelp")}</TransText>
                     </button>
                   </div>
                 </div>
@@ -469,7 +472,7 @@ const ScoreCalculator: React.FC = () => {
                 </div>
                 {!scores.scoreE && (
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    If you don't have Score E, Global Score is calculated based on Score A only
+                    <TransText>{t("scoreCalculator.scoreNoE")}</TransText>
                   </p>
                 )}
               </div>
@@ -477,7 +480,7 @@ const ScoreCalculator: React.FC = () => {
 
             {/* Formula Info */}
             <div className="bg-slate-50 dark:bg-slate-700/50 rounded-xl p-4">
-              <h5 className="font-semibold text-slate-800 dark:text-white mb-3">How Score is Calculated:</h5>
+              <TransText as='h5' className="font-semibold text-slate-800 dark:text-white mb-3">{t("scoreCalculator.howCalculated")}</TransText>
               <div className="space-y-2 text-sm">
 
                 <code className="block bg-white dark:bg-slate-800 p-2 rounded mt-1 text-xs text-slate-800 dark:text-slate-200">

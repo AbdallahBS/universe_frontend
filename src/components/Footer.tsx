@@ -1,9 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, MapPin, Phone, Facebook, Linkedin, Github, ArrowUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import TransText from './TransText';
 
 const Footer: React.FC = () => {
     const navigate = useNavigate();
+    const {t} = useTranslation();
     const currentYear = new Date().getFullYear();
 
     const scrollToTop = () => {
@@ -12,17 +15,17 @@ const Footer: React.FC = () => {
 
     const footerLinks = {
         platform: [
-            { name: 'Home', path: '/' },
-            { name: 'Internships', path: '/internships' },
-            { name: 'Engineering Cycle', path: '/cycle-ingenieur' },
+            { name: t('footer.home'), path: '/' },
+            { name: t('footer.internships'), path: '/internships' },
+            { name: t('footer.engineering'), path: '/cycle-ingenieur' },
         ],
         company: [
-            { name: 'About Us', path: '/about' },
-            { name: 'Contact', path: '/contact' },
+            { name: t('footer.about'), path: '/about' },
+            { name: t('footer.contact'), path: '/contact' },
         ],
         legal: [
-            { name: 'Terms of Service', path: '#' },
-            { name: 'Privacy Policy', path: '#' },
+            { name: t('footer.terms'), path: '#' },
+            { name: t('footer.privacy'), path: '#' },
         ],
     };
 
@@ -52,14 +55,14 @@ const Footer: React.FC = () => {
                                 className="w-16 h-16 object-contain brightness-0 invert"
                             />
                         </div>
-                        <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                            Your gateway to discovering opportunities, exploring engineering programs, and building your future career.
-                        </p>
+                        <TransText as='p' className="text-slate-400 text-sm leading-relaxed mb-6">
+                            {t('footer.description')}
+                        </TransText>
                     </div>
 
                     {/* Platform Links */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-white">pages</h3>
+                        <TransText as='h3' className="text-lg font-semibold mb-4 text-white">{t('footer.pages')}</TransText>
                         <ul className="space-y-3">
                             {footerLinks.platform.map((link) => (
                                 <li key={link.name}>
@@ -67,7 +70,7 @@ const Footer: React.FC = () => {
                                         onClick={() => navigate(link.path)}
                                         className="text-slate-400 hover:text-teal-400 transition-colors duration-200 text-sm"
                                     >
-                                        {link.name}
+                                        <TransText>{link.name}</TransText>
                                     </button>
                                 </li>
                             ))}
@@ -76,7 +79,7 @@ const Footer: React.FC = () => {
 
                     {/* Company Links */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-white">Company</h3>
+                        <TransText as='h3' className="text-lg font-semibold mb-4 text-white">{t('footer.company')}</TransText>
                         <ul className="space-y-3">
                             {footerLinks.company.map((link) => (
                                 <li key={link.name}>
@@ -103,7 +106,7 @@ const Footer: React.FC = () => {
 
                     {/* Contact Info */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4 text-white">Contact Us</h3>
+                        <TransText as='h3' className="text-lg font-semibold mb-4 text-white">{t('footer.contact')}</TransText>
                         <ul className="space-y-4">
                             <li className="flex items-center space-x-3">
                                 <Mail className="w-5 h-5 text-purple-400 flex-shrink-0" />

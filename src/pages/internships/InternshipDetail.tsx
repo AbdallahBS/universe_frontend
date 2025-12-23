@@ -27,6 +27,8 @@ import CommentsSection from "@components/internship_post/statsSection";
 import MediaGallery from "@components/internship_post/mediaGallery";
 import Linkify from "linkify-react";
 import { useAuth } from "@context/AuthContext";
+import TransText from "@components/TransText";
+import { useTranslation } from "react-i18next";
 
 interface InternshipDetailProps {
 }
@@ -34,6 +36,7 @@ interface InternshipDetailProps {
 const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
   const navigate = useNavigate();
   const { urn } = useParams();
+  const {t} = useTranslation();
 
   const [searchParams] = useSearchParams();
   const PreviousPageNumber = searchParams.get("prevPage");
@@ -407,9 +410,9 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center">
                     <Briefcase className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                    About this Opportunity
-                  </h2>
+                  <TransText as="h2" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                    {t('internshipDetail.about')}
+                  </TransText>
                 </div>
 
                 <div className="prose prose-slate dark:prose-invert max-w-none relative">
@@ -477,7 +480,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
             {/* Quick Info Card */}
             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden sticky top-24">
               <div className="p-6">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Quick Info</h3>
+                <TransText as="h3" className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('internshipDetail.quickInfo')}</TransText>
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
@@ -528,7 +531,7 @@ const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
                     className="w-full group inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#0077B5] to-[#00A0DC] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300"
                   >
                     <Linkedin className="w-5 h-5" />
-                    <span>View Original Post</span>
+                    <TransText>{t('internshipDetail.viewOriginal')}</TransText>
                     <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
                   </button>
 

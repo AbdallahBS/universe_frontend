@@ -1,5 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Section {
   id: string;
@@ -12,19 +13,21 @@ interface SectionTagsProps {
   toggleSection: (sectionId: string) => void;
 }
 
+const SectionTags: React.FC<SectionTagsProps> = ({ selectedSections, toggleSection }) => {
+  const {t} = useTranslation();
+
 const SECTIONS: Section[] = [
-  { id: "internship_offers", name: "Internship Offers", icon: "🔍" },
-  { id: "internship_requests", name: "Internship Requests", icon: "👀" },
-  { id: "job_offers", name: "Job Offers", icon: "💼" },
-  { id: "news_announcements", name: "News & Announcements", icon: "📢" },
-  { id: "events_trainings", name: "Events & Trainings", icon: "📅" },
-  { id: "educational_content", name: "Educational Content", icon: "📚" },
-  { id: "general_updates", name: "General Updates", icon: "📰" },
-  { id: "marketing_promotion", name: "Marketing & Promotion", icon: "📈" },
-  { id: "other", name: "Other", icon: "✨" }
+  { id: "internship_offers", name: t('filters.offers'), icon: "🔍" },
+  { id: "internship_requests", name: t('filters.requests'), icon: "👀" },
+  { id: "job_offers", name: t('filters.jobs'), icon: "💼" },
+  { id: "news_announcements", name: t('filters.news'), icon: "📢" },
+  { id: "events_trainings", name: t('filters.events'), icon: "📅" },
+  { id: "educational_content", name: t('filters.education'), icon: "📚" },
+  { id: "general_updates", name: t('filters.updates'), icon: "📰" },
+  { id: "marketing_promotion", name: t('filters.marketing'), icon: "📈" },
+  { id: "other", name: t('filters.other'), icon: "✨" }
 ];
 
-const SectionTags: React.FC<SectionTagsProps> = ({ selectedSections, toggleSection }) => {
   return (
     <div className="w-full max-w-4xl mx-auto p-8">
       <style>{`

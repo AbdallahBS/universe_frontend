@@ -6,6 +6,8 @@ import { SignupSchema } from '../../utils/validators';
 import { SignupFormData } from 'types/auth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import TransText from '@components/TransText';
+import { useTranslation } from 'react-i18next';
 
 interface SignupPageProps {
   onSignupSuccess?: (email: string) => void;
@@ -13,6 +15,7 @@ interface SignupPageProps {
 
 const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   const navigate = useNavigate();
+  const {t} = useTranslation();
   const [searchParams] = useSearchParams();
   const { signup, loginWithGoogle } = useAuth();
 
@@ -116,20 +119,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="max-w-md">
-            <h1 className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
-              FIND YOUR SUITABLE
+            <TransText as='h1' className="text-5xl font-bold mb-6 leading-tight animate-fade-in-up">
+              {t("auth.heroTitle")}
               <br />
-              <span className="text-teal-400">INTERNSHIP</span>
+              <TransText className="text-teal-400">{t("auth.heroTitle2")}</TransText>
               <br />
-            </h1>
-            <p className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
-              Welcome to Universe, your gateway to internship opportunities! Log in now to explore a world of exciting experiences, connect with companies, and take the first step towards your future career.
-            </p>
-            <p className="text-lg text-teal-300 animate-fade-in-up animation-delay-400 text-center">
-              ' Don't search for an internship, let the internship find you. '
-            </p>
-          </div>
+            </TransText>
+            <TransText as='p' className="text-xl text-slate-200 mb-8 leading-relaxed animate-fade-in-up animation-delay-200">
+              {t("auth.heroDescription")}
+            </TransText>
+            <TransText as='p' className="text-lg text-teal-300 animate-fade-in-up animation-delay-400 text-center">
+              {t("auth.quote")}
+            </TransText>
         </div>
       </div>
 
@@ -137,12 +138,12 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white dark:bg-slate-900 px-8 py-12">
         <div className="max-w-md w-full animate-fade-in-left">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              CREATE ACCOUNT
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400">
-              Join us today! Please fill in your details.
-            </p>
+            <TransText as='h2' className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              {t("auth.createAccount")}
+            </TransText>
+            <TransText as='p' className="text-slate-600 dark:text-slate-400">
+              {t("auth.createSubtitle")}
+            </TransText>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -154,40 +155,40 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputField
-                label="First Name"
+                label={t("auth.firstName")}
                 type="text"
                 id="firstname"
                 value={formData.firstname}
                 onChange={(value) => setFormData(prev => ({ ...prev, firstname: value }))}
-                placeholder="Enter your first name"
+                placeholder={t("auth.firstNamePlaceholder")}
                 required
                 error={fieldErrors.firstname}
               />
               <InputField
-                label="Last Name"
+                label={t("auth.lastName")}
                 type="text"
                 id="lastname"
                 value={formData.lastname}
                 onChange={(value) => setFormData(prev => ({ ...prev, lastname: value }))}
-                placeholder="Enter your last name"
+                placeholder={t("auth.lastNamePlaceholder")}
                 required
                 error={fieldErrors.lastname}
               />
             </div>
 
             <InputField
-              label="Email"
+              label={t("auth.email")}
               type="email"
               id="email"
               value={formData.email}
               onChange={(value) => setFormData(prev => ({ ...prev, email: value }))}
-              placeholder="Enter your email"
+              placeholder={t("auth.emailPlaceholder")}
               required
               error={fieldErrors.email}
             />
 
             <InputField
-              label="Password"
+              label={t("auth.password")}
               type="password"
               id="password"
               value={formData.password}
@@ -198,7 +199,7 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
             />
 
             <InputField
-              label="Confirm Password"
+              label={t("auth.confirmPassword")}
               type="password"
               id="confirmPassword"
               value={formData.confirmPassword}
@@ -218,14 +219,10 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
                 required
               />
               <label htmlFor="agreeToTerms" className="text-sm text-slate-700 dark:text-slate-300">
-                I agree to the{' '}
+                <TransText>{t("auth.terms")}</TransText> {' '}
                 <a href="#" className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-medium">
-                  Terms of Service
+                  <TransText>{t("auth.terms2")}</TransText>
                 </a>{' '}
-                and{' '}
-                <a href="#" className="text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-medium">
-                  Privacy Policy
-                </a>
               </label>
             </div>
 

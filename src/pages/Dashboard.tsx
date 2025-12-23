@@ -8,6 +8,8 @@ import QuizAttemptsList from '@components/QuizAttemptsList';
 import { getSavedInternships, unsaveInternship } from '@services/savedInternshipsService';
 import { LinkedInPost } from 'types/resource';
 import { timeAgo } from '@utils/helpers';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 interface DashboardProps {
 }
@@ -18,8 +20,8 @@ interface SavedInternship extends LinkedInPost {
 
 const Dashboard: React.FC<DashboardProps> = ({ }) => {
   const { user, userRoles, isLoading, stats } = useAuth();
+  const {t} = useTranslation();
   const navigate = useNavigate();
-
   const [savedInternships, setSavedInternships] = useState<SavedInternship[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -95,7 +97,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="w-5 h-5 text-teal-500 dark:text-teal-400" />
-                  <span className="text-sm font-medium text-teal-600 dark:text-teal-400">Welcome back!</span>
+                  <TransText className="text-sm font-medium text-teal-600 dark:text-teal-400">{t('dashboard.welcome')}</TransText>
                 </div>
                 <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white">
                   Hello, {user?.firstname || 'there'}! 👋
@@ -112,7 +114,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
         <div className="mb-10 animate-fade-in-up animation-delay-200">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <Bookmark className="w-5 h-5 text-teal-500" />
-            Saved Internships
+            <TransText>{t('dashboard.savedInternships')}</TransText>
           </h2>
 
           {loadingSaved ? (
@@ -198,7 +200,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
         <div className="mb-10 animate-fade-in-up animation-delay-250">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <Trophy className="w-5 h-5 text-orange-500" />
-            Recent Quiz Attempts
+            <TransText>{t('dashboard.recentQuizzes')}</TransText>
           </h2>
           <QuizAttemptsList maxItems={6} />
         </div>
@@ -207,7 +209,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
         <div className="mb-10 animate-fade-in-up animation-delay-300">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
             <Rocket className="w-5 h-5 text-teal-500" />
-            Quick Actions
+            <TransText>{t('dashboard.quickActions')}</TransText>
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             {/* Browse Internships Card */}
@@ -222,10 +224,10 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                    Browse Internships
+                    <TransText>{t('dashboard.browseInternships')}</TransText>
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Discover PFE offers & opportunities
+                    <TransText>{t('dashboard.browseDesc')}</TransText>
                   </p>
                 </div>
               </div>
@@ -246,10 +248,10 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                    Cycle Ingénieur
+                    <TransText>{t('dashboard.engineeringCycle')}</TransText>
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Explore engineering path options
+                    <TransText>{t('dashboard.engineeringDesc')}</TransText>
                   </p>
                 </div>
               </div>
@@ -270,10 +272,10 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-                    Quiz CCNA
+                    <TransText>{t('dashboard.quizCCNA')}</TransText>
                   </h3>
                   <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Test your knowledge of Introduction to Networks
+                    <TransText>{t('dashboard.quizDesc')}</TransText>
                   </p>
                 </div>
               </div>
