@@ -2,3 +2,4 @@
 export { default as ProfileCard } from './ProfileCard';
 export { default as PasswordResetCard } from './PasswordResetCard';
 export { default as DangerZoneCard } from './DangerZoneCard';
+export { default as StatusCard } from './StatusCard';

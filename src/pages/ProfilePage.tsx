@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@context/AuthContext';
 import { requestPasswordReset } from '@services/authService';
 import { updateProfile, uploadProfilePicture, deleteAccount } from '@services/userService';
-import { ProfileCard, PasswordResetCard, DangerZoneCard } from '@components/profile';
+import { ProfileCard, PasswordResetCard, DangerZoneCard, StatusCard } from '@components/profile';
 
 /**
  * ProfilePage Component
@@ -126,6 +126,12 @@ const ProfilePage: React.FC = () => {
                     uploadingPicture={uploadingPicture}
                     error={error}
                     setError={setError}
+                />
+
+                {/* Status Card */}
+                <StatusCard
+                    currentStatus={user?.status}
+                    onStatusUpdate={refreshUser}
                 />
 
                 {/* Password Reset Card */}

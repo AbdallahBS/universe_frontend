@@ -4,6 +4,8 @@ import { apiFetch } from './api';
  * User Service - API functions for user profile management
  */
 
+export type UserStatus = 'looking_for_internship' | 'looking_for_master_alternance' | 'looking_for_job' | 'employed' | 'student';
+
 export interface UserProfile {
     id: string;
     firstname: string;
@@ -12,6 +14,7 @@ export interface UserProfile {
     profilePicture: string | null;
     isVerified: boolean;
     roles: string[];
+    status: UserStatus | null;
 }
 
 /**
@@ -81,6 +84,23 @@ export async function deleteAccount(password: string): Promise<{ message: string
         return response;
     } catch (err: any) {
         const message = typeof err?.message === 'string' ? err.message : 'Failed to delete account';
+        throw new Error(message);
+    }
+}
+
+/**
+ * Update user status
+ */
+export async function updateStatus(status: UserStatus): Promise<{ message: string; user: UserProfile }> {
+    try {
+        const response = await apiFetch<{ message: string; user: UserProfile }>('/v1/user/update-status', {
+            method: 'PATCH',
+            json: { status },
+            requireAuth: true,
+        });
+        return response;
+    } catch (err: any) {
+        const message = typeof err?.message === 'string' ? err.message : 'Failed to update status';
         throw new Error(message);
     }
 }

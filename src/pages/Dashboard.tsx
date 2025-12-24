@@ -10,6 +10,8 @@ import { LinkedInPost } from 'types/resource';
 import { timeAgo } from '@utils/helpers';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
+import StatusSelectionModal from '@components/StatusSelectionModal';
+import CookieManager from '@utils/cookies';
 
 interface DashboardProps {
 }
@@ -19,17 +21,39 @@ interface SavedInternship extends LinkedInPost {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ }) => {
-  const { user, userRoles, isLoading, stats } = useAuth();
-  const {t} = useTranslation();
+  const { user, userRoles, isLoading, stats, setUser } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [savedInternships, setSavedInternships] = useState<SavedInternship[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
+  // Status modal state - show for users without status
+  const [showStatusModal, setShowStatusModal] = useState(false);
+
   useEffect(() => {
     document.title = 'Universe | Dashboard';
     fetchSavedInternships();
-  }, []);
+
+    // Check if user needs to set their status (with 1 second delay)
+    if (user && (user.status === null || user.status === undefined)) {
+      const timer = setTimeout(() => {
+        setShowStatusModal(true);
+      }, 1000); // 1 second delay
+
+      return () => clearTimeout(timer); // Cleanup on unmount
+    }
+  }, [user]);
+
+  const handleStatusComplete = () => {
+    setShowStatusModal(false);
+  };
+
+  const handleUserUpdate = (updatedUser: any) => {
+    // Update user in context and cookies
+    CookieManager.set('user', JSON.stringify(updatedUser), 30);
+    setUser(updatedUser);
+  };
 
   const fetchSavedInternships = async () => {
     try {
@@ -105,6 +129,15 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                 <p className="text-slate-600 dark:text-slate-400 mt-1">
                   {user?.email}
                 </p>
+                {/* Status Badge */}
+                {user?.status && (
+                  <div className="mt-2 inline-flex items-center gap-2 px-3 py-1 bg-teal-50 dark:bg-teal-900/30 border border-teal-200 dark:border-teal-800 rounded-full">
+                    <div className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-teal-700 dark:text-teal-400">
+                      {t(`statusModal.options.${user.status}`)}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -326,12 +359,12 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
                 <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-slate-500">
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-teal-400" />
-                    <span>{stats.usersCount.usersCount ?? "N/A"}+ Users</span>
+                    <span>{stats?.usersCount?.usersCount ?? "N/A"}+ Users</span>
                   </div>
                   <div className="w-1 h-1 rounded-full bg-slate-600"></div>
                   <div className="flex items-center gap-2">
                     <Briefcase className="w-4 h-4 text-teal-400" />
-                    <span>{stats.contentsCount.totalDocumentsCount ?? "N/A"}+ Posts</span>
+                    <span>{stats?.contentsCount?.totalDocumentsCount ?? "N/A"}+ Posts</span>
                   </div>
                 </div>
               </div>
@@ -345,6 +378,13 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
         </div>
 
       </div>
+
+      {/* Status Selection Modal - shows for users without status */}
+      <StatusSelectionModal
+        isOpen={showStatusModal}
+        onComplete={handleStatusComplete}
+        onUserUpdate={handleUserUpdate}
+      />
     </div>
   );
 };

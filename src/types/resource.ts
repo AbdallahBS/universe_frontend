@@ -3,6 +3,8 @@ export interface OAuthProvider {
   providerUserId: string;
 }
 
+export type UserStatus = 'looking_for_internship' | 'looking_for_master_alternance' | 'looking_for_job' | 'employed' | 'student';
+
 export interface User {
   id: string;
   email: string;
@@ -11,6 +13,7 @@ export interface User {
   isVerified?: boolean;
   profilePicture?: string;
   oauthProviders?: OAuthProvider[];
+  status?: UserStatus | null;
 }
 
 /** internship object **/
@@ -44,8 +47,8 @@ export interface Media {
 }
 
 export interface PostedAt {
-  date: string; 
-  relative: string; 
+  date: string;
+  relative: string;
   timestamp: number;
 }
 
@@ -82,46 +85,46 @@ export interface LinkedInPost {
   url: string;
 }
 
-export const EmptyPost : LinkedInPost = 
+export const EmptyPost: LinkedInPost =
 {
-    _id: "",
-    urn: {},
-    author: {
-      first_name: "",
-      last_name: "",
-      headline: "",
-      username: "",
-      profile_picture: "",
-      profile_url: "",
-    },
-    createdAt: "",
-    updatedAt: "",
-    document: null,
-    full_urn: "",
-    media: null,
-    post_type: "",
-    posted_at: {
-      date: "",
-      relative: "",
-      timestamp: 0,
-    },
-    profile_input: "",
-    reshared_post: null,
-    stats: {
-      total_reactions: 0,
-      like: 0,
-      support: 0,
-      love: 0,
-      insight: 0,
-      celebrate: 0,
-      funny: 0,
-      comments: 0,
-      reposts: 0,
-    },
-    text: "",
-    title: "",
-    category: "",
-    url: "",
+  _id: "",
+  urn: {},
+  author: {
+    first_name: "",
+    last_name: "",
+    headline: "",
+    username: "",
+    profile_picture: "",
+    profile_url: "",
+  },
+  createdAt: "",
+  updatedAt: "",
+  document: null,
+  full_urn: "",
+  media: null,
+  post_type: "",
+  posted_at: {
+    date: "",
+    relative: "",
+    timestamp: 0,
+  },
+  profile_input: "",
+  reshared_post: null,
+  stats: {
+    total_reactions: 0,
+    like: 0,
+    support: 0,
+    love: 0,
+    insight: 0,
+    celebrate: 0,
+    funny: 0,
+    comments: 0,
+    reposts: 0,
+  },
+  text: "",
+  title: "",
+  category: "",
+  url: "",
 };
 
 /** Pagination object **/
