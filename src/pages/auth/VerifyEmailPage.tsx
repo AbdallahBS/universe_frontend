@@ -3,16 +3,16 @@ import { useSearchParams } from 'react-router-dom';
 import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { verifyEmail, requestEmailVerification } from '../../services/authService';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CookieManager from '../../utils/cookies';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface VerifyEmailPageProps {
   userEmail?: string;
 }
 
 const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const { user, setUser } = useAuth();
   const [searchParams] = useSearchParams();
   const [verificationCode, setVerificationCode] = useState('');

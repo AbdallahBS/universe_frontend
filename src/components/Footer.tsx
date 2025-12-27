@@ -1,11 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Mail, MapPin, Phone, Facebook, Linkedin, Github, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import TransText from './TransText';
+import { useNavigatePage } from './ui/useNavigatePage';
 
 const Footer: React.FC = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const {t} = useTranslation();
     const currentYear = new Date().getFullYear();
 

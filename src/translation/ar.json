@@ -233,9 +233,9 @@
     "subtitle": "ساعدنا باش نخصّصولك التجربة",
     "selectPlaceholder": "إختار وضعيتك",
     "options": {
-      "looking_for_internship": "نقلّب على ستاج",
-      "looking_for_master_alternance": "نقلّب على ماستر/ألترنانس",
-      "looking_for_job": "نقلّب على خدمة",
+      "looking_for_internship": "نلوج على ستاج",
+      "looking_for_master_alternance": "نلوج على ماستر/ألترنانس",
+      "looking_for_job": "نلوج على خدمة",
       "employed": "خدّام حاليًا",
       "student": "مازلت نقرا"
     },
@@ -244,6 +244,6 @@
   },
   "profile": {
     "currentStatus": "الوضعية الحالية",
-    "statusDescription": "خلّي الشركات تعرف شنوة تقلّب عليه"
+    "statusDescription": "خلّي الشركات تعرف شنوة اللي تلوج عليه"
   }
 }

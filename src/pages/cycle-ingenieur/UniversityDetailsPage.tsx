@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useParams, Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, MapPin, Phone, Mail, ExternalLink, Download, Calendar, Users, Award, Navigation, Star } from 'lucide-react';
 import { getUniversityById, University } from '@data/cycleIngenieurData';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 // Fix for default marker icons in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -24,7 +25,7 @@ const UniversityDetailsPage: React.FC = () => {
   
   const {t} = useTranslation();
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [university, setUniversity] = useState<University | null>(null);

@@ -17,7 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ScrollButtons from "@components/ui/ScrollButtons";
 import { getInternship } from "@services/internshipService";
 import { saveInternship, unsaveInternship, checkIfSaved } from "@services/savedInternshipsService";
@@ -29,12 +29,13 @@ import Linkify from "linkify-react";
 import { useAuth } from "@context/AuthContext";
 import TransText from "@components/TransText";
 import { useTranslation } from "react-i18next";
+import { useNavigatePage } from "@components/ui/useNavigatePage";
 
 interface InternshipDetailProps {
 }
 
 const InternshipDetail: React.FC<InternshipDetailProps> = ({ }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const { urn } = useParams();
   const {t} = useTranslation();
 

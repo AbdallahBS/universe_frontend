@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Eye, EyeOff, AlertCircle, Loader2, Briefcase, Calendar, Plus, Edit3, X, Image, FileText } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Eye, EyeOff, AlertCircle, Loader2, Briefcase, Calendar, Plus, Edit3, X, Image } from 'lucide-react';
 import ModalPortal from '@components/ModalPortal';
 
 /** Post object **/

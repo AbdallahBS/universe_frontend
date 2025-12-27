@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Menu, X, Sun, Moon, User, LogOut, ChevronDown, Settings, Languages } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useTranslation } from "react-i18next";
 import TransText from "./TransText";
+import { useNavigatePage } from "./ui/useNavigatePage";
 
 interface NavigationProps {
   currentPage: String;
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const { t, i18n } = useTranslation();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);

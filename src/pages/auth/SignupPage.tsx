@@ -4,19 +4,20 @@ import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { SignupSchema } from '../../utils/validators';
 import { SignupFormData } from 'types/auth';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import TransText from '@components/TransText';
 import { useTranslation } from 'react-i18next';
 import StatusSelectionModal from '../../components/StatusSelectionModal';
 import CookieManager from '../../utils/cookies';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface SignupPageProps {
   onSignupSuccess?: (email: string) => void;
 }
 
 const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { signup, loginWithGoogle, setUser } = useAuth();

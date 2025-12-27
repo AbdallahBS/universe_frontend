@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { getQuizAttempts } from '../services/quizService';
 import { QuizAttemptSummary } from '../types/quiz';
 import { useAuth } from '../context/AuthContext';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 const moduleNames: Record<string, string> = {
     ccna1: 'CCNA 1 - Introduction aux Réseaux',
@@ -11,7 +11,7 @@ const moduleNames: Record<string, string> = {
 };
 
 export default function QuizHistoryPage() {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const [attempts, setAttempts] = useState<QuizAttemptSummary[]>([]);
     const [loading, setLoading] = useState(true);

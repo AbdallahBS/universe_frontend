@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { AlertCircle, Home, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface ErrorPageProps {
   errorCode: String,
@@ -9,7 +9,7 @@ interface ErrorPageProps {
 }
 
 const ErrorPage: React.FC<ErrorPageProps> = ({ errorCode, errorText, errorDescription }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
 
   useEffect(() => {
     document.title = `Universe | ${errorCode}`;

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, Clock, ChevronLeft, ChevronRight, Award, BookOpen, Cloud, Monitor, X, Play, CheckCircle, Timer, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface CertificateModule {
     id: string;
@@ -406,7 +406,7 @@ const CertificateCard: React.FC<CertificateCardProps> = ({
 };
 
 export default function ExamCertificatesPage() {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const { isAuthenticated } = useAuth();
     const [showCarousel, setShowCarousel] = useState(false);
     const [selectedModules, setSelectedModules] = useState<CertificateModule[]>([]);

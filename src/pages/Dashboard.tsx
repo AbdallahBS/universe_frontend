@@ -1,6 +1,5 @@
 import { useAuth } from '@context/AuthContext';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Briefcase, GraduationCap, Rocket, MapPin, Sparkles, Bookmark, X, Clock, Loader2, TextSearchIcon, Trophy } from 'lucide-react';
 import TunisiaMap from '../components/TunisiaMap';
 import AdminOptions from '@components/AdminOptions';
@@ -12,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
 import StatusSelectionModal from '@components/StatusSelectionModal';
 import CookieManager from '@utils/cookies';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface DashboardProps {
 }
@@ -23,7 +23,7 @@ interface SavedInternship extends LinkedInPost {
 const Dashboard: React.FC<DashboardProps> = ({ }) => {
   const { user, userRoles, isLoading, stats, setUser } = useAuth();
   const { t } = useTranslation();
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const [savedInternships, setSavedInternships] = useState<SavedInternship[]>([]);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);

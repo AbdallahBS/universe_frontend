@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Trash2, Shield, Ban, UserCheck, Loader2, UserX } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Shield, UserCheck, Loader2, UserX } from 'lucide-react';
 import { changerole, deleteUser, getUsers } from '@services/adminService';
 import LoadingSpinner from '@components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';

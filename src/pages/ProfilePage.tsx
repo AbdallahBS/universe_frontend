@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@context/AuthContext';
 import { requestPasswordReset } from '@services/authService';
 import { updateProfile, uploadProfilePicture, deleteAccount } from '@services/userService';
 import { ProfileCard, PasswordResetCard, DangerZoneCard, StatusCard } from '@components/profile';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 /**
  * ProfilePage Component
@@ -16,7 +16,7 @@ import { ProfileCard, PasswordResetCard, DangerZoneCard, StatusCard } from '@com
  * - Delete their account
  */
 const ProfilePage: React.FC = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const { user, refreshUser, logout } = useAuth();
 
     // Loading states

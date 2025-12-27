@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Sparkles, ArrowRight, Globe, Users, Zap, GraduationCap, Briefcase, BookOpen, Clock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import About from './About';
 import Contact from './Contact';
 import { useAuth } from '@context/AuthContext';
 import TransText from '@components/TransText';
 import { useTranslation } from 'react-i18next';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface LandingPageProps {
 }
@@ -50,7 +50,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
   useEffect(() => {
     document.title = 'Universe';
   }, []);
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const { stats } = useAuth();
   const {t} = useTranslation();
 

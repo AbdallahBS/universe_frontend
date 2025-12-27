@@ -4,17 +4,18 @@ import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { LoginFormData } from 'types/auth';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
 import StatusSelectionModal from '../../components/StatusSelectionModal';
 import CookieManager from '../../utils/cookies';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface LoginPageProps {
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ }) => {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const { login, loginWithGoogle, setUser } = useAuth();

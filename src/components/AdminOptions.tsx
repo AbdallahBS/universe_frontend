@@ -11,8 +11,8 @@ import {
   TrendingUp,
   Activity
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@context/AuthContext';
+import { useNavigatePage } from './ui/useNavigatePage';
 
 interface AdminOption {
   id: string;
@@ -28,7 +28,7 @@ interface AdminOption {
 
 const AdminOptions: React.FC = () => {
   const {stats} = useAuth();
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const [hoveredOption, setHoveredOption] = useState<string | null>(null);
 
   const adminOptions: AdminOption[] = [

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, CheckCircle2, AlertCircle, Lock, Loader2 } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { confirmPasswordReset, validateResetToken } from '@services/authService';
 import { ResetPasswordSchema } from '@utils/validators';
 import InputField from '@components/ui/InputField';
 import Button from '@components/ui/Button';
 import { useAuth } from '@context/AuthContext';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface ResetPasswordFormData {
     password: string;
@@ -23,7 +24,7 @@ type PageState = 'loading' | 'valid' | 'invalid' | 'success';
  * Validates token on page load before showing the form.
  */
 const ResetPasswordPage: React.FC = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const [searchParams] = useSearchParams();
     const { logout, isAuthenticated } = useAuth();
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Search, Trash2, Play, Pause, Edit, Loader2, Database, Clock, Zap, Plus, X, Save, FerrisWheel, Ban, PowerCircleIcon } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Play, Edit, Loader2, Database, Clock, Zap, Plus, X, Save, Ban, PowerCircleIcon } from 'lucide-react';
 import ModalPortal from '@components/ModalPortal';
 import LoadingSpinner from '@components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import InternshipsList from '@pages/internships/InternshipsList'; import InternshipDetail from '@pages/internships/InternshipDetail';
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import ErrorPage from '@pages/ErrorPage';
 import Navigation from '@components/Navigation';
 import LandingPage from '@pages/LandingPage';
@@ -30,10 +30,11 @@ import ContentManagementPage from '@pages/admin/ContentManagementPage';
 import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
 import CustomToaster from '@components/customToaster';
 import VerificationBanner from '@components/VerificationBanner';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 // Main app content component
 function AppContent() {
-  const navigate = useNavigate();
+  const navigate = useNavigatePage();
   const location = useLocation();
   const [userEmail, setUserEmail] = useState<string>('');
 

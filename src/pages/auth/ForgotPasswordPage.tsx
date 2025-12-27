@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Mail, CheckCircle2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { requestPasswordReset } from '@services/authService';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 /**
  * ForgotPasswordPage Component
@@ -12,7 +12,7 @@ import { requestPasswordReset } from '@services/authService';
  * Security: Always shows success message to prevent user enumeration
  */
 const ForgotPasswordPage: React.FC = () => {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
 
     // Form state
     const [email, setEmail] = useState('');

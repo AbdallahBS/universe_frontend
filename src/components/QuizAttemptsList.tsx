@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Trophy, Clock, Loader2, TextSearchIcon } from 'lucide-react';
 import { getQuizAttempts } from '../services/quizService';
 import { QuizAttemptSummary } from '../types/quiz';
+import { useNavigatePage } from './ui/useNavigatePage';
 
 interface QuizAttemptsListProps {
     maxItems?: number;
 }
 
 const QuizAttemptsList: React.FC<QuizAttemptsListProps> = ({ maxItems = 6 }) => {
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const [attempts, setAttempts] = useState<QuizAttemptSummary[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

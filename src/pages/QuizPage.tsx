@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
 import { ccna2Questions } from './data/ccna2QuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
@@ -7,6 +7,7 @@ import FeedbackCard from '../components/quiz/FeedbackCard';
 import { useAuth } from '../context/AuthContext';
 import { saveQuizAttempt } from '../services/quizService';
 import { QuestionResult, SaveAttemptPayload } from '../types/quiz';
+import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 type QuizModule = 'ccna1' | 'ccna2';
 
@@ -14,7 +15,7 @@ type QuizScreen = 'start' | 'quiz' | 'results';
 
 export default function QuizPage() {
     const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+    const navigate = useNavigatePage();
     const { isAuthenticated } = useAuth();
     const [screen, setScreen] = useState<QuizScreen>('start');
     const [selectedModule, setSelectedModule] = useState<QuizModule>('ccna1');
