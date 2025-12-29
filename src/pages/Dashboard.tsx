@@ -25,6 +25,8 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
   const { t } = useTranslation();
   const navigate = useNavigatePage();
   const [savedInternships, setSavedInternships] = useState<SavedInternship[]>([]);
+  const DEFAULT_VISIBLE_INTERNSHIPS = 6;
+  const [visibleCount, setVisibleCount] = useState(DEFAULT_VISIBLE_INTERNSHIPS);
   const [loadingSaved, setLoadingSaved] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
 
@@ -171,7 +173,7 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {savedInternships.slice(0, 6).map((internship) => (
+              {savedInternships.slice(0, visibleCount).map((internship) => (
                 <div
                   key={internship._id}
                   className="group relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-slate-200/50 dark:border-slate-700/50 hover:shadow-xl transition-all duration-300"
@@ -220,10 +222,21 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
             </div>
           )}
 
-          {savedInternships.length > 6 && (
+          {savedInternships.length > DEFAULT_VISIBLE_INTERNSHIPS && (
             <div className="mt-4 text-center">
-              <button className="text-sm text-teal-600 dark:text-teal-400 hover:underline">
-                View all {savedInternships.length} saved internships
+              <button
+                onClick={() =>
+                  setVisibleCount((prev) =>
+                    prev === DEFAULT_VISIBLE_INTERNSHIPS
+                      ? savedInternships.length
+                      : DEFAULT_VISIBLE_INTERNSHIPS
+                  )
+                }
+                className="text-sm text-teal-600 dark:text-teal-400 hover:underline"
+              >
+                {visibleCount === DEFAULT_VISIBLE_INTERNSHIPS
+                  ? `View all ${savedInternships.length} saved internships`
+                  : "Show less"}
               </button>
             </div>
           )}
