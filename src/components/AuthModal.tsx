@@ -33,7 +33,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
         setIsLoading(true);
 
         try {
-            await login(email, password);
+            await login(email, password, false);
             onClose();
             navigate(redirectUrl);
         } catch (err: any) {

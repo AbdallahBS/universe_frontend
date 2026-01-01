@@ -101,6 +101,7 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
     }
   });
   const availableFilters = {
+    displayedCriteriaText : [t("internships.titleCriteria"), t("internships.textCriteria"), t("internships.authorCriteria")],
     criteria: ["title", "text", "author"]
   }
 

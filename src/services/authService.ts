@@ -57,8 +57,8 @@ export async function requestEmailVerification(): Promise<{ message: string }> {
   }
 }
 
-export async function login(payload: { email: string; password: string; UUID?: string }): Promise<TokensResponse> {
-  const UUID = payload.UUID || await getOrCreateDeviceUUID();
+export async function login(payload: { email: string; password: string; rememberMe: any }): Promise<TokensResponse> {
+  const UUID = await getOrCreateDeviceUUID();
 
   try {
     const data = await apiFetch<TokensResponse>('/v1/auth/login', {

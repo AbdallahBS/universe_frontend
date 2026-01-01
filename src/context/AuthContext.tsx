@@ -10,7 +10,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   signup: (payload: { firstname: string; lastname: string; email: string; password: string }) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
   loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
@@ -61,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Store user data in cookie (tokens are already set by backend)
       if (response.user) {
+        response.user.rememberMe = true; // rememberMe auto checked
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
       }
@@ -70,13 +71,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false) => {
     try {
       const { login: loginService } = await import('../services/authService');
-      const response = await loginService({ email, password });
+      const response = await loginService({ email, password, rememberMe });
 
       // Store user data in cookie (tokens are already set by backend)
       if (response.user) {
+        response.user.rememberMe = rememberMe;
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
 
@@ -96,6 +98,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Store user data in cookie (tokens are already set by backend)
       if (response.user) {
+        response.user.rememberMe = true; // rememberMe auto checked
         CookieManager.set('user', JSON.stringify(response.user), 30);
         setUser(response.user);
 

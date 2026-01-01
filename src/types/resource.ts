@@ -14,6 +14,7 @@ export interface User {
   profilePicture?: string;
   oauthProviders?: OAuthProvider[];
   status?: UserStatus | null;
+  rememberMe?: boolean;
 }
 
 /** internship object **/

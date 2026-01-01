@@ -9,7 +9,9 @@ import {
   Lock,
   Eye,
   TrendingUp,
-  Activity
+  Activity,
+  TrendingDown,
+  MousePointerSquare
 } from 'lucide-react';
 import { useAuth } from '@context/AuthContext';
 import { useNavigatePage } from './ui/useNavigatePage';
@@ -102,8 +104,33 @@ const AdminOptions: React.FC = () => {
         <div className="hidden lg:flex items-center gap-4">
           <div className="text-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-green-500" />
-              <span className="text-sm font-bold text-green-600 dark:text-green-400">{stats.usersCount.addedUsersPercentage ?? "N/A"}%</span>
+              <MousePointerSquare className="w-4 h-4 text-orange-500" />
+              <span
+                className="text-sm font-bold text-orange-600 dark:text-orange-400"
+              >
+                {stats.dailyVisitors ?? "N/A"}
+              </span>
+            </div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">Today's traffic</div>
+          </div>
+          <div className="text-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50">
+            <div className="flex items-center gap-2">
+              {
+                (stats.usersCount.addedUsersPercentage && stats.usersCount.addedUsersPercentage > 0) ? (
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="w-4 h-4 text-red-500" />
+                )
+              } 
+              <span
+                className={`text-sm font-bold ${
+                  stats.usersCount.addedUsersPercentage < 0
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-green-600 dark:text-green-400"
+                }`}
+              >
+                {stats.usersCount.addedUsersPercentage ?? "N/A"}%
+              </span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">This month traffic</div>
           </div>

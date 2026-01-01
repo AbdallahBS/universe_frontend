@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, ChevronDown, Check, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import TransText from '@components/TransText';
 
 interface FilterOptions {
   criteria: string[];
@@ -13,6 +15,7 @@ interface InternshipFiltersProps {
   currentSearchQuery: string;
   currentFilters: FilterOptions;
   availableFilters: {
+    displayedCriteriaText : string[];
     criteria: string[];
   };
 }
@@ -24,6 +27,8 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
   currentFilters,
   availableFilters,
 }) => {
+  const {t} = useTranslation();
+
   const [searchQuery, setSearchQuery] = useState(currentSearchQuery);
   const [selectedFilters, setSelectedFilters] = useState<FilterOptions>(currentFilters);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -102,7 +107,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
           onClick={() => setOpenDropdown(isOpen ? null : 'criteria')}
           className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:border-slate-400 dark:hover:border-slate-500 transition-all duration-300 group"
         >
-          <span className="text-slate-700 dark:text-slate-300 font-medium">Criteria</span>
+          <TransText className="text-slate-700 dark:text-slate-300 font-medium">{t('internships.criteria')}</TransText>
           {selectedCount > 0 && (
             <span className="ml-auto bg-teal-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
               {selectedCount}
@@ -118,7 +123,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
           <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg shadow-lg z-[100] animate-fade-in-up">
             <div className="p-4 space-y-2 max-h-64 overflow-y-auto">
               {availableFilters.criteria.length > 0 ? (
-                availableFilters.criteria.map((option) => (
+                availableFilters.criteria.map((option, index) => (
                   <label
                     key={option}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer transition-colors duration-200"
@@ -129,7 +134,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
                       onChange={() => toggleFilter(option)}
                       className="w-4 h-4 rounded accent-teal-600 cursor-pointer"
                     />
-                    <span className="text-slate-700 dark:text-slate-300 font-medium flex-1">{option}</span>
+                    <TransText className="text-slate-700 dark:text-slate-300 font-medium flex-1">{availableFilters.displayedCriteriaText[index]}</TransText>
                     {selectedFilters.criteria.includes(option) && (
                       <Check className="w-4 h-4 text-teal-600" />
                     )}
@@ -154,7 +159,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
           onClick={() => setOpenDropdown(isOpen ? null : 'duration')}
           className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:border-slate-400 dark:hover:border-slate-500 transition-all duration-300 group"
         >
-          <span className="text-slate-700 dark:text-slate-300 font-medium">Duration</span>
+          <span className="text-slate-700 dark:text-slate-300 font-medium">{t('internships.duration')}</span>
           {(selectedFilters.dateFrom || selectedFilters.dateTo) && (
             <span className="ml-auto bg-teal-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
               2
@@ -170,7 +175,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
           <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-slate-800 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg shadow-lg z-50 animate-fade-in-up">
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2 dark:text-white">From Date</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2 dark:text-white">{t('internships.fromDate')}</label>
                 <input
                   type="date"
                   value={selectedFilters.dateFrom || ''}
@@ -179,7 +184,7 @@ const InternshipFilters: React.FC<InternshipFiltersProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2 dark:text-white">To Date</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2 dark:text-white">{t('internships.toDate')}</label>
                 <input
                   type="date"
                   value={selectedFilters.dateTo || ''}

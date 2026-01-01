@@ -63,7 +63,15 @@
     "subtitle": "Discover exciting opportunities to kickstart your career and gain valuable experience",
     "chooseCategory": "Choose Your Category",
     "filterHint": "Select categories to filter your result",
-    "search": "Search by title, company, or keyword..."
+    "search": "Search by title, company, or keyword...",
+    "criteria" : "Search Criteria",
+    "authorCriteria" : "Author Name",
+    "textCriteria" : "Post Description",
+    "titleCriteria" : "Post Title",
+    "duration" : "Duration",
+    "fromDate" : "From",
+    "toDate" : "To"
+    
   },
   "filters": {
     "offers": "Internship Offers",
@@ -226,7 +234,14 @@
     "terms": "I agree to the",
     "terms2": "Terms of Service and Privacy Policy",
     "welcomeBack": "Welcome Back!",
-    "loginSubtitle": "Welcome back! Please enter your details."
+    "loginSubtitle": "Welcome back! Please enter your details.",
+    "rememberMe" : "Remember Me",
+    "forgotPassword" : "Forgot Password?",
+    "signInWithGoogle" : "Sign In with Google",
+    "noAccount" : "Don't have an account yet ?",
+    "haveAccount" : "Already have an account ?",
+    "signUp" : "Sign Up",
+    "signIn" : "Sign In"
   },
   "statusModal": {
     "title": "What's your current status?",
