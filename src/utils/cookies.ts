@@ -22,7 +22,14 @@ export class CookieManager {
     
     const expires = new Date();
     expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;secure;samesite=strict`;
+
+    const isProd = import.meta.env.VITE_NODE_ENV === "production";
+
+    document.cookie =
+      `${name}=${value};` +
+      `expires=${expires.toUTCString()};` +
+      `path=/;` +
+      (isProd ? "Secure; SameSite=None;" : "SameSite=Lax;");
   }
 
   // Delete a cookie
