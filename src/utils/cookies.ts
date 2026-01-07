@@ -40,7 +40,7 @@ export class CookieManager {
       `${name}=${encodeURIComponent(stringValue)};` +
       `expires=${expires.toUTCString()};` +
       `path=/;` +
-      (isProd ? "Secure; SameSite=None;" : "SameSite=Lax;");
+      (isProd ? "domain=.universe.tn; Secure; SameSite=None;" : "SameSite=Lax;");
   }
 
   // Delete a cookie
