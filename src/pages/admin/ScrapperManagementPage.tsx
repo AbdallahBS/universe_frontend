@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Search, Trash2, Play, Edit, Loader2, Database, Clock, Zap, Plus, X, Save, Ban, PowerCircleIcon } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Play, Edit, Loader2, Database, Clock, Zap, Plus, X, Save, Ban, PowerCircleIcon, AlertCircle } from 'lucide-react';
 import ModalPortal from '@components/ModalPortal';
 import LoadingSpinner from '@components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -17,6 +17,7 @@ interface Scrapper {
     schedule : string,
     scheduleText : string
   };
+  error?: string;
   RequestBody: string;
 }
 
@@ -89,7 +90,7 @@ const ScrapperManagementPage: React.FC = () => {
       case 'stopped':
         return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300';
       case 'disabled':
-        return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
+        return 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300';
       default:
         return 'bg-slate-100 dark:bg-slate-700/30 text-slate-700 dark:text-slate-300';
     }
@@ -383,7 +384,7 @@ const validateCronSchedule = (schedule: string): boolean => {
                   <div className="text-sm text-slate-600 dark:text-slate-400">Running</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-red-600 dark:text-red-400">
+                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
                     {scrappers.filter(s => s.status === 'disabled').length}
                   </div>
                   <div className="text-sm text-slate-600 dark:text-slate-400">Disabled</div>
@@ -544,12 +545,21 @@ const validateCronSchedule = (schedule: string): boolean => {
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${
                           scrapper.status === 'running' ? 'bg-green-500 animate-pulse' :
-                          scrapper.status === 'disabled' ? 'bg-red-500' :
+                          scrapper.status === 'disabled' ? 'bg-orange-500' :
                           'bg-slate-400'
                         }`}></div>
                         <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(scrapper.status)}`}>
                           {scrapper.status.charAt(0).toUpperCase() + scrapper.status.slice(1)}
                         </span>
+                        {scrapper.error !== '' && scrapper.error && (
+                              <div className="relative group">
+                                <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 cursor-help" />
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap max-w-xs z-10">
+                                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-slate-900 dark:bg-slate-800 rotate-45 -mt-1"></div>
+                                  {scrapper.error}
+                                </div>
+                              </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">

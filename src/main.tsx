@@ -11,6 +11,15 @@ const root = createRoot(document.getElementById('root')!);
 const isStrictMode = import.meta.env.VITE_NODE_ENV === 'development';
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
+if (import.meta.env.VITE_NODE_ENV === 'production') {
+  console.log = () => {};
+  console.debug = () => {};
+  console.warn = () => {};
+  // Keep console.error for critical issues
+  // console.error = () => {};
+  // console.info = () => {};
+}
+
 const AppWrapper = (
   <GoogleOAuthProvider clientId={googleClientId}>
     <AuthProvider>
