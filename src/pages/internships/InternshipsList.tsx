@@ -12,6 +12,7 @@ import SectionCarousel from '@components/internship_post/sectionCarousel';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
+import AuthToaster from '@components/AuthToaster';
 
 // Thumbnail component with error handling
 const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: string }> = ({ src, alt, className = "" }) => {
@@ -47,9 +48,13 @@ interface FilterOptions {
 const InternshipsList: React.FC<InternshipsListProps> = () => {
   /** General States */
   const [loading, setLoading] = useState(true);
-  const {isLoading} = useAuth();
+  const {isAuthenticated , isLoading} = useAuth();
   const { page } = useParams();
   const {t} = useTranslation();
+
+  const [askForLogin, setAskForLogin] = useState(
+    !isAuthenticated && Math.random() > 0.5
+  );
   /****************** */
 
   /** Internships and pagination */
@@ -302,6 +307,7 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
   </div>
   </div>
  </div>
+ <AuthToaster isOpen={askForLogin} onClose={() => setAskForLogin(false)} />
 </>
 )};
 

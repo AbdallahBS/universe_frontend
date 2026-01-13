@@ -199,6 +199,7 @@
   },
   "dashboard": {
     "welcome": "Welcome back!",
+    "askForSignUp" : "Join us on Universe TN so you won't miss our latest posts and updates! 🚀",
     "savedInternships": "Saved Internships",
     "recentQuizzes": "Recent Quiz Attempts",
     "quickActions": "Quick Actions",
