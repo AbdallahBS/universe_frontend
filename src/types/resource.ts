@@ -11,6 +11,7 @@ export interface User {
   firstname: string;
   lastname: string;
   isVerified?: boolean;
+  receiveNotificationsMail?: boolean;
   profilePicture?: string;
   oauthProviders?: OAuthProvider[];
   status?: UserStatus | null;

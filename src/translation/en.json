@@ -260,6 +260,10 @@
   },
   "profile": {
     "currentStatus": "Current Status",
-    "statusDescription": "Let companies know what you're looking for"
+    "statusDescription": "Let companies know what you're looking for",
+    "emailNotifications" : "Email notifications",
+    "notificationsDescription" : "Receive notification on new posts",
+    "notificationsEnabled" : "We'll send you mails as soon as we find new posts that match your preferences",
+    "notificationsDisabled" : "Option disabled"
   }
 }

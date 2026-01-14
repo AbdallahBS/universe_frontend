@@ -259,6 +259,10 @@
   },
   "profile": {
     "currentStatus": "الوضعية الحالية",
-    "statusDescription": "خلّي الشركات تعرف شنوة اللي تلوج عليه"
+    "statusDescription": "خلّي الشركات تعرف شنوة اللي تلوج عليه",
+    "emailNotifications" : "Notification par mail",
+    "notificationsDescription" : "Recevoir des notifications pour les nouveaux postes",
+    "notificationsEnabled" : "Nous vous enverrons des e-mails dès que nous trouverons nouvelles publications correspondant à vos préférences.",
+    "notificationsDisabled" : "Option désactivée"
   }
 }

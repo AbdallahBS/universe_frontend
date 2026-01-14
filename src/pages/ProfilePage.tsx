@@ -5,6 +5,7 @@ import { requestPasswordReset } from '@services/authService';
 import { updateProfile, uploadProfilePicture, deleteAccount } from '@services/userService';
 import { ProfileCard, PasswordResetCard, DangerZoneCard, StatusCard } from '@components/profile';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
+import NotificationPreferencesCard from '@components/profile/NotificationPreferencesCard';
 
 /**
  * ProfilePage Component
@@ -132,6 +133,12 @@ const ProfilePage: React.FC = () => {
                 <StatusCard
                     currentStatus={user?.status}
                     onStatusUpdate={refreshUser}
+                />
+
+                {/* Notification Preferences Card */}
+                <NotificationPreferencesCard
+                    emailNotificationsEnabled={user?.receiveNotificationsMail}
+                    onPreferencesUpdate={refreshUser}
                 />
 
                 {/* Password Reset Card */}

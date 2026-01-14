@@ -64,6 +64,7 @@ export async function startScrapers(scraper : any): Promise<any> {
         name : scraper.name,
         scrapperApifyId : scraper.scrapperApifyId,
         totalScrappedResult : scraper.totalScrappedResult,
+        sendNotificationMail : scraper.sendNotificationMail,
         RequestBody : scraper.RequestBody
       }
     });

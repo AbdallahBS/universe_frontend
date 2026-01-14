@@ -18,6 +18,7 @@ interface Scrapper {
     scheduleText : string
   };
   error?: string;
+  sendNotificationMails?: boolean;
   RequestBody: string;
 }
 
@@ -36,6 +37,7 @@ const ScrapperManagementPage: React.FC = () => {
   const [totalScrappedResult, setTotalScrappedResult] = useState(0);
   const [requestBody, setRequestBody] = useState('');
   const [customRequestBody, setCustomRequestBody] = useState('');
+  const [sendNotificationMails, setSendNotificationMails] = useState(false);
   const [cronSchedule, setCronSchedule] = useState('');
   const [cronError, setCronError] = useState('');
 
@@ -122,6 +124,7 @@ const ScrapperManagementPage: React.FC = () => {
           name : scrapperName,
           scrapperApifyId : scrapperApifyId,
           totalScrappedResult : totalScrappedResult,
+          sendNotificationMail : sendNotificationMails,
           RequestBody : customRequestBody
         });
         toast.success('Scrapper started successfully');
@@ -816,11 +819,11 @@ const validateCronSchedule = (schedule: string): boolean => {
                     Request Body (JSON)
                   </label>
                   <textarea
-                    value={requestBody}
+                    value={customRequestBody}
                     onChange={(e) => {
                       const nextValue = e.target.value;
                     
-                      setRequestBody((prev) => {
+                      setCustomRequestBody((prev) => {
                         try {
                           if (nextValue.trim()) {
                             JSON.parse(nextValue);
@@ -845,6 +848,19 @@ const validateCronSchedule = (schedule: string): boolean => {
                   <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                     Enter the JSON configuration for your scraper
                   </p>
+                  <label className="flex items-start gap-3 mt-4 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={sendNotificationMails}
+                      onChange={(e) => setSendNotificationMails(e.target.checked)}
+                      className="mt-0.5 w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:border-teal-400 dark:hover:border-teal-500 checked:bg-teal-600 checked:border-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 cursor-pointer transition-all"
+                    />
+                             <div className="flex-1">
+                      <span className="block text-sm font-medium text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                        Send notification email to users
+                      </span>
+                    </div>
+                  </label>
                   {jsonError && (
                     <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
                   )}

@@ -104,3 +104,21 @@ export async function updateStatus(status: UserStatus): Promise<{ message: strin
         throw new Error(message);
     }
 }
+
+/**
+ * Update user Notification Preferences
+ */
+export async function updateNotificationPreferences(preferences: any): Promise<{ message: string; user: UserProfile }> {
+    try {
+        const response = await apiFetch<{ message: string; user: UserProfile }>('/v1/user/update-notification', {
+            method: 'PATCH',
+            json: { preferences },
+            requireAuth: true,
+        });
+        return response;
+    } catch (err: any) {
+        const message = typeof err?.message === 'string' ? err.message : 'Failed to update notification preferences';
+        throw new Error(message);
+    }
+}
+
