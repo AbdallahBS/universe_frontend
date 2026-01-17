@@ -7,15 +7,17 @@ import { isValidCron } from 'cron-validator';
 import { addScraper, changeScraperStatus, deleteScraper, getScrapers, startScrapers, updateScraper } from '@services/adminService';
 
 interface Scrapper {
+  _id: string;
   scrapperApifyId: string;
   name: string;
   source: string;
   status: 'running' | 'stopped' | 'disabled';
+  targetCollection: 'internship' | 'alternance';
   lastRun: string;
   totalScrappedResult: number;
   frequency: {
-    schedule : string,
-    scheduleText : string
+    schedule: string,
+    scheduleText: string
   };
   error?: string;
   sendNotificationMails?: boolean;
@@ -31,9 +33,11 @@ const ScrapperManagementPage: React.FC = () => {
   const [isStartDialogOpen, setIsStartDialogOpen] = useState(false);
   const [editingScrapper, setEditingScrapper] = useState<Scrapper | null>(null);
   // Scrapper states
+  const [scrapperMongoId, setScrapperMongoId] = useState('');
   const [scrapperApifyId, setScrapperApifyId] = useState('');
   const [scrapperName, setScrapperName] = useState('');
   const [scrapperSource, setScrapperSource] = useState('');
+  const [targetCollection, setTargetCollection] = useState<'internship' | 'alternance'>('internship');
   const [totalScrappedResult, setTotalScrappedResult] = useState(0);
   const [requestBody, setRequestBody] = useState('');
   const [customRequestBody, setCustomRequestBody] = useState('');
@@ -64,14 +68,14 @@ const ScrapperManagementPage: React.FC = () => {
 
       let interrupted = false;
       for (const scraperId of next) {
-        const scraper = scrappers.find(s => s.scrapperApifyId === scraperId);
+        const scraper = scrappers.find(s => s._id === scraperId);
         if (scraper?.status === 'disabled') {
           setDisabledButtons(["start", "disable"]);
           interrupted = true;
           break;
         }
       }
-      if (!interrupted) {setDisabledButtons(["enable"]);}
+      if (!interrupted) { setDisabledButtons(["enable"]); }
       return next;
     }
     );
@@ -81,7 +85,7 @@ const ScrapperManagementPage: React.FC = () => {
     if (selectedScrappers.length === filteredScrappers.length) {
       setSelectedScrappers([]);
     } else {
-      setSelectedScrappers(filteredScrappers.map(s => s.scrapperApifyId));
+      setSelectedScrappers(filteredScrappers.map(s => s._id));
     }
   };
 
@@ -100,16 +104,18 @@ const ScrapperManagementPage: React.FC = () => {
 
   const handleStartScrappers = async () => {
     if (selectedScrappers.length === 0) return;
-    
+
     // Get the selected scrappers' details
-    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s.scrapperApifyId));
-    
+    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s._id));
+
     if (selectedScrapperDetails.length > 0) {
       const scrapper = selectedScrapperDetails[0];
       setEditingScrapper(scrapper);
+      setScrapperMongoId(scrapper._id);
       setScrapperApifyId(scrapper.scrapperApifyId)
       setScrapperName(scrapper.name);
       setScrapperSource(scrapper.source);
+      setTargetCollection(scrapper.targetCollection || 'internship');
       setTotalScrappedResult(scrapper.totalScrappedResult);
       setCustomRequestBody(scrapper.RequestBody);
       setCronSchedule(scrapper.frequency.schedule);
@@ -118,37 +124,39 @@ const ScrapperManagementPage: React.FC = () => {
   };
 
   const handleConfirmScraperStart = async () => {
-     try {
-        setActionLoading('start');
-        startScrapers({
-          name : scrapperName,
-          scrapperApifyId : scrapperApifyId,
-          totalScrappedResult : totalScrappedResult,
-          sendNotificationMail : sendNotificationMails,
-          RequestBody : customRequestBody
-        });
-        toast.success('Scrapper started successfully');
-        setActionLoading(null);
-        await changeScraperStatus(scrapperApifyId, 'running');
-        await getScrappersList();
-        setIsStartDialogOpen(false);
+    try {
+      setActionLoading('start');
+      startScrapers({
+        _id: scrapperMongoId,
+        name: scrapperName,
+        scrapperApifyId: scrapperApifyId,
+        targetCollection: targetCollection,
+        totalScrappedResult: totalScrappedResult,
+        sendNotificationMail: sendNotificationMails,
+        RequestBody: customRequestBody
+      });
+      toast.success('Scrapper started successfully');
+      setActionLoading(null);
+      await changeScraperStatus(scrapperMongoId, 'running');
+      await getScrappersList();
+      setIsStartDialogOpen(false);
     } catch (error) {
-        console.error('Error scrapping result:', error);
-        setActionLoading(null);
-        toast.error('Error scrapping result');
+      console.error('Error scrapping result:', error);
+      setActionLoading(null);
+      toast.error('Error scrapping result');
     }
   };
 
-  const getScrappersList = async() => {
+  const getScrappersList = async () => {
     try {
-        setLoading(true);
-        const response = await getScrapers();
-        setScrappers(response);
-        setLoading(false);
+      setLoading(true);
+      const response = await getScrapers();
+      setScrappers(response);
+      setLoading(false);
     } catch (error) {
-        console.error('Error fetching scrapers:', error);
-        setLoading(false);
-        toast.error('Error fetching scrapers');
+      console.error('Error fetching scrapers:', error);
+      setLoading(false);
+      toast.error('Error fetching scrapers');
     } finally {
       setSelectedScrappers([]);
     }
@@ -156,10 +164,10 @@ const ScrapperManagementPage: React.FC = () => {
 
   const openModifyDialog = async () => {
     if (selectedScrappers.length === 0) return;
-    
+
     // Get the selected scrappers' details
-    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s.scrapperApifyId));
-    
+    const selectedScrapperDetails = scrappers.filter(s => selectedScrappers.includes(s._id));
+
     if (selectedScrapperDetails.length > 0) {
       const scrapper = selectedScrapperDetails[0];
       openEditDialog(scrapper);
@@ -167,56 +175,58 @@ const ScrapperManagementPage: React.FC = () => {
   }
 
   const handleModifyScrappers = async () => {
-      try {
-        if (!scrapperName.trim() || !scrapperSource.trim() || !requestBody.trim() || !cronSchedule.trim()) {
-          alert('Please fill in all fields');
-          return;
-        }
-      
-        if (!validateCronSchedule(cronSchedule)) {
-          setCronError('Invalid cron schedule format');
-          return;
-        }
+    try {
+      if (!scrapperName.trim() || !scrapperSource.trim() || !requestBody.trim() || !cronSchedule.trim()) {
+        alert('Please fill in all fields');
+        return;
+      }
 
-        if (jsonError) { return };
+      if (!validateCronSchedule(cronSchedule)) {
+        setCronError('Invalid cron schedule format');
+        return;
+      }
 
-        setActionLoading("modify");
-        await updateScraper({
-          scrapperApifyId : scrapperApifyId,
-          name : scrapperName,
-          status: editingScrapper!.status,
-          source : scrapperSource,
-          RequestBody : requestBody,
-          frequency : {
-            schedule : cronSchedule,
-            scheduleText : ""
-          }
-        });
-        toast.success('Scrapper updated successfully');
-        await getScrappersList();
+      if (jsonError) { return };
+
+      setActionLoading("modify");
+      await updateScraper({
+        _id: scrapperMongoId,
+        scrapperApifyId: scrapperApifyId,
+        name: scrapperName,
+        status: editingScrapper!.status,
+        source: scrapperSource,
+        targetCollection: targetCollection,
+        RequestBody: requestBody,
+        frequency: {
+          schedule: cronSchedule,
+          scheduleText: ""
+        }
+      });
+      toast.success('Scrapper updated successfully');
+      await getScrappersList();
     } catch (error) {
-        console.error('Error modifying scraper:', error);
-        toast.error('Error modifying scraper');
+      console.error('Error modifying scraper:', error);
+      toast.error('Error modifying scraper');
     } finally {
       setActionLoading(null);
       setIsDialogOpen(false);
     }
   };
 
-const handleEnableScrappers = async () => {
+  const handleEnableScrappers = async () => {
     try {
       if (selectedScrappers.length === 0) return;
       setActionLoading('enable');
       await Promise.all(
-          selectedScrappers.map(scrapperApifyId => changeScraperStatus(scrapperApifyId, "stopped"))
+        selectedScrappers.map(scraperId => changeScraperStatus(scraperId, "stopped"))
       );
       await getScrappersList();
       toast.success('Scrappers enabled');
       setActionLoading(null);
     } catch (error) {
-        console.error('Error occured:', error);
-        setActionLoading(null);
-        toast.error('Error occured');
+      console.error('Error occured:', error);
+      setActionLoading(null);
+      toast.error('Error occured');
     }
   };
 
@@ -225,15 +235,15 @@ const handleEnableScrappers = async () => {
       if (selectedScrappers.length === 0) return;
       setActionLoading('disable');
       await Promise.all(
-          selectedScrappers.map(scrapperApifyId => changeScraperStatus(scrapperApifyId, "disabled"))
+        selectedScrappers.map(scraperId => changeScraperStatus(scraperId, "disabled"))
       );
       await getScrappersList();
       toast.success('Scrappers disabled');
       setActionLoading(null);
     } catch (error) {
-        console.error('Error occured:', error);
-        setActionLoading(null);
-        toast.error('Error occured');
+      console.error('Error occured:', error);
+      setActionLoading(null);
+      toast.error('Error occured');
     }
   };
 
@@ -242,39 +252,39 @@ const handleEnableScrappers = async () => {
       if (selectedScrappers.length === 0) return;
       setActionLoading('delete');
       await Promise.all(
-          selectedScrappers.map(scrapperApifyId => deleteScraper (scrapperApifyId))
+        selectedScrappers.map(scraperId => deleteScraper(scraperId))
       );
       await getScrappersList();
       toast.success('Scrappers deleted');
       setActionLoading(null);
     } catch (error) {
-        console.error('Error occured:', error);
-        setActionLoading(null);
-        toast.error('Error occured');
+      console.error('Error occured:', error);
+      setActionLoading(null);
+      toast.error('Error occured');
     }
   };
 
-const validateCronSchedule = (schedule: string): boolean => {
-  const specialStrings = [
-    '@yearly',
-    '@annually',
-    '@monthly',
-    '@weekly',
-    '@daily',
-    '@midnight',
-    '@hourly',
-  ];
+  const validateCronSchedule = (schedule: string): boolean => {
+    const specialStrings = [
+      '@yearly',
+      '@annually',
+      '@monthly',
+      '@weekly',
+      '@daily',
+      '@midnight',
+      '@hourly',
+    ];
 
-  const normalized = schedule.trim().toLowerCase();
+    const normalized = schedule.trim().toLowerCase();
 
-  // Allow special cron strings
-  if (specialStrings.includes(normalized)) {
-    return true;
-  }
+    // Allow special cron strings
+    if (specialStrings.includes(normalized)) {
+      return true;
+    }
 
-  // Validate standard cron syntax (5 fields)
-  return isValidCron(normalized);
-};
+    // Validate standard cron syntax (5 fields)
+    return isValidCron(normalized);
+  };
 
 
   const handleCronChange = (value: string) => {
@@ -291,6 +301,7 @@ const validateCronSchedule = (schedule: string): boolean => {
     setScrapperApifyId('');
     setScrapperName('');
     setScrapperSource('');
+    setTargetCollection('internship');
     setRequestBody('{}');
     setCronSchedule('');
     setCronError('');
@@ -299,11 +310,13 @@ const validateCronSchedule = (schedule: string): boolean => {
 
   const openEditDialog = (scrapper: Scrapper) => {
     setEditingScrapper(scrapper);
+    setScrapperMongoId(scrapper._id);
     setScrapperApifyId(scrapper.scrapperApifyId);
     setScrapperName(scrapper.name);
     setScrapperSource(scrapper.source);
+    setTargetCollection(scrapper.targetCollection || 'internship');
     setRequestBody(scrapper.RequestBody);
-    setCronSchedule(scrapper.frequency.schedule); 
+    setCronSchedule(scrapper.frequency.schedule);
     setCronError(''); // Placeholder
     setIsDialogOpen(true);
   };
@@ -323,22 +336,23 @@ const validateCronSchedule = (schedule: string): boolean => {
       if (jsonError) { return };
 
       await addScraper({
-        scrapperApifyId : scrapperApifyId,
-        name : scrapperName,
+        scrapperApifyId: scrapperApifyId,
+        name: scrapperName,
         status: "stopped",
-        source : scrapperSource,
-        RequestBody : requestBody,
-        frequency : {
-          schedule : cronSchedule,
-          scheduleText : ""
+        source: scrapperSource,
+        targetCollection: targetCollection,
+        RequestBody: requestBody,
+        frequency: {
+          schedule: cronSchedule,
+          scheduleText: ""
         }
       })
-      
+
       toast.success('Scrapper added successfully');
       await getScrappersList();
     } catch (error) {
-        console.error('Error adding scraper:', error);
-        toast.error('Error adding scraper');
+      console.error('Error adding scraper:', error);
+      toast.error('Error adding scraper');
     } finally {
       setActionLoading(null);
       setIsDialogOpen(false);
@@ -346,578 +360,591 @@ const validateCronSchedule = (schedule: string): boolean => {
   };
 
   return (
-  <>
-    <LoadingSpinner loading={loading} fullScreen/>
-    {
-      !loading && (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-32 left-10 w-32 h-32 bg-violet-200/20 dark:bg-violet-500/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute top-64 right-20 w-24 h-24 bg-purple-200/20 dark:bg-purple-500/10 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-indigo-200/15 dark:bg-indigo-500/10 rounded-full blur-xl animate-pulse"></div>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            onClick={() => window.history.back()}
-            className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Dashboard
-          </button>
-
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50">
-            <div className="flex items-start justify-between gap-6">
-              <div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-2">
-                  Scrapper Management
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Initialize, configure, and monitor web scrapers
-                </p>
-              </div>
-              <div className="flex gap-6 items-start">
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400">
-                    {scrappers.filter(s => s.status === 'running').length}
-                  </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Running</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                    {scrappers.filter(s => s.status === 'disabled').length}
-                  </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">Disabled</div>
-                </div>
-                <button
-                  onClick={openAddDialog}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
-                >
-                  <Plus className="w-5 h-5" />
-                  Add Scrapper
-                </button>
-              </div>
+    <>
+      <LoadingSpinner loading={loading} fullScreen />
+      {
+        !loading && (
+          <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 pt-20">
+            {/* Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-32 left-10 w-32 h-32 bg-violet-200/20 dark:bg-violet-500/10 rounded-full blur-xl animate-pulse"></div>
+              <div className="absolute top-64 right-20 w-24 h-24 bg-purple-200/20 dark:bg-purple-500/10 rounded-full blur-xl animate-pulse"></div>
+              <div className="absolute bottom-32 left-1/4 w-40 h-40 bg-indigo-200/15 dark:bg-indigo-500/10 rounded-full blur-xl animate-pulse"></div>
             </div>
-          </div>
-        </div>
 
-        {/* Search and Actions */}
-        <div className="mb-6 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search scrappers by name or source..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 backdrop-blur-sm"
-            />
-          </div>
-
-          {/* Action Buttons */}
-          {selectedScrappers.length > 0 && (
-            <div className="flex flex-wrap gap-3 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border border-slate-200/50 dark:border-slate-700/50 shadow-lg">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  {selectedScrappers.length} selected
-                </span>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
+            <div className="relative z-10 max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+              {/* Header */}
+              <div className="mb-8">
                 <button
-                  onClick={handleStartScrappers}
-                  disabled={actionLoading !== null || disabledButtons.includes('start')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                  onClick={() => window.history.back()}
+                  className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-4 transition-colors"
                 >
-                  {actionLoading === 'start' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <Play className="w-4 h-4" />
-                  Start Now
+                  <ArrowLeft className="w-5 h-5" />
+                  Back to Dashboard
                 </button>
 
-                <button
-                  onClick={openModifyDialog}
-                  disabled={actionLoading !== null || disabledButtons.includes('modify')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
-                >
-                  {actionLoading === 'modify' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <Edit className="w-4 h-4" />
-                  Modify
-                </button>
-
-                <button
-                  onClick={handleEnableScrappers}
-                  disabled={actionLoading !== null || disabledButtons.includes('enable')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
-                >
-                  {actionLoading === 'enable' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <PowerCircleIcon className="w-4 h-4" />
-                  Enable
-                </button>
-
-                <button
-                  onClick={handleDisableScrappers}
-                  disabled={actionLoading !== null || disabledButtons.includes('disable')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
-                >
-                  {actionLoading === 'disable' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <Ban className="w-4 h-4" />
-                  Disable
-                </button>
-
-                <button
-                  onClick={handleDeleteScrappers}
-                  disabled={actionLoading !== null}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
-                >
-                  {actionLoading === 'delete' && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Scrappers Table */}
-        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200/50 dark:border-slate-700/50">
-                <tr>
-                  <th className="px-6 py-4 text-left">
-                    <input
-                      type="checkbox"
-                      checked={selectedScrappers.length === filteredScrappers.length && filteredScrappers.length > 0}
-                      onChange={toggleAllScrappers}
-                      className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-violet-600 focus:ring-2 focus:ring-violet-500 cursor-pointer"
-                    />
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                    Scrapper
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                    Last Run
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                    Posts Scraped
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                    Frequency
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredScrappers.map((scrapper) => (
-                  <tr
-                    key={scrapper.scrapperApifyId}
-                    onClick={() => openEditDialog(scrapper)}
-                    className={`border-b border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer ${
-                      selectedScrappers.includes(scrapper.scrapperApifyId) ? 'bg-violet-50/50 dark:bg-violet-900/20' : ''
-                    }`}
-                  >
-                    <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                      <input
-                        type="checkbox"
-                        checked={selectedScrappers.includes(scrapper.scrapperApifyId)}
-                        onChange={() => toggleScrapperSelection(scrapper.scrapperApifyId)}
-                        className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-violet-600 focus:ring-2 focus:ring-violet-500 cursor-pointer"
-                      />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                          <Database className="w-5 h-5" />
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50">
+                  <div className="flex items-start justify-between gap-6">
+                    <div>
+                      <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-2">
+                        Scrapper Management
+                      </h1>
+                      <p className="text-slate-600 dark:text-slate-400">
+                        Initialize, configure, and monitor web scrapers
+                      </p>
+                    </div>
+                    <div className="flex gap-6 items-start">
+                      <div className="text-right">
+                        <div className="text-3xl font-bold text-green-600 dark:text-green-400">
+                          {scrappers.filter(s => s.status === 'running').length}
                         </div>
-                        <div>
-                          <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                            {scrapper.name}
-                          </div>
-                          <div className="text-xs text-slate-600 dark:text-slate-400">
-                            {scrapper.source}
-                          </div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400">Running</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                          {scrappers.filter(s => s.status === 'disabled').length}
                         </div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400">Disabled</div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          scrapper.status === 'running' ? 'bg-green-500 animate-pulse' :
-                          scrapper.status === 'disabled' ? 'bg-orange-500' :
-                          'bg-slate-400'
-                        }`}></div>
-                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(scrapper.status)}`}>
-                          {scrapper.status.charAt(0).toUpperCase() + scrapper.status.slice(1)}
-                        </span>
-                        {scrapper.error !== '' && scrapper.error && (
-                              <div className="relative group">
-                                <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 cursor-help" />
-                                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap max-w-xs z-10">
-                                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-slate-900 dark:bg-slate-800 rotate-45 -mt-1"></div>
-                                  {scrapper.error}
-                                </div>
-                              </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <Clock className="w-4 h-4" />
-                        {scrapper.lastRun === "non specified" ? scrapper.lastRun : new Date(scrapper.lastRun).toLocaleString()}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
-                      {scrapper.totalScrappedResult ? scrapper.totalScrappedResult.toLocaleString() : 0}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <Zap className="w-4 h-4" />
-                        {scrapper.frequency.scheduleText}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {filteredScrappers.length === 0 && (
-            <div className="p-12 text-center">
-              <p className="text-slate-600 dark:text-slate-400">
-                No scrappers found matching your search criteria.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Add/Edit Scrapper Dialog */}
-        {isDialogOpen && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-              {/* Dialog Header */}
-              <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {editingScrapper ? 'Edit Scrapper' : 'Add New Scrapper'}
-                </h2>
-                <button
-                  onClick={() => setIsDialogOpen(false)}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                </button>
-              </div>
-
-              {/* Dialog Content */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {/* Scrapper ID */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Scrapper Id (Apify ID)
-                  </label>
-                  <input
-                    type="text"
-                    value={scrapperApifyId}
-                    onChange={(e) => setScrapperApifyId(e.target.value)}
-                    placeholder="e.g., APIFY_..."
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
-                  />
-                </div>
-
-                {/* Scrapper Name */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Scrapper Name
-                  </label>
-                  <input
-                    type="text"
-                    value={scrapperName}
-                    onChange={(e) => setScrapperName(e.target.value)}
-                    placeholder="e.g., LinkedIn Jobs Scraper"
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
-                  />
-                </div>
-
-                {/* Source */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Source
-                  </label>
-                  <input
-                    type="text"
-                    value={scrapperSource}
-                    onChange={(e) => setScrapperSource(e.target.value)}
-                    placeholder="e.g., LinkedIn, Indeed, Facebook"
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
-                  />
-                </div>
-
-                {/* Request Body */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Request Body (JSON)
-                  </label>
-                  <textarea
-                    value={requestBody}
-                    onChange={(e) => {
-                      const nextValue = e.target.value;
-                    
-                      setRequestBody((prev) => {
-                        try {
-                          if (nextValue.trim()) {
-                            JSON.parse(nextValue);
-                          }
-                          setJsonError(null);
-                        } catch (err: any) {
-                          setJsonError(err.message);
-                        }
-                      
-                        return nextValue;
-                      });
-                    }}
-                    rows={8}
-                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm
-                      border ${
-                        jsonError
-                          ? 'border-red-500 focus:border-red-500'
-                          : 'border-slate-300 dark:border-slate-600 focus:border-violet-500'
-                      }
-                    `}
-                  />
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    Enter the JSON configuration for your scraper
-                  </p>
-                  {jsonError && (
-                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
-                  )}
-                </div>
-
-                {/* Cron Schedule */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Cron Schedule
-                  </label>
-                  <input
-                    type="text"
-                    value={cronSchedule}
-                    onChange={(e) => handleCronChange(e.target.value)}
-                    placeholder="0 */6 * * *"
-                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border ${
-                      cronError
-                        ? 'border-red-500 dark:border-red-500'
-                        : 'border-slate-300 dark:border-slate-600'
-                    } text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono`}
-                  />
-                  {cronError && (
-                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{cronError}</p>
-                  )}
-                  <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 space-y-1">
-                    <p>Examples:</p>
-                    <ul className="list-disc list-inside space-y-0.5 ml-2">
-                      <li><code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">0 */6 * * *</code> - Every 6 hours</li>
-                      <li><code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">0 0 * * *</code> - Daily at midnight</li>
-                      <li><code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">@hourly</code> - Every hour</li>
-                    </ul>
+                      <button
+                        onClick={openAddDialog}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
+                      >
+                        <Plus className="w-5 h-5" />
+                        Add Scrapper
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Dialog Footer */}
-              <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
-                <button
-                  onClick={() => setIsDialogOpen(false)}
-                  className="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                {editingScrapper && (
-                  <button
-                  onClick={handleModifyScrappers}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
-                >
-                  <Save className="w-4 h-4" />
-                  Update Scrapper
-                </button>
-                )}
-                {!editingScrapper && (
-                  <button
-                  onClick={handleSaveScrapper}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
-                >
-                  <Save className="w-4 h-4" />
-                  Create Scrapper
-                </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </ModalPortal>
-        )}
-
-        {/* Start Scrapper Dialog */}
-        {isStartDialogOpen && (
-        <ModalPortal>
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-              {/* Dialog Header */}
-              <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  Start Scrapper - Review Settings
-                </h2>
-                <button
-                  onClick={() => setIsStartDialogOpen(false)}
-                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                </button>
-              </div>
-
-              {/* Dialog Content */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                {/* Scrapper ID */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Scrapper Id (Apify ID)
-                  </label>
+              {/* Search and Actions */}
+              <div className="mb-6 space-y-4">
+                <div className="relative">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input
                     type="text"
-                    disabled={true}
-                    value={scrapperApifyId}
-                    placeholder="e.g., APIFY_..."
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                    placeholder="Search scrappers by name or source..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 backdrop-blur-sm"
                   />
                 </div>
 
-                {/* Scrapper Name */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Scrapper Name
-                  </label>
-                  <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
-                    {scrapperName}
-                  </div>
-                </div>
-
-                {/* Source */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Source
-                  </label>
-                  <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
-                    {scrapperSource}
-                  </div>
-                </div>
-
-                {/* Request Body */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Request Body (JSON)
-                  </label>
-                  <textarea
-                    value={customRequestBody}
-                    onChange={(e) => {
-                      const nextValue = e.target.value;
-                    
-                      setCustomRequestBody((prev) => {
-                        try {
-                          if (nextValue.trim()) {
-                            JSON.parse(nextValue);
-                          }
-                          setJsonError(null);
-                        } catch (err: any) {
-                          setJsonError(err.message);
-                        }
-                      
-                        return nextValue;
-                      });
-                    }}
-                    rows={8}
-                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm
-                      border ${
-                        jsonError
-                          ? 'border-red-500 focus:border-red-500'
-                          : 'border-slate-300 dark:border-slate-600 focus:border-violet-500'
-                      }
-                    `}
-                  />
-                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                    Enter the JSON configuration for your scraper
-                  </p>
-                  <label className="flex items-start gap-3 mt-4 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={sendNotificationMails}
-                      onChange={(e) => setSendNotificationMails(e.target.checked)}
-                      className="mt-0.5 w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:border-teal-400 dark:hover:border-teal-500 checked:bg-teal-600 checked:border-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 cursor-pointer transition-all"
-                    />
-                             <div className="flex-1">
-                      <span className="block text-sm font-medium text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-                        Send notification email to users
+                {/* Action Buttons */}
+                {selectedScrappers.length > 0 && (
+                  <div className="flex flex-wrap gap-3 p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border border-slate-200/50 dark:border-slate-700/50 shadow-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        {selectedScrappers.length} selected
                       </span>
                     </div>
-                  </label>
-                  {jsonError && (
-                    <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
-                  )}
-                </div>
 
-                {/* Cron Schedule */}
-                <div>
-                  <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                    Cron Schedule
-                  </label>
-                  <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono">
-                    RUNNING NOW
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={handleStartScrappers}
+                        disabled={actionLoading !== null || disabledButtons.includes('start')}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                      >
+                        {actionLoading === 'start' && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <Play className="w-4 h-4" />
+                        Start Now
+                      </button>
+
+                      <button
+                        onClick={openModifyDialog}
+                        disabled={actionLoading !== null || disabledButtons.includes('modify')}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                      >
+                        {actionLoading === 'modify' && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <Edit className="w-4 h-4" />
+                        Modify
+                      </button>
+
+                      <button
+                        onClick={handleEnableScrappers}
+                        disabled={actionLoading !== null || disabledButtons.includes('enable')}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                      >
+                        {actionLoading === 'enable' && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <PowerCircleIcon className="w-4 h-4" />
+                        Enable
+                      </button>
+
+                      <button
+                        onClick={handleDisableScrappers}
+                        disabled={actionLoading !== null || disabledButtons.includes('disable')}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                      >
+                        {actionLoading === 'disable' && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <Ban className="w-4 h-4" />
+                        Disable
+                      </button>
+
+                      <button
+                        onClick={handleDeleteScrappers}
+                        disabled={actionLoading !== null}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors"
+                      >
+                        {actionLoading === 'delete' && <Loader2 className="w-4 h-4 animate-spin" />}
+                        <Trash2 className="w-4 h-4" />
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                </div>
-
-                <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-                  <p className="text-sm text-green-800 dark:text-green-300">
-                    {selectedScrappers.length > 1 
-                      ? `Ready to start ${selectedScrappers.length} scrappers with these settings.`
-                      : 'Ready to start this scrapper with the above configuration.'}
-                  </p>
-                </div>
+                )}
               </div>
 
-              {/* Dialog Footer */}
-              <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
-                <button
-                  onClick={() => setIsStartDialogOpen(false)}
-                  className="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmScraperStart}
-                  disabled={actionLoading !== null}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors shadow-lg"
-                >
-                  {actionLoading === 'start' ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Starting...
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-4 h-4" />
-                      Start Scrapper
-                    </>
-                  )}
-                </button>
+              {/* Scrappers Table */}
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200/50 dark:border-slate-700/50">
+                      <tr>
+                        <th className="px-6 py-4 text-left">
+                          <input
+                            type="checkbox"
+                            checked={selectedScrappers.length === filteredScrappers.length && filteredScrappers.length > 0}
+                            onChange={toggleAllScrappers}
+                            className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-violet-600 focus:ring-2 focus:ring-violet-500 cursor-pointer"
+                          />
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                          Scrapper
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                          Status
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                          Last Run
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                          Posts Scraped
+                        </th>
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                          Frequency
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredScrappers.map((scrapper) => (
+                        <tr
+                          key={scrapper._id}
+                          onClick={() => openEditDialog(scrapper)}
+                          className={`border-b border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer ${selectedScrappers.includes(scrapper._id) ? 'bg-violet-50/50 dark:bg-violet-900/20' : ''
+                            }`}
+                        >
+                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={selectedScrappers.includes(scrapper._id)}
+                              onChange={() => toggleScrapperSelection(scrapper._id)}
+                              className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-violet-600 focus:ring-2 focus:ring-violet-500 cursor-pointer"
+                            />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+                                <Database className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                                  {scrapper.name}
+                                </div>
+                                <div className="text-xs text-slate-600 dark:text-slate-400">
+                                  {scrapper.source}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${scrapper.status === 'running' ? 'bg-green-500 animate-pulse' :
+                                scrapper.status === 'disabled' ? 'bg-orange-500' :
+                                  'bg-slate-400'
+                                }`}></div>
+                              <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(scrapper.status)}`}>
+                                {scrapper.status.charAt(0).toUpperCase() + scrapper.status.slice(1)}
+                              </span>
+                              {scrapper.error !== '' && scrapper.error && (
+                                <div className="relative group">
+                                  <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 cursor-help" />
+                                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-slate-900 dark:bg-slate-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap max-w-xs z-10">
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-slate-900 dark:bg-slate-800 rotate-45 -mt-1"></div>
+                                    {scrapper.error}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                              <Clock className="w-4 h-4" />
+                              {scrapper.lastRun === "non specified" ? scrapper.lastRun : new Date(scrapper.lastRun).toLocaleString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                            {scrapper.totalScrappedResult ? scrapper.totalScrappedResult.toLocaleString() : 0}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                              <Zap className="w-4 h-4" />
+                              {scrapper.frequency.scheduleText}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {filteredScrappers.length === 0 && (
+                  <div className="p-12 text-center">
+                    <p className="text-slate-600 dark:text-slate-400">
+                      No scrappers found matching your search criteria.
+                    </p>
+                  </div>
+                )}
               </div>
+
+              {/* Add/Edit Scrapper Dialog */}
+              {isDialogOpen && (
+                <ModalPortal>
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                      {/* Dialog Header */}
+                      <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                          {editingScrapper ? 'Edit Scrapper' : 'Add New Scrapper'}
+                        </h2>
+                        <button
+                          onClick={() => setIsDialogOpen(false)}
+                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                        >
+                          <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                        </button>
+                      </div>
+
+                      {/* Dialog Content */}
+                      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        {/* Scrapper ID */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Scrapper Id (Apify ID)
+                          </label>
+                          <input
+                            type="text"
+                            value={scrapperApifyId}
+                            onChange={(e) => setScrapperApifyId(e.target.value)}
+                            placeholder="e.g., APIFY_..."
+                            className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                          />
+                        </div>
+
+                        {/* Scrapper Name */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Scrapper Name
+                          </label>
+                          <input
+                            type="text"
+                            value={scrapperName}
+                            onChange={(e) => setScrapperName(e.target.value)}
+                            placeholder="e.g., LinkedIn Jobs Scraper"
+                            className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                          />
+                        </div>
+
+                        {/* Source */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Source
+                          </label>
+                          <input
+                            type="text"
+                            value={scrapperSource}
+                            onChange={(e) => setScrapperSource(e.target.value)}
+                            placeholder="e.g., LinkedIn, Indeed, Facebook"
+                            className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                          />
+                        </div>
+
+                        {/* Target Collection */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Target Collection
+                          </label>
+                          <select
+                            value={targetCollection}
+                            onChange={(e) => setTargetCollection(e.target.value as 'internship' | 'alternance')}
+                            className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                          >
+                            <option value="internship">Internship</option>
+                            <option value="alternance">Alternance</option>
+                          </select>
+                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            Select where scraped data should be saved
+                          </p>
+                        </div>
+
+                        {/* Request Body */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Request Body (JSON)
+                          </label>
+                          <textarea
+                            value={requestBody}
+                            onChange={(e) => {
+                              const nextValue = e.target.value;
+
+                              setRequestBody((prev) => {
+                                try {
+                                  if (nextValue.trim()) {
+                                    JSON.parse(nextValue);
+                                  }
+                                  setJsonError(null);
+                                } catch (err: any) {
+                                  setJsonError(err.message);
+                                }
+
+                                return nextValue;
+                              });
+                            }}
+                            rows={8}
+                            className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm
+                      border ${jsonError
+                                ? 'border-red-500 focus:border-red-500'
+                                : 'border-slate-300 dark:border-slate-600 focus:border-violet-500'
+                              }
+                    `}
+                          />
+                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            Enter the JSON configuration for your scraper
+                          </p>
+                          {jsonError && (
+                            <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
+                          )}
+                        </div>
+
+                        {/* Cron Schedule */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Cron Schedule
+                          </label>
+                          <input
+                            type="text"
+                            value={cronSchedule}
+                            onChange={(e) => handleCronChange(e.target.value)}
+                            placeholder="0 */6 * * *"
+                            className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border ${cronError
+                              ? 'border-red-500 dark:border-red-500'
+                              : 'border-slate-300 dark:border-slate-600'
+                              } text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono`}
+                          />
+                          {cronError && (
+                            <p className="mt-2 text-sm text-red-600 dark:text-red-400">{cronError}</p>
+                          )}
+                          <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                            <p>Examples:</p>
+                            <ul className="list-disc list-inside space-y-0.5 ml-2">
+                              <li><code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">0 */6 * * *</code> - Every 6 hours</li>
+                              <li><code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">0 0 * * *</code> - Daily at midnight</li>
+                              <li><code className="bg-slate-200 dark:bg-slate-700 px-1 rounded">@hourly</code> - Every hour</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Dialog Footer */}
+                      <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                          onClick={() => setIsDialogOpen(false)}
+                          className="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        {editingScrapper && (
+                          <button
+                            onClick={handleModifyScrappers}
+                            className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
+                          >
+                            <Save className="w-4 h-4" />
+                            Update Scrapper
+                          </button>
+                        )}
+                        {!editingScrapper && (
+                          <button
+                            onClick={handleSaveScrapper}
+                            className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg font-medium transition-colors shadow-lg"
+                          >
+                            <Save className="w-4 h-4" />
+                            Create Scrapper
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </ModalPortal>
+              )}
+
+              {/* Start Scrapper Dialog */}
+              {isStartDialogOpen && (
+                <ModalPortal>
+                  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                      {/* Dialog Header */}
+                      <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                          Start Scrapper - Review Settings
+                        </h2>
+                        <button
+                          onClick={() => setIsStartDialogOpen(false)}
+                          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                        >
+                          <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                        </button>
+                      </div>
+
+                      {/* Dialog Content */}
+                      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                        {/* Scrapper ID */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Scrapper Id (Apify ID)
+                          </label>
+                          <input
+                            type="text"
+                            disabled={true}
+                            value={scrapperApifyId}
+                            placeholder="e.g., APIFY_..."
+                            className="w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500"
+                          />
+                        </div>
+
+                        {/* Scrapper Name */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Scrapper Name
+                          </label>
+                          <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                            {scrapperName}
+                          </div>
+                        </div>
+
+                        {/* Source */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Source
+                          </label>
+                          <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white">
+                            {scrapperSource}
+                          </div>
+                        </div>
+
+                        {/* Request Body */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Request Body (JSON)
+                          </label>
+                          <textarea
+                            value={customRequestBody}
+                            onChange={(e) => {
+                              const nextValue = e.target.value;
+
+                              setCustomRequestBody((prev) => {
+                                try {
+                                  if (nextValue.trim()) {
+                                    JSON.parse(nextValue);
+                                  }
+                                  setJsonError(null);
+                                } catch (err: any) {
+                                  setJsonError(err.message);
+                                }
+
+                                return nextValue;
+                              });
+                            }}
+                            rows={8}
+                            className={`w-full px-4 py-3 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-violet-500 dark:focus:border-violet-500 font-mono text-sm
+                      border ${jsonError
+                                ? 'border-red-500 focus:border-red-500'
+                                : 'border-slate-300 dark:border-slate-600 focus:border-violet-500'
+                              }
+                    `}
+                          />
+                          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            Enter the JSON configuration for your scraper
+                          </p>
+                          <label className="flex items-start gap-3 mt-4 cursor-pointer group">
+                            <input
+                              type="checkbox"
+                              checked={sendNotificationMails}
+                              onChange={(e) => setSendNotificationMails(e.target.checked)}
+                              className="mt-0.5 w-5 h-5 rounded-md border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 hover:border-teal-400 dark:hover:border-teal-500 checked:bg-teal-600 checked:border-teal-600 focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 cursor-pointer transition-all"
+                            />
+                            <div className="flex-1">
+                              <span className="block text-sm font-medium text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                Send notification email to users
+                              </span>
+                            </div>
+                          </label>
+                          {jsonError && (
+                            <p className="mt-2 text-sm text-red-600 dark:text-red-400">{jsonError}</p>
+                          )}
+                        </div>
+
+                        {/* Cron Schedule */}
+                        <div>
+                          <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">
+                            Cron Schedule
+                          </label>
+                          <div className="w-full px-4 py-3 rounded-lg bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono">
+                            RUNNING NOW
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                          <p className="text-sm text-green-800 dark:text-green-300">
+                            {selectedScrappers.length > 1
+                              ? `Ready to start ${selectedScrappers.length} scrappers with these settings.`
+                              : 'Ready to start this scrapper with the above configuration.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Dialog Footer */}
+                      <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                          onClick={() => setIsStartDialogOpen(false)}
+                          className="px-6 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleConfirmScraperStart}
+                          disabled={actionLoading !== null}
+                          className="inline-flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 disabled:bg-slate-400 text-white rounded-lg font-medium transition-colors shadow-lg"
+                        >
+                          {actionLoading === 'start' ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Starting...
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-4 h-4" />
+                              Start Scrapper
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </ModalPortal>
+              )}
             </div>
-          </div>
-        </ModalPortal>
-        )}
-      </div>
-    </div>)}
-  </>
+          </div>)}
+    </>
   );
 };
 

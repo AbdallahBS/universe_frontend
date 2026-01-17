@@ -2,7 +2,7 @@ import { apiFetch } from './api';
 import { TokensResponse } from 'types/network';
 
 /** Users management **/
-export async function getUsers(): Promise<any> {  
+export async function getUsers(): Promise<any> {
   try {
     const data = await apiFetch<TokensResponse>(`/api/admin/users`, {
       requireAuth: true,
@@ -14,12 +14,12 @@ export async function getUsers(): Promise<any> {
   }
 }
 
-export async function changerole(id: string, isPromote: boolean): Promise<any> {  
+export async function changerole(id: string, isPromote: boolean): Promise<any> {
   try {
     const data = await apiFetch<TokensResponse>(`/api/admin/user/changerole`, {
       requireAuth: true,
       method: 'POST',
-      json: {userId : id, promote : isPromote},
+      json: { userId: id, promote: isPromote },
     });
     return data;
   } catch (err: any) {
@@ -28,12 +28,12 @@ export async function changerole(id: string, isPromote: boolean): Promise<any> {
   }
 }
 
-export async function deleteUser(id: string): Promise<any> {  
+export async function deleteUser(id: string): Promise<any> {
   try {
     const data = await apiFetch<TokensResponse>(`/api/admin/user`, {
       requireAuth: true,
       method: 'DELETE',
-      json: {userId : id},
+      json: { userId: id },
     });
     return data;
   } catch (err: any) {
@@ -43,7 +43,7 @@ export async function deleteUser(id: string): Promise<any> {
 }
 
 /** Scrapers management **/
-export async function getScrapers(): Promise<any> {  
+export async function getScrapers(): Promise<any> {
   try {
     const data = await apiFetch<TokensResponse>(`/api/scrapers`, {
       requireAuth: true,
@@ -55,17 +55,19 @@ export async function getScrapers(): Promise<any> {
   }
 }
 
-export async function startScrapers(scraper : any): Promise<any> {  
+export async function startScrapers(scraper: any): Promise<any> {
   try {
     const data = await apiFetch<TokensResponse>(`/api/scrapers/run`, {
       method: 'POST',
       requireAuth: true,
       json: {
-        name : scraper.name,
-        scrapperApifyId : scraper.scrapperApifyId,
-        totalScrappedResult : scraper.totalScrappedResult,
-        sendNotificationMail : scraper.sendNotificationMail,
-        RequestBody : scraper.RequestBody
+        _id: scraper._id,
+        name: scraper.name,
+        scrapperApifyId: scraper.scrapperApifyId,
+        targetCollection: scraper.targetCollection,
+        totalScrappedResult: scraper.totalScrappedResult,
+        sendNotificationMail: scraper.sendNotificationMail,
+        RequestBody: scraper.RequestBody
       }
     });
     return data;
@@ -75,7 +77,7 @@ export async function startScrapers(scraper : any): Promise<any> {
   }
 }
 
-export async function changeScraperStatus(scraperId : string, status : string): Promise<any> {  
+export async function changeScraperStatus(scraperId: string, status: string): Promise<any> {
   try {
     const data = apiFetch<TokensResponse>(`/api/scrapers/status/${scraperId}?status=${status}`, {
       method: 'PATCH',
@@ -88,12 +90,12 @@ export async function changeScraperStatus(scraperId : string, status : string): 
   }
 }
 
-export async function updateScraper (scraper : any): Promise<any> {  
+export async function updateScraper(scraper: any): Promise<any> {
   try {
-    const data = apiFetch<TokensResponse>(`/api/scrapers/${scraper.scrapperApifyId}`, {
+    const data = apiFetch<TokensResponse>(`/api/scrapers/${scraper._id}`, {
       method: 'PUT',
       requireAuth: true,
-      json : scraper
+      json: scraper
     });
     return data;
   } catch (err: any) {
@@ -102,9 +104,9 @@ export async function updateScraper (scraper : any): Promise<any> {
   }
 }
 
-export async function deleteScraper (scrapperApifyId : string): Promise<any> {  
+export async function deleteScraper(scraperId: string): Promise<any> {
   try {
-    const data = apiFetch<TokensResponse>(`/api/scrapers/${scrapperApifyId}`, {
+    const data = apiFetch<TokensResponse>(`/api/scrapers/${scraperId}`, {
       method: 'DELETE',
       requireAuth: true
     });
@@ -115,12 +117,12 @@ export async function deleteScraper (scrapperApifyId : string): Promise<any> {
   }
 }
 
-export async function addScraper (scraper : any): Promise<any> {  
+export async function addScraper(scraper: any): Promise<any> {
   try {
     const data = apiFetch<TokensResponse>(`/api/scrapers`, {
       method: 'POST',
       requireAuth: true,
-      json : scraper
+      json: scraper
     });
     return data;
   } catch (err: any) {

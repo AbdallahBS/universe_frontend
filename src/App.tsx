@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import InternshipsList from '@pages/internships/InternshipsList'; import InternshipDetail from '@pages/internships/InternshipDetail';
+import AlternanceList from '@pages/alternance/AlternanceList';
+import AlternanceDetail from '@pages/alternance/AlternanceDetail';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import ErrorPage from '@pages/ErrorPage';
 import Navigation from '@components/Navigation';
@@ -27,6 +29,7 @@ import AttemptDetailPage from '@pages/AttemptDetailPage';
 import Footer from '@components/Footer';
 import UserManagementPage from '@pages/admin/UserManagementPage';
 import ContentManagementPage from '@pages/admin/ContentManagementPage';
+import AlternanceManagementPage from '@pages/admin/AlternanceManagementPage';
 import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
 import CustomToaster from '@components/customToaster';
 import VerificationBanner from '@components/VerificationBanner';
@@ -127,6 +130,9 @@ function AppContent() {
         <Route path="/internships" element={<InternshipsList />} />
         <Route path="/internships/:page" element={<InternshipsList />} />
         <Route path="/internship/:urn" element={<InternshipDetail />} /> {/* will require login to apply for internship */}
+        <Route path="/alternances" element={<AlternanceList />} />
+        <Route path="/alternances/:page" element={<AlternanceList />} />
+        <Route path="/alternance/:id" element={<AlternanceDetail />} />
         <Route path="/cycle-ingenieur" element={<CycleIngenieurPage />} />
         <Route path="/university/:id" element={<UniversityDetailsPage />} />
         <Route path="/about" element={<About />} />
@@ -177,6 +183,15 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <ContentManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/alternances"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <AlternanceManagementPage />
             </ProtectedRoute>
           }
         />

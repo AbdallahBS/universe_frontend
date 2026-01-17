@@ -11,7 +11,8 @@ import {
   TrendingUp,
   Activity,
   TrendingDown,
-  MousePointerSquare
+  MousePointerSquare,
+  GraduationCap
 } from 'lucide-react';
 import { useAuth } from '@context/AuthContext';
 import { useNavigatePage } from './ui/useNavigatePage';
@@ -29,7 +30,7 @@ interface AdminOption {
 }
 
 const AdminOptions: React.FC = () => {
-  const {stats} = useAuth();
+  const { stats } = useAuth();
   const navigate = useNavigatePage();
   const [hoveredOption, setHoveredOption] = useState<string | null>(null);
 
@@ -51,6 +52,15 @@ const AdminOptions: React.FC = () => {
       gradient: 'from-orange-500 to-red-600',
       textColor: 'text-orange-600 dark:text-orange-400',
       action: () => navigate('/admin/contents')
+    },
+    {
+      id: 'alternance',
+      title: 'Alternance Management',
+      description: 'Manage work-study and apprenticeship offers',
+      icon: GraduationCap,
+      gradient: 'from-teal-500 to-emerald-600',
+      textColor: 'text-teal-600 dark:text-teal-400',
+      action: () => navigate('/admin/alternances')
     },
     {
       id: 'scrapper',
@@ -121,13 +131,12 @@ const AdminOptions: React.FC = () => {
                 ) : (
                   <TrendingDown className="w-4 h-4 text-red-500" />
                 )
-              } 
+              }
               <span
-                className={`text-sm font-bold ${
-                  stats.usersCount.addedUsersPercentage < 0
-                    ? "text-red-600 dark:text-red-400"
-                    : "text-green-600 dark:text-green-400"
-                }`}
+                className={`text-sm font-bold ${stats.usersCount.addedUsersPercentage < 0
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-green-600 dark:text-green-400"
+                  }`}
               >
                 {stats.usersCount.addedUsersPercentage ?? "N/A"}%
               </span>

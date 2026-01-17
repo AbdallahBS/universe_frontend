@@ -118,11 +118,15 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               >
                 <TransText>{t('nav.engineering')}</TransText>
               </button>
-              <span
-                className="text-slate-400 dark:text-slate-500 cursor-not-allowed px-3 py-2 rounded-md text-sm font-medium"
+              <button
+                onClick={() => handleNavClick("/alternances")}
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === "/alternances"
+                  ? "text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30"
+                  : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                  }`}
               >
                 <TransText>{t('nav.alternance')}</TransText>
-              </span>
+              </button>
               <button
                 onClick={() => handleNavClick("/about")}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${currentPage === "/about"
@@ -334,11 +338,15 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
           >
             <TransText>{t('nav.engineering')}</TransText>
           </button>
-          <span
-            className="text-slate-400 dark:text-slate-500 cursor-not-allowed block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors"
+          <button
+            onClick={() => handleNavClick("/alternances")}
+            className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${currentPage === "/alternances"
+              ? "text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30"
+              : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800"
+              }`}
           >
             <TransText>{t('nav.alternance')}</TransText>
-          </span>
+          </button>
           <button
             onClick={() => handleNavClick("/about")}
             className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${currentPage === "/about"
