@@ -56,13 +56,20 @@ const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, in
 
             {/* Content */}
             <div className="p-6">
-                {/* Type Badge & Company Logo */}
+                {/* Type Badge & Author/Company Image */}
                 <div className="flex items-start justify-between mb-4">
                     <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${getTypeColor(alternance.type)}`}>
                         {getTypeLabel(alternance.type)}
                     </span>
 
-                    {alternance.companyLogo ? (
+                    {/* Prioritize author profile image, then company logo, then fallback */}
+                    {alternance.authorProfile?.imageUrl ? (
+                        <img
+                            src={`https://corsproxy.io/?url=${encodeURIComponent(alternance.authorProfile.imageUrl)}`}
+                            alt={alternance.authorProfile.name || alternance.company || 'Author'}
+                            className="w-12 h-12 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
+                        />
+                    ) : alternance.companyLogo ? (
                         <img
                             src={alternance.companyLogo}
                             alt={alternance.company || 'Company'}

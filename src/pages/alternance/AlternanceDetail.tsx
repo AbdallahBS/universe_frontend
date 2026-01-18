@@ -18,6 +18,7 @@ import {
     Heart,
     MessageCircle,
     Repeat2,
+    User2,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -137,8 +138,8 @@ const AlternanceDetail: React.FC = () => {
         );
     }
 
-    // Get banner image: prioritize first content image, then companyLogo
-    const bannerImage = alternance.contentImages?.[0]?.url || alternance.companyLogo;
+    // Get banner image: prioritize bannerImage, then first content image, then companyLogo
+    const bannerImage = alternance.bannerImage || alternance.contentImages?.[0]?.url || alternance.companyLogo;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
@@ -207,10 +208,16 @@ const AlternanceDetail: React.FC = () => {
                     <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 lg:p-12">
                         <div className="max-w-5xl mx-auto">
                             <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6">
-                                {/* Company Logo */}
+                                {/* Author Profile Image - prioritize author image, then company logo */}
                                 <div className="flex-shrink-0">
                                     <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl border-2 border-white/30 overflow-hidden bg-white/10 backdrop-blur-sm shadow-2xl transform hover:scale-105 transition-transform duration-300">
-                                        {alternance.companyLogo ? (
+                                        {alternance.authorProfile?.imageUrl ? (
+                                            <img
+                                                src={`https://corsproxy.io/?url=${encodeURIComponent(alternance.authorProfile.imageUrl)}`}
+                                                alt={alternance.authorProfile.name || 'Author'}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : alternance.companyLogo ? (
                                             <img
                                                 src={alternance.companyLogo}
                                                 alt="Company logo"
@@ -529,39 +536,54 @@ const AlternanceDetail: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Company Card */}
-                        <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
-                            <div className="p-6">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Entreprise</h3>
+                        {/* Author Card (for LinkedIn posts) */}
+                        {alternance.authorProfile?.name && (
+                            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                                <div className="p-6">
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Publié par</h3>
 
-                                <div className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
-                                    <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-slate-200 dark:ring-slate-600">
-                                        {alternance.companyLogo ? (
-                                            <img
-                                                src={alternance.companyLogo}
-                                                alt={alternance.company}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
-                                                <Building2 className="w-6 h-6 text-white" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-slate-900 dark:text-white truncate">
-                                            {alternance.company || 'Entreprise non spécifiée'}
-                                        </p>
-                                        {alternance.location && (
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                                <MapPin className="w-3 h-3" />
-                                                {alternance.location}
+                                    <a
+                                        href={alternance.authorProfile.profileUrl ?? "#"}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors duration-300 group"
+                                    >
+                                        <div className="w-12 h-12 rounded-full overflow-hidden ring-2 ring-slate-200 dark:ring-slate-600 group-hover:ring-teal-500 transition-all duration-300">
+                                            {alternance.authorProfile.imageUrl ? (
+                                                <img
+                                                    src={`https://corsproxy.io/?url=${encodeURIComponent(alternance.authorProfile.imageUrl)}`}
+                                                    alt={alternance.authorProfile.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center">
+                                                    <User2 className="w-6 h-6 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-slate-900 dark:text-white truncate group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                                {alternance.authorProfile.name}
                                             </p>
-                                        )}
-                                    </div>
+                                            {alternance.authorProfile.headline && (
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                                                    {alternance.authorProfile.headline}
+                                                </p>
+                                            )}
+                                            {alternance.authorProfile.profileUrl && (
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-1">
+                                                    <Linkedin className="w-3 h-3" />
+                                                    Voir le profil
+                                                </p>
+                                            )}
+                                        </div>
+                                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-teal-500 transition-colors" />
+                                    </a>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
+
                     </div>
                 </div>
             </div>

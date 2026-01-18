@@ -19,7 +19,9 @@ import {
     Link as LinkIcon,
     DollarSign,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Upload,
+    ImageIcon
 } from 'lucide-react';
 import ModalPortal from '@components/ModalPortal';
 import {
@@ -60,6 +62,7 @@ const emptyAlternance: AlternanceFormData = {
     applicationDeadline: '',
     contactEmail: '',
     companyLogo: '',
+    bannerImage: '',
     externalUrl: '',
     isActive: true,
     tags: [],
@@ -109,6 +112,12 @@ const AlternanceManagementPage: React.FC = () => {
         id: '',
         title: '',
     });
+
+    // File upload state
+    const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
+    const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
+    const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null);
+    const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(null);
 
     // Fetch alternances
     const fetchAlternances = async () => {
@@ -172,6 +181,11 @@ const AlternanceManagementPage: React.FC = () => {
             mode: 'add',
             alternanceData: { ...emptyAlternance },
         });
+        // Reset file states
+        setCompanyLogoFile(null);
+        setBannerImageFile(null);
+        setCompanyLogoPreview(null);
+        setBannerImagePreview(null);
     };
 
     const openEditDialog = (alternance: Alternance) => {
@@ -191,6 +205,7 @@ const AlternanceManagementPage: React.FC = () => {
                 applicationDeadline: alternance.applicationDeadline ? alternance.applicationDeadline.split('T')[0] : '',
                 contactEmail: alternance.contactEmail || '',
                 companyLogo: alternance.companyLogo || '',
+                bannerImage: alternance.bannerImage || '',
                 externalUrl: alternance.externalUrl || '',
                 isActive: alternance.isActive ?? true,
                 tags: alternance.tags || [],
@@ -199,6 +214,11 @@ const AlternanceManagementPage: React.FC = () => {
             },
             editId: alternance._id,
         });
+        // Reset file states but set URL previews
+        setCompanyLogoFile(null);
+        setBannerImageFile(null);
+        setCompanyLogoPreview(alternance.companyLogo || null);
+        setBannerImagePreview(alternance.bannerImage || null);
     };
 
     const closeDialog = () => {
@@ -207,6 +227,11 @@ const AlternanceManagementPage: React.FC = () => {
             mode: 'add',
             alternanceData: { ...emptyAlternance },
         });
+        // Reset file states
+        setCompanyLogoFile(null);
+        setBannerImageFile(null);
+        setCompanyLogoPreview(null);
+        setBannerImagePreview(null);
     };
 
     const handleInputChange = (field: keyof AlternanceFormData, value: any) => {
@@ -224,9 +249,18 @@ const AlternanceManagementPage: React.FC = () => {
             setActionLoading('save');
 
             if (dialog.mode === 'add') {
-                await createAlternance(dialog.alternanceData);
+                await createAlternance(
+                    dialog.alternanceData,
+                    companyLogoFile || undefined,
+                    bannerImageFile || undefined
+                );
             } else if (dialog.editId) {
-                await updateAlternance(dialog.editId, dialog.alternanceData);
+                await updateAlternance(
+                    dialog.editId,
+                    dialog.alternanceData,
+                    companyLogoFile || undefined,
+                    bannerImageFile || undefined
+                );
             }
 
             closeDialog();
@@ -950,6 +984,105 @@ const AlternanceManagementPage: React.FC = () => {
                                             placeholder="https://..."
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                         />
+                                    </div>
+                                </div>
+
+                                {/* Image Uploads */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {/* Company Logo Upload */}
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
+                                            <ImageIcon className="w-4 h-4 inline mr-1" />
+                                            Logo de l'entreprise
+                                        </label>
+                                        <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                                            {companyLogoPreview ? (
+                                                <div className="relative">
+                                                    <img
+                                                        src={companyLogoPreview}
+                                                        alt="Company logo preview"
+                                                        className="w-24 h-24 object-cover rounded-lg mx-auto"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setCompanyLogoFile(null);
+                                                            setCompanyLogoPreview(null);
+                                                        }}
+                                                        className="absolute top-1 right-1/2 translate-x-12 -translate-y-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <label className="cursor-pointer">
+                                                    <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                                                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                                                        Cliquer pour télécharger
+                                                    </span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                setCompanyLogoFile(file);
+                                                                setCompanyLogoPreview(URL.createObjectURL(file));
+                                                            }
+                                                        }}
+                                                    />
+                                                </label>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Banner Image Upload */}
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
+                                            <ImageIcon className="w-4 h-4 inline mr-1" />
+                                            Image Bannière
+                                        </label>
+                                        <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                                            {bannerImagePreview ? (
+                                                <div className="relative">
+                                                    <img
+                                                        src={bannerImagePreview}
+                                                        alt="Banner preview"
+                                                        className="w-full h-24 object-cover rounded-lg"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setBannerImageFile(null);
+                                                            setBannerImagePreview(null);
+                                                        }}
+                                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <label className="cursor-pointer">
+                                                    <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
+                                                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                                                        Cliquer pour télécharger
+                                                    </span>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) {
+                                                                setBannerImageFile(file);
+                                                                setBannerImagePreview(URL.createObjectURL(file));
+                                                            }
+                                                        }}
+                                                    />
+                                                </label>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

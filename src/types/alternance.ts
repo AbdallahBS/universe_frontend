@@ -16,6 +16,7 @@ export interface Alternance {
     applicationDeadline?: string;
     contactEmail?: string;
     companyLogo?: string;
+    bannerImage?: string;
     externalUrl?: string;
 
     // Content Images (for LinkedIn posts or manual uploads)
@@ -67,6 +68,7 @@ export interface AlternanceFormData {
     applicationDeadline?: string;
     contactEmail?: string;
     companyLogo?: string;
+    bannerImage?: string;
     externalUrl?: string;
     isActive?: boolean;
     tags?: string[];

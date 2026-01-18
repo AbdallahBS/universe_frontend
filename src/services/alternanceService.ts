@@ -68,9 +68,46 @@ export async function getAlternance(id: string): Promise<{ success: boolean; dat
 
 /**
  * Create a new alternance
+ * Supports optional file uploads for companyLogo and bannerImage
  */
-export async function createAlternance(data: AlternanceFormData): Promise<{ success: boolean; data: Alternance }> {
+export async function createAlternance(
+    data: AlternanceFormData,
+    companyLogoFile?: File,
+    bannerImageFile?: File
+): Promise<{ success: boolean; data: Alternance }> {
     try {
+        // If we have files, use FormData
+        if (companyLogoFile || bannerImageFile) {
+            const formData = new FormData();
+
+            // Append all text fields
+            Object.entries(data).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    if (Array.isArray(value)) {
+                        formData.append(key, JSON.stringify(value));
+                    } else {
+                        formData.append(key, String(value));
+                    }
+                }
+            });
+
+            // Append files
+            if (companyLogoFile) {
+                formData.append('companyLogo', companyLogoFile);
+            }
+            if (bannerImageFile) {
+                formData.append('bannerImage', bannerImageFile);
+            }
+
+            const response = await apiFetch<{ success: boolean; data: Alternance }>('/api/alternances', {
+                method: 'POST',
+                body: formData,
+                requireAuth: true,
+            });
+            return response;
+        }
+
+        // No files, use JSON
         const response = await apiFetch<{ success: boolean; data: Alternance }>('/api/alternances', {
             method: 'POST',
             json: data,
@@ -85,9 +122,47 @@ export async function createAlternance(data: AlternanceFormData): Promise<{ succ
 
 /**
  * Update an existing alternance
+ * Supports optional file uploads for companyLogo and bannerImage
  */
-export async function updateAlternance(id: string, data: AlternanceFormData): Promise<{ success: boolean; data: Alternance }> {
+export async function updateAlternance(
+    id: string,
+    data: AlternanceFormData,
+    companyLogoFile?: File,
+    bannerImageFile?: File
+): Promise<{ success: boolean; data: Alternance }> {
     try {
+        // If we have files, use FormData
+        if (companyLogoFile || bannerImageFile) {
+            const formData = new FormData();
+
+            // Append all text fields
+            Object.entries(data).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    if (Array.isArray(value)) {
+                        formData.append(key, JSON.stringify(value));
+                    } else {
+                        formData.append(key, String(value));
+                    }
+                }
+            });
+
+            // Append files
+            if (companyLogoFile) {
+                formData.append('companyLogo', companyLogoFile);
+            }
+            if (bannerImageFile) {
+                formData.append('bannerImage', bannerImageFile);
+            }
+
+            const response = await apiFetch<{ success: boolean; data: Alternance }>(`/api/alternances/${id}`, {
+                method: 'PUT',
+                body: formData,
+                requireAuth: true,
+            });
+            return response;
+        }
+
+        // No files, use JSON
         const response = await apiFetch<{ success: boolean; data: Alternance }>(`/api/alternances/${id}`, {
             method: 'PUT',
             json: data,
