@@ -68,16 +68,17 @@ export async function getAlternance(id: string): Promise<{ success: boolean; dat
 
 /**
  * Create a new alternance
- * Supports optional file uploads for companyLogo and bannerImage
+ * Supports optional file uploads for companyLogo, bannerImage, and contentImages
  */
 export async function createAlternance(
     data: AlternanceFormData,
     companyLogoFile?: File,
-    bannerImageFile?: File
+    bannerImageFile?: File,
+    contentImageFiles?: File[]
 ): Promise<{ success: boolean; data: Alternance }> {
     try {
         // If we have files, use FormData
-        if (companyLogoFile || bannerImageFile) {
+        if (companyLogoFile || bannerImageFile || (contentImageFiles && contentImageFiles.length > 0)) {
             const formData = new FormData();
 
             // Append all text fields
@@ -97,6 +98,12 @@ export async function createAlternance(
             }
             if (bannerImageFile) {
                 formData.append('bannerImage', bannerImageFile);
+            }
+            // Append content images array
+            if (contentImageFiles && contentImageFiles.length > 0) {
+                contentImageFiles.forEach((file) => {
+                    formData.append('contentImages', file);
+                });
             }
 
             const response = await apiFetch<{ success: boolean; data: Alternance }>('/api/alternances', {
@@ -122,17 +129,18 @@ export async function createAlternance(
 
 /**
  * Update an existing alternance
- * Supports optional file uploads for companyLogo and bannerImage
+ * Supports optional file uploads for companyLogo, bannerImage, and contentImages
  */
 export async function updateAlternance(
     id: string,
     data: AlternanceFormData,
     companyLogoFile?: File,
-    bannerImageFile?: File
+    bannerImageFile?: File,
+    contentImageFiles?: File[]
 ): Promise<{ success: boolean; data: Alternance }> {
     try {
         // If we have files, use FormData
-        if (companyLogoFile || bannerImageFile) {
+        if (companyLogoFile || bannerImageFile || (contentImageFiles && contentImageFiles.length > 0)) {
             const formData = new FormData();
 
             // Append all text fields
@@ -152,6 +160,12 @@ export async function updateAlternance(
             }
             if (bannerImageFile) {
                 formData.append('bannerImage', bannerImageFile);
+            }
+            // Append content images array
+            if (contentImageFiles && contentImageFiles.length > 0) {
+                contentImageFiles.forEach((file) => {
+                    formData.append('contentImages', file);
+                });
             }
 
             const response = await apiFetch<{ success: boolean; data: Alternance }>(`/api/alternances/${id}`, {

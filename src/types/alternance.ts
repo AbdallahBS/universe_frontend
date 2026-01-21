@@ -7,13 +7,9 @@ export interface Alternance {
     title?: string;
     company?: string;
     location?: string;
-    type?: 'apprenticeship' | 'professionalization_contract' | 'other';
     duration?: string;
     description?: string;
     requirements?: string;
-    salary?: string;
-    startDate?: string;
-    applicationDeadline?: string;
     contactEmail?: string;
     companyLogo?: string;
     bannerImage?: string;
@@ -37,7 +33,6 @@ export interface Alternance {
     status?: 'pending' | 'approved' | 'rejected';
     isActive?: boolean;
     createdBy?: string;
-    tags?: string[];
     category?: string;
     sector?: string;
     source?: 'manual' | 'linkedin' | 'other';
@@ -59,19 +54,14 @@ export interface AlternanceFormData {
     title?: string;
     company?: string;
     location?: string;
-    type?: 'apprenticeship' | 'professionalization_contract' | 'other';
     duration?: string;
     description?: string;
     requirements?: string;
-    salary?: string;
-    startDate?: string;
-    applicationDeadline?: string;
     contactEmail?: string;
     companyLogo?: string;
     bannerImage?: string;
     externalUrl?: string;
     isActive?: boolean;
-    tags?: string[];
     category?: string;
     sector?: string;
 }
@@ -90,7 +80,6 @@ export interface AlternanceListResponse {
 
 export interface AlternanceFilters {
     search?: string;
-    type?: string;
     category?: string;
     status?: 'pending' | 'approved' | 'rejected';
     isActive?: boolean;
@@ -102,8 +91,6 @@ export interface AlternanceStats {
     totalCount: number;
     activeCount: number;
     inactiveCount: number;
-    apprenticeshipCount: number;
-    professionalContractCount: number;
     pendingCount: number;
     approvedCount: number;
     rejectedCount: number;

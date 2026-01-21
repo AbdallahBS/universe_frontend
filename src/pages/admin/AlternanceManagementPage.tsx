@@ -8,7 +8,6 @@ import {
     EyeOff,
     Loader2,
     Briefcase,
-    Calendar,
     Plus,
     Edit3,
     X,
@@ -17,7 +16,6 @@ import {
     Building2,
     Mail,
     Link as LinkIcon,
-    DollarSign,
     ChevronLeft,
     ChevronRight,
     Upload,
@@ -57,15 +55,11 @@ const emptyAlternance: AlternanceFormData = {
     duration: '',
     description: '',
     requirements: '',
-    salary: '',
-    startDate: '',
-    applicationDeadline: '',
     contactEmail: '',
     companyLogo: '',
     bannerImage: '',
     externalUrl: '',
     isActive: true,
-    tags: [],
     category: '',
     sector: '',
 };
@@ -118,6 +112,10 @@ const AlternanceManagementPage: React.FC = () => {
     const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
     const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null);
     const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(null);
+
+    // Content images state (multiple images)
+    const [contentImageFiles, setContentImageFiles] = useState<File[]>([]);
+    const [contentImagePreviews, setContentImagePreviews] = useState<string[]>([]);
 
     // Fetch alternances
     const fetchAlternances = async () => {
@@ -186,6 +184,8 @@ const AlternanceManagementPage: React.FC = () => {
         setBannerImageFile(null);
         setCompanyLogoPreview(null);
         setBannerImagePreview(null);
+        setContentImageFiles([]);
+        setContentImagePreviews([]);
     };
 
     const openEditDialog = (alternance: Alternance) => {
@@ -200,15 +200,11 @@ const AlternanceManagementPage: React.FC = () => {
                 duration: alternance.duration || '',
                 description: alternance.description || '',
                 requirements: alternance.requirements || '',
-                salary: alternance.salary || '',
-                startDate: alternance.startDate ? alternance.startDate.split('T')[0] : '',
-                applicationDeadline: alternance.applicationDeadline ? alternance.applicationDeadline.split('T')[0] : '',
                 contactEmail: alternance.contactEmail || '',
                 companyLogo: alternance.companyLogo || '',
                 bannerImage: alternance.bannerImage || '',
                 externalUrl: alternance.externalUrl || '',
                 isActive: alternance.isActive ?? true,
-                tags: alternance.tags || [],
                 category: alternance.category || '',
                 sector: alternance.sector || '',
             },
@@ -232,6 +228,8 @@ const AlternanceManagementPage: React.FC = () => {
         setBannerImageFile(null);
         setCompanyLogoPreview(null);
         setBannerImagePreview(null);
+        setContentImageFiles([]);
+        setContentImagePreviews([]);
     };
 
     const handleInputChange = (field: keyof AlternanceFormData, value: any) => {
@@ -252,14 +250,16 @@ const AlternanceManagementPage: React.FC = () => {
                 await createAlternance(
                     dialog.alternanceData,
                     companyLogoFile || undefined,
-                    bannerImageFile || undefined
+                    bannerImageFile || undefined,
+                    contentImageFiles.length > 0 ? contentImageFiles : undefined
                 );
             } else if (dialog.editId) {
                 await updateAlternance(
                     dialog.editId,
                     dialog.alternanceData,
                     companyLogoFile || undefined,
-                    bannerImageFile || undefined
+                    bannerImageFile || undefined,
+                    contentImageFiles.length > 0 ? contentImageFiles : undefined
                 );
             }
 
@@ -917,45 +917,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     />
                                 </div>
 
-                                {/* Salary & Dates */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                            <DollarSign className="w-4 h-4 inline mr-1" />
-                                            Salaire
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={dialog.alternanceData.salary || ''}
-                                            onChange={(e) => handleInputChange('salary', e.target.value)}
-                                            placeholder="Ex: 1200€/mois"
-                                            className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                            <Calendar className="w-4 h-4 inline mr-1" />
-                                            Date de début
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={dialog.alternanceData.startDate || ''}
-                                            onChange={(e) => handleInputChange('startDate', e.target.value)}
-                                            className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none transition-colors"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                            Date limite
-                                        </label>
-                                        <input
-                                            type="date"
-                                            value={dialog.alternanceData.applicationDeadline || ''}
-                                            onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                                            className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none transition-colors"
-                                        />
-                                    </div>
-                                </div>
+
 
                                 {/* Contact & Links */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1083,6 +1045,77 @@ const AlternanceManagementPage: React.FC = () => {
                                                 </label>
                                             )}
                                         </div>
+                                    </div>
+                                </div>
+
+                                {/* Content Images Upload (Multiple) */}
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-slate-900 dark:text-white">
+                                        <ImageIcon className="w-4 h-4 inline mr-1" />
+                                        Images du contenu (max 10)
+                                    </label>
+                                    <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                                        {/* Preview Grid */}
+                                        {contentImagePreviews.length > 0 && (
+                                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-4">
+                                                {contentImagePreviews.map((preview, index) => (
+                                                    <div key={index} className="relative aspect-square">
+                                                        <img
+                                                            src={preview}
+                                                            alt={`Content image ${index + 1}`}
+                                                            className="w-full h-full object-cover rounded-lg"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const newFiles = [...contentImageFiles];
+                                                                const newPreviews = [...contentImagePreviews];
+                                                                newFiles.splice(index, 1);
+                                                                newPreviews.splice(index, 1);
+                                                                setContentImageFiles(newFiles);
+                                                                setContentImagePreviews(newPreviews);
+                                                            }}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-lg"
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Upload Button */}
+                                        {contentImageFiles.length < 10 && (
+                                            <label className="cursor-pointer flex flex-col items-center justify-center py-4">
+                                                <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                                                <span className="text-sm text-slate-500 dark:text-slate-400">
+                                                    Cliquer pour ajouter des images
+                                                </span>
+                                                <span className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                                                    {contentImageFiles.length}/10 images
+                                                </span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    multiple
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const files = Array.from(e.target.files || []);
+                                                        const maxToAdd = 10 - contentImageFiles.length;
+                                                        const filesToAdd = files.slice(0, maxToAdd);
+
+                                                        if (filesToAdd.length > 0) {
+                                                            setContentImageFiles(prev => [...prev, ...filesToAdd]);
+                                                            const newPreviews = filesToAdd.map(f => URL.createObjectURL(f));
+                                                            setContentImagePreviews(prev => [...prev, ...newPreviews]);
+                                                        }
+
+                                                        // Reset input value to allow selecting same files again
+                                                        e.target.value = '';
+                                                    }}
+                                                />
+                                            </label>
+                                        )}
                                     </div>
                                 </div>
 

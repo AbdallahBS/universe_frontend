@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface AlternanceFiltersProps {
     onSearchChange: (query: string) => void;
@@ -15,12 +16,13 @@ const AlternanceFilters: React.FC<AlternanceFiltersProps> = ({
     currentType
 }) => {
     const [showFilters, setShowFilters] = useState(false);
+    const { t } = useTranslation();
 
     const types = [
-        { value: 'all', label: 'Tous les types' },
-        { value: 'apprenticeship', label: 'Apprentissage' },
-        { value: 'professionalization_contract', label: 'Contrat Pro' },
-        { value: 'other', label: 'Autre' },
+        { value: 'all', label: t('alternance.allTypes') },
+        { value: 'apprenticeship', label: t('alternance.apprenticeship') },
+        { value: 'professionalization_contract', label: t('alternance.professionalizationContract') },
+        { value: 'other', label: t('alternance.other') },
     ];
 
     return (
@@ -31,7 +33,7 @@ const AlternanceFilters: React.FC<AlternanceFiltersProps> = ({
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                     <input
                         type="text"
-                        placeholder="Rechercher une alternance..."
+                        placeholder={t('alternance.search')}
                         value={currentSearch}
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="w-full pl-12 pr-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"

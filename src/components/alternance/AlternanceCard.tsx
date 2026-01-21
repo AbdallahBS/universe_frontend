@@ -8,6 +8,7 @@ import {
     Euro
 } from 'lucide-react';
 import { Alternance } from '../../types/alternance';
+import { useTranslation } from 'react-i18next';
 
 interface AlternanceCardProps {
     alternance: Alternance;
@@ -16,25 +17,7 @@ interface AlternanceCardProps {
 }
 
 const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, index = 0 }) => {
-    const getTypeLabel = (type?: string) => {
-        switch (type) {
-            case 'apprenticeship': return 'Apprentissage';
-            case 'professionalization_contract': return 'Contrat Pro';
-            case 'other': return 'Autre';
-            default: return 'Alternance';
-        }
-    };
-
-    const getTypeColor = (type?: string) => {
-        switch (type) {
-            case 'apprenticeship':
-                return 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800';
-            case 'professionalization_contract':
-                return 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800';
-            default:
-                return 'bg-teal-100 dark:bg-teal-900/40 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800';
-        }
-    };
+    const { t } = useTranslation();
 
     const formatDate = (dateString?: string) => {
         if (!dateString) return null;
@@ -56,11 +39,8 @@ const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, in
 
             {/* Content */}
             <div className="p-6">
-                {/* Type Badge & Author/Company Image */}
-                <div className="flex items-start justify-between mb-4">
-                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${getTypeColor(alternance.type)}`}>
-                        {getTypeLabel(alternance.type)}
-                    </span>
+                {/* Company/Author Image */}
+                <div className="flex items-start justify-end mb-4">
 
                     {/* Prioritize author profile image, then company logo, then fallback */}
                     {alternance.authorProfile?.imageUrl ? (
@@ -84,13 +64,13 @@ const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, in
 
                 {/* Title */}
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300 mb-2 line-clamp-2">
-                    {alternance.title || 'Offre d\'alternance'}
+                    {alternance.title || t('alternance.alternanceOffer')}
                 </h3>
 
                 {/* Company */}
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 mb-3">
                     <Building2 className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium truncate">{alternance.company || 'Entreprise non spécifiée'}</span>
+                    <span className="font-medium truncate">{alternance.company || t('alternance.companyNotSpecified')}</span>
                 </div>
 
                 {/* Location & Duration */}
@@ -127,7 +107,7 @@ const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, in
                     {alternance.startDate && (
                         <div className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
                             <Calendar className="w-4 h-4" />
-                            <span>Début: {formatDate(alternance.startDate)}</span>
+                            <span>{t('alternance.startDate')}: {formatDate(alternance.startDate)}</span>
                         </div>
                     )}
                 </div>
@@ -140,7 +120,7 @@ const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, in
                         </span>
                     )}
                     <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400 font-semibold text-sm group-hover:gap-3 transition-all duration-300 ml-auto">
-                        <span>Voir détails</span>
+                        <span>{t('alternance.seeDetails')}</span>
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                     </div>
                 </div>

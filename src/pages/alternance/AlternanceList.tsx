@@ -7,10 +7,12 @@ import { Alternance, AlternanceFilters as IAlternanceFilters } from '../../types
 import { getAlternances, getAlternanceStats } from '../../services/alternanceService';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const AlternanceList: React.FC = () => {
     const navigate = useNavigatePage();
     const { page: pageParam } = useParams();
+    const { t } = useTranslation();
 
     // Data state
     const [alternances, setAlternances] = useState<Alternance[]>([]);
@@ -62,7 +64,7 @@ const AlternanceList: React.FC = () => {
             }
         } catch (err: any) {
             console.error('Error fetching alternances:', err);
-            setError(err.message || 'Erreur lors du chargement des alternances');
+            setError(err.message || t('alternance.loadingOffers'));
         } finally {
             setLoading(false);
         }
@@ -127,19 +129,18 @@ const AlternanceList: React.FC = () => {
                         {/* Badge */}
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-100 dark:bg-teal-900/40 border border-teal-200 dark:border-teal-800 rounded-full text-teal-700 dark:text-teal-300 text-sm font-medium">
                             <Sparkles className="w-4 h-4" />
-                            <span>Nouvelles opportunités chaque semaine</span>
+                            <span>{t('alternance.newOpportunities')}</span>
                         </div>
 
                         {/* Title */}
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white">
-                            Trouvez votre{' '}
+                            {t('alternance.title')}{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 dark:from-teal-400 dark:via-emerald-400 dark:to-green-400">
-                                Alternance
                             </span>
                         </h1>
 
                         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-                            Découvrez les meilleures offres d'alternance et lancez votre carrière avec une expérience professionnelle enrichissante
+                            {t('alternance.subtitle')}
                         </p>
 
                         {/* Stats Cards */}
@@ -150,7 +151,7 @@ const AlternanceList: React.FC = () => {
                                 </div>
                                 <div className="text-left">
                                     <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.activeCount}</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">Offres disponibles</div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('alternance.availableOffers')}</div>
                                 </div>
                             </div>
 
@@ -160,7 +161,7 @@ const AlternanceList: React.FC = () => {
                                 </div>
                                 <div className="text-left">
                                     <div className="text-2xl font-bold text-slate-900 dark:text-white">{stats.apprenticeshipCount}</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">Contrats d'apprentissage</div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">{t('alternance.apprenticeshipContracts')}</div>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +185,7 @@ const AlternanceList: React.FC = () => {
                                 onClick={() => fetchAlternances()}
                                 className="ml-4 underline hover:no-underline"
                             >
-                                Réessayer
+                                {t('alternance.retry')}
                             </button>
                         </div>
                     )}
@@ -193,7 +194,7 @@ const AlternanceList: React.FC = () => {
                     {loading ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <Loader2 className="w-12 h-12 text-teal-500 animate-spin mb-4" />
-                            <p className="text-slate-600 dark:text-slate-400">Chargement des offres...</p>
+                            <p className="text-slate-600 dark:text-slate-400">{t('alternance.loadingOffers')}</p>
                         </div>
                     ) : (
                         <>
@@ -201,7 +202,7 @@ const AlternanceList: React.FC = () => {
                             <div className="mb-6 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
                                 <p className="text-slate-600 dark:text-slate-400">
                                     <span className="font-semibold text-slate-900 dark:text-white">{total}</span>
-                                    {' '}offre{total > 1 ? 's' : ''} trouvée{total > 1 ? 's' : ''}
+                                    {' '}{t('alternance.offersFound')}
                                 </p>
                             </div>
 
@@ -227,7 +228,7 @@ const AlternanceList: React.FC = () => {
                                                 disabled={page === 1}
                                                 className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
-                                                Précédent
+                                                {t('alternance.previous')}
                                             </button>
 
                                             <div className="flex items-center gap-1">
@@ -263,7 +264,7 @@ const AlternanceList: React.FC = () => {
                                                 disabled={page === totalPages}
                                                 className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
-                                                Suivant
+                                                {t('alternance.next')}
                                             </button>
                                         </div>
                                     )}
@@ -274,10 +275,10 @@ const AlternanceList: React.FC = () => {
                                         <GraduationCap className="w-10 h-10 text-slate-400" />
                                     </div>
                                     <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
-                                        Aucune offre trouvée
+                                        {t('alternance.noOffersFound')}
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
-                                        Essayez de modifier vos critères de recherche ou revenez plus tard pour découvrir de nouvelles opportunités.
+                                        {t('alternance.tryModifySearch')}
                                     </p>
                                 </div>
                             )}

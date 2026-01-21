@@ -13,12 +13,15 @@ import {
     ChevronDown,
     ChevronUp,
     GraduationCap,
-    Euro,
     Mail,
     Heart,
     MessageCircle,
     Repeat2,
     User2,
+    ChevronLeft,
+    ChevronRight,
+    X,
+    ZoomIn,
 } from "lucide-react";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -27,16 +30,33 @@ import { getAlternance } from "../../services/alternanceService";
 import { Alternance } from "../../types/alternance";
 import Linkify from "linkify-react";
 import { useNavigatePage } from "@components/ui/useNavigatePage";
+import { useTranslation } from "react-i18next";
+
+// Helper to proxy LinkedIn images through CORS proxy
+const getProxiedImageUrl = (url: string) => {
+    if (!url) return '';
+    // LinkedIn images need CORS proxy
+    if (url.includes('linkedin.com') || url.includes('licdn.com')) {
+        return `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+    }
+    return url;
+};
 
 const AlternanceDetail: React.FC = () => {
     const navigate = useNavigatePage();
     const { id } = useParams();
     const [searchParams] = useSearchParams();
     const PreviousPageNumber = searchParams.get("prevPage");
+    const { t } = useTranslation();
 
     const [alternance, setAlternance] = useState<Alternance>();
     const [loading, setLoading] = useState(true);
     const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+    // Carousel and lightbox state
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [lightboxOpen, setLightboxOpen] = useState(false);
+    const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
 
     useEffect(() => {
         document.title = "Universe | Alternance";
@@ -60,25 +80,6 @@ const AlternanceDetail: React.FC = () => {
         }
     };
 
-    const getTypeLabel = (type?: string) => {
-        switch (type) {
-            case 'apprenticeship': return 'Apprentissage';
-            case 'professionalization_contract': return 'Contrat Pro';
-            case 'other': return 'Autre';
-            default: return 'Alternance';
-        }
-    };
-
-    const getTypeColor = (type?: string) => {
-        switch (type) {
-            case 'apprenticeship':
-                return 'from-blue-500 to-indigo-600';
-            case 'professionalization_contract':
-                return 'from-purple-500 to-pink-600';
-            default:
-                return 'from-teal-500 to-emerald-600';
-        }
-    };
 
     const handleViewOriginalPost = () => {
         if (alternance?.externalUrl) {
@@ -124,25 +125,117 @@ const AlternanceDetail: React.FC = () => {
                     <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900/50 dark:to-emerald-900/50 flex items-center justify-center">
                         <GraduationCap className="w-12 h-12 text-teal-600 dark:text-teal-400" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Alternance non trouvée</h2>
-                    <p className="text-slate-600 dark:text-slate-400 mb-6">L'offre d'alternance que vous recherchez n'existe pas ou a été supprimée.</p>
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">{t('alternanceDetail.alternanceNotFound')}</h2>
+                    <p className="text-slate-600 dark:text-slate-400 mb-6">{t('alternanceDetail.notFoundDesc')}</p>
                     <button
                         onClick={() => navigate("/alternances")}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        Retour aux alternances
+                        {t('alternanceDetail.backToAlternances')}
                     </button>
                 </div>
             </div>
         );
     }
 
-    // Get banner image: prioritize bannerImage, then first content image, then companyLogo
-    const bannerImage = alternance.bannerImage || alternance.contentImages?.[0]?.url || alternance.companyLogo;
+    // Get banner image: prioritize bannerImage, then first content image (don't use companyLogo for banner)
+    const bannerImage = alternance.bannerImage || alternance.contentImages?.[0]?.url;
+    const proxiedBannerImage = bannerImage ? getProxiedImageUrl(bannerImage) : null;
+
+    // Carousel navigation handlers
+    const goToNextImage = () => {
+        if (alternance.contentImages && alternance.contentImages.length > 1) {
+            setCurrentImageIndex((prev) =>
+                prev === alternance.contentImages!.length - 1 ? 0 : prev + 1
+            );
+        }
+    };
+
+    const goToPrevImage = () => {
+        if (alternance.contentImages && alternance.contentImages.length > 1) {
+            setCurrentImageIndex((prev) =>
+                prev === 0 ? alternance.contentImages!.length - 1 : prev - 1
+            );
+        }
+    };
+
+    const openLightbox = (index: number) => {
+        setLightboxImageIndex(index);
+        setLightboxOpen(true);
+    };
+
+    const closeLightbox = () => {
+        setLightboxOpen(false);
+    };
+
+    const goToNextLightboxImage = () => {
+        if (alternance.contentImages && alternance.contentImages.length > 1) {
+            setLightboxImageIndex((prev) =>
+                prev === alternance.contentImages!.length - 1 ? 0 : prev + 1
+            );
+        }
+    };
+
+    const goToPrevLightboxImage = () => {
+        if (alternance.contentImages && alternance.contentImages.length > 1) {
+            setLightboxImageIndex((prev) =>
+                prev === 0 ? alternance.contentImages!.length - 1 : prev - 1
+            );
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+            {/* Lightbox Modal */}
+            {lightboxOpen && alternance.contentImages && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+                    onClick={closeLightbox}
+                >
+                    {/* Close Button */}
+                    <button
+                        onClick={closeLightbox}
+                        className="absolute top-4 right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+
+                    {/* Navigation Arrows */}
+                    {alternance.contentImages.length > 1 && (
+                        <>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); goToPrevLightboxImage(); }}
+                                className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+                            >
+                                <ChevronLeft className="w-8 h-8" />
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); goToNextLightboxImage(); }}
+                                className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-10"
+                            >
+                                <ChevronRight className="w-8 h-8" />
+                            </button>
+                        </>
+                    )}
+
+                    {/* Image */}
+                    <img
+                        src={getProxiedImageUrl(alternance.contentImages[lightboxImageIndex].url)}
+                        alt={`Image ${lightboxImageIndex + 1}`}
+                        className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+
+                    {/* Image Counter */}
+                    {alternance.contentImages.length > 1 && (
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/10 text-white text-sm font-medium">
+                            {lightboxImageIndex + 1} / {alternance.contentImages.length}
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* Floating Background Elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-teal-200/20 to-emerald-200/20 dark:from-teal-700/10 dark:to-emerald-700/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }}></div>
@@ -153,22 +246,22 @@ const AlternanceDetail: React.FC = () => {
             {/* Hero Banner Section */}
             <div className="relative pt-20">
                 <div className="relative w-full h-[45vh] sm:h-[50vh] lg:h-[55vh] overflow-hidden">
-                    {bannerImage ? (
+                    {proxiedBannerImage ? (
                         <img
-                            src={bannerImage}
+                            src={proxiedBannerImage}
                             alt={alternance.title ?? "Alternance banner"}
                             className="h-full w-full object-cover scale-105 hover:scale-100 transition-transform duration-700"
                         />
                     ) : (
-                        <div className={`h-full w-full bg-gradient-to-br ${getTypeColor(alternance.type)} flex flex-col items-center justify-center text-white relative overflow-hidden`}>
+                        <div className={`h-full w-full bg-gradient-to-br from-teal-500 to-emerald-600 flex flex-col items-center justify-center text-white relative overflow-hidden`}>
                             <div className="absolute inset-0 opacity-30">
                                 <div className="absolute top-10 left-10 w-32 h-32 border border-white/30 rounded-full"></div>
                                 <div className="absolute bottom-20 right-20 w-48 h-48 border border-white/20 rounded-full"></div>
                                 <div className="absolute top-1/2 left-1/3 w-24 h-24 border border-white/20 rounded-full"></div>
                             </div>
                             <GraduationCap className="w-20 h-20 mb-4 opacity-80 animate-bounce" style={{ animationDuration: '3s' }} />
-                            <p className="text-2xl sm:text-3xl font-bold">Opportunité en Alternance</p>
-                            <p className="text-white/70 mt-2">Lancez votre carrière</p>
+                            <p className="text-2xl sm:text-3xl font-bold">{t('alternanceDetail.opportunityAlternance')}</p>
+                            <p className="text-white/70 mt-2">{t('alternanceDetail.launchCareer')}</p>
                         </div>
                     )}
 
@@ -183,7 +276,7 @@ const AlternanceDetail: React.FC = () => {
                             className="group inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 px-4 sm:px-5 py-2.5 text-sm font-semibold text-white shadow-lg hover:bg-white/20 hover:border-white/30 transition-all duration-300"
                         >
                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
-                            <span className="hidden sm:inline">Retour</span>
+                            <span className="hidden sm:inline">{t('alternanceDetail.backToAlternances')}</span>
                         </button>
                     </div>
 
@@ -234,10 +327,6 @@ const AlternanceDetail: React.FC = () => {
                                 {/* Title and Info */}
                                 <div className="flex-1 min-w-0 text-white">
                                     <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r ${getTypeColor(alternance.type)} backdrop-blur-sm text-xs sm:text-sm font-semibold`}>
-                                            <GraduationCap className="w-3 h-3" />
-                                            {getTypeLabel(alternance.type)}
-                                        </span>
                                         {alternance.source === 'linkedin' && (
                                             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0077B5]/80 backdrop-blur-sm text-xs sm:text-sm font-medium">
                                                 <Linkedin className="w-3 h-3" />
@@ -321,12 +410,12 @@ const AlternanceDetail: React.FC = () => {
                                     >
                                         {isDescriptionExpanded ? (
                                             <>
-                                                <span>Voir moins</span>
+                                                <span>{t('alternanceDetail.showLess')}</span>
                                                 <ChevronUp className="w-4 h-4" />
                                             </>
                                         ) : (
                                             <>
-                                                <span>Voir plus</span>
+                                                <span>{t('alternanceDetail.showMore')}</span>
                                                 <ChevronDown className="w-4 h-4" />
                                             </>
                                         )}
@@ -344,7 +433,7 @@ const AlternanceDetail: React.FC = () => {
                                             <Tag className="w-5 h-5 text-white" />
                                         </div>
                                         <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-                                            Prérequis
+                                            {t('alternanceDetail.prerequisites')}
                                         </h2>
                                     </div>
                                     <div className="text-slate-600 dark:text-slate-300 whitespace-pre-line">
@@ -354,76 +443,131 @@ const AlternanceDetail: React.FC = () => {
                             </div>
                         )}
 
-                        {/* Image Gallery (for LinkedIn posts with multiple images) */}
-                        {alternance.contentImages && alternance.contentImages.length > 1 && (
+                        {/* Image Carousel (for LinkedIn posts with images) */}
+                        {alternance.contentImages && alternance.contentImages.length > 0 && (
                             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
                                 <div className="p-6 sm:p-8">
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Images</h3>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        {alternance.contentImages.map((image, index) => (
-                                            <a
-                                                key={index}
-                                                href={image.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 hover:ring-2 hover:ring-teal-500 transition-all duration-200"
-                                            >
-                                                <img
-                                                    src={image.url}
-                                                    alt={`Image ${index + 1}`}
-                                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
+                                        {t('alternanceDetail.images')} ({alternance.contentImages.length})
+                                    </h3>
+
+                                    {/* Carousel Container */}
+                                    <div className="relative group">
+                                        {/* Main Image Display */}
+                                        <div
+                                            className="relative aspect-video rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-700 cursor-pointer"
+                                            onClick={() => openLightbox(currentImageIndex)}
+                                        >
+                                            <img
+                                                src={getProxiedImageUrl(alternance.contentImages[currentImageIndex].url)}
+                                                alt={`Image ${currentImageIndex + 1}`}
+                                                className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
+                                            />
+
+                                            {/* Zoom Overlay */}
+                                            <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors duration-300">
+                                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-3 rounded-full bg-white/20 backdrop-blur-sm">
+                                                    <ZoomIn className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Navigation Arrows (only show if multiple images) */}
+                                        {alternance.contentImages.length > 1 && (
+                                            <>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); goToPrevImage(); }}
+                                                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-lg hover:bg-white dark:hover:bg-slate-700 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <ChevronLeft className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); goToNextImage(); }}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-lg hover:bg-white dark:hover:bg-slate-700 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                                                >
+                                                    <ChevronRight className="w-5 h-5 text-slate-700 dark:text-slate-200" />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* Thumbnail Dots & Counter */}
+                                    {alternance.contentImages.length > 1 && (
+                                        <div className="mt-4 flex items-center justify-center gap-2">
+                                            {alternance.contentImages.map((_, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setCurrentImageIndex(index)}
+                                                    className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${index === currentImageIndex
+                                                        ? 'bg-teal-500 w-6'
+                                                        : 'bg-slate-300 dark:bg-slate-600 hover:bg-teal-400'
+                                                        }`}
                                                 />
-                                            </a>
-                                        ))}
-                                    </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Thumbnail Preview Strip (for more than 3 images) */}
+                                    {alternance.contentImages.length > 3 && (
+                                        <div className="mt-4 flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-600">
+                                            {alternance.contentImages.map((image, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setCurrentImageIndex(index)}
+                                                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 ${index === currentImageIndex
+                                                        ? 'border-teal-500 ring-2 ring-teal-500/50'
+                                                        : 'border-transparent hover:border-slate-300 dark:hover:border-slate-600'
+                                                        }`}
+                                                >
+                                                    <img
+                                                        src={getProxiedImageUrl(image.url)}
+                                                        alt={`Thumbnail ${index + 1}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
 
-                        {/* Engagement Stats (for LinkedIn posts) */}
-                        {alternance.scraperMeta?.engagement && (
-                            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
-                                <div className="p-6 sm:p-8">
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Engagement</h3>
-                                    <div className="flex flex-wrap gap-4">
-                                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
-                                            <Heart className="w-5 h-5" />
-                                            <span className="font-semibold">{alternance.scraperMeta.engagement.reactions || 0}</span>
-                                            <span className="text-sm">réactions</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                                            <MessageCircle className="w-5 h-5" />
-                                            <span className="font-semibold">{alternance.scraperMeta.engagement.comments || 0}</span>
-                                            <span className="text-sm">commentaires</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400">
-                                            <Repeat2 className="w-5 h-5" />
-                                            <span className="font-semibold">{alternance.scraperMeta.engagement.shares || 0}</span>
-                                            <span className="text-sm">partages</span>
+                        {/* Engagement Stats (only for LinkedIn posts with actual engagement data) */}
+                        {alternance.source === 'linkedin' && alternance.scraperMeta?.engagement &&
+                            ((alternance.scraperMeta.engagement.reactions || 0) > 0 ||
+                                (alternance.scraperMeta.engagement.comments || 0) > 0 ||
+                                (alternance.scraperMeta.engagement.shares || 0) > 0) && (
+                                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
+                                    <div className="p-6 sm:p-8">
+                                        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('alternanceDetail.engagement')}</h3>
+                                        <div className="flex flex-wrap gap-4">
+                                            {(alternance.scraperMeta.engagement.reactions || 0) > 0 && (
+                                                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                                                    <Heart className="w-5 h-5" />
+                                                    <span className="font-semibold">{alternance.scraperMeta.engagement.reactions}</span>
+                                                    <span className="text-sm">{t('alternanceDetail.reactions')}</span>
+                                                </div>
+                                            )}
+                                            {(alternance.scraperMeta.engagement.comments || 0) > 0 && (
+                                                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                                    <MessageCircle className="w-5 h-5" />
+                                                    <span className="font-semibold">{alternance.scraperMeta.engagement.comments}</span>
+                                                    <span className="text-sm">{t('alternanceDetail.comments')}</span>
+                                                </div>
+                                            )}
+                                            {(alternance.scraperMeta.engagement.shares || 0) > 0 && (
+                                                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400">
+                                                    <Repeat2 className="w-5 h-5" />
+                                                    <span className="font-semibold">{alternance.scraperMeta.engagement.shares}</span>
+                                                    <span className="text-sm">{t('alternanceDetail.shares')}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Tags */}
-                        {alternance.tags && alternance.tags.length > 0 && (
-                            <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
-                                <div className="p-6 sm:p-8">
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Tags</h3>
-                                    <div className="flex flex-wrap gap-2">
-                                        {alternance.tags.map((tag, index) => (
-                                            <span
-                                                key={index}
-                                                className="px-3 py-1.5 rounded-full text-sm font-medium bg-teal-50 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800"
-                                            >
-                                                #{tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+
                     </div>
 
                     {/* Right Column - Sidebar */}
@@ -431,7 +575,7 @@ const AlternanceDetail: React.FC = () => {
                         {/* Quick Info Card */}
                         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden sticky top-24">
                             <div className="p-6">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Informations</h3>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('alternanceDetail.information')}</h3>
 
                                 <div className="space-y-4">
                                     {alternance.duration && (
@@ -440,51 +584,9 @@ const AlternanceDetail: React.FC = () => {
                                                 <Clock className="w-5 h-5 text-teal-600 dark:text-teal-400" />
                                             </div>
                                             <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Durée</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('alternanceDetail.duration')}</p>
                                                 <p className="text-sm font-semibold text-slate-900 dark:text-white">
                                                     {alternance.duration}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {alternance.salary && (
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
-                                            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-                                                <Euro className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Rémunération</p>
-                                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                                    {alternance.salary}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {alternance.startDate && (
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
-                                            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                                                <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Date de début</p>
-                                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                                    {formatDate(alternance.startDate)}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {alternance.applicationDeadline && (
-                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50">
-                                            <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center">
-                                                <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Date limite</p>
-                                                <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                                                    {formatDate(alternance.applicationDeadline)}
                                                 </p>
                                             </div>
                                         </div>
@@ -496,7 +598,7 @@ const AlternanceDetail: React.FC = () => {
                                                 <Mail className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                                             </div>
                                             <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">Contact</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{t('alternanceDetail.contact')}</p>
                                                 <a href={`mailto:${alternance.contactEmail}`} className="text-sm font-semibold text-teal-600 dark:text-teal-400 hover:underline">
                                                     {alternance.contactEmail}
                                                 </a>
@@ -509,7 +611,7 @@ const AlternanceDetail: React.FC = () => {
                                             <Calendar className="w-5 h-5 text-slate-600 dark:text-slate-400" />
                                         </div>
                                         <div>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">Publié le</p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">{t('alternanceDetail.publishedOn')}</p>
                                             <p className="text-sm font-semibold text-slate-900 dark:text-white">
                                                 {formatDate(alternance.createdAt)}
                                             </p>
@@ -517,27 +619,46 @@ const AlternanceDetail: React.FC = () => {
                                     </div>
                                 </div>
 
-                                {/* View Original Post Button */}
+                                {/* View External URL Button - Show based on URL type */}
                                 {alternance.externalUrl && (
                                     <div className="mt-6 space-y-3">
-                                        <button
-                                            onClick={handleViewOriginalPost}
-                                            className="w-full group inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#0077B5] to-[#00A0DC] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300"
-                                        >
-                                            <Linkedin className="w-5 h-5" />
-                                            Voir sur LinkedIn
-                                            <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
-                                        </button>
-                                        <p className="text-xs text-center text-slate-500 dark:text-slate-400">
-                                            Ouvre le post original
-                                        </p>
+                                        {/* Check if it's a LinkedIn URL */}
+                                        {(alternance.externalUrl.includes('linkedin.com') || alternance.source === 'linkedin') ? (
+                                            <>
+                                                <button
+                                                    onClick={handleViewOriginalPost}
+                                                    className="w-full group inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-[#0077B5] to-[#00A0DC] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300"
+                                                >
+                                                    <Linkedin className="w-5 h-5" />
+                                                    {t('alternanceDetail.viewOnLinkedIn')}
+                                                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                                                </button>
+                                                <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+                                                    {t('alternanceDetail.opensOriginalPost')}
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    onClick={handleViewOriginalPost}
+                                                    className="w-full group inline-flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] hover:-translate-y-0.5 transition-all duration-300"
+                                                >
+                                                    <ExternalLink className="w-5 h-5" />
+                                                    {t('alternanceDetail.viewAlternance')}
+                                                    <ExternalLink className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
+                                                </button>
+                                                <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+                                                    {t('alternanceDetail.opensExternalLink')}
+                                                </p>
+                                            </>
+                                        )}
                                     </div>
                                 )}
                             </div>
                         </div>
 
-                        {/* Author Card (for LinkedIn posts) */}
-                        {alternance.authorProfile?.name && (
+                        {/* Author Card - Only show for LinkedIn posts with author profile */}
+                        {alternance.source === 'linkedin' && alternance.authorProfile?.name && (
                             <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-slate-200/50 dark:border-slate-700/50 shadow-xl overflow-hidden">
                                 <div className="p-6">
                                     <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Publié par</h3>
