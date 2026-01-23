@@ -287,7 +287,9 @@
     "other": "أخرى",
     "companyNotSpecified": "الشركة ما محددتش",
     "alternanceOffer": "عرض ألترنانس",
-    "startDate": "البداية"
+    "startDate": "البداية",
+    "notYetOpen": "ماهيش مفتوحة بعد",
+    "notYetOpenDescription": "عرض الألترنانس هذا مازال ما بداش يقبل في الطلبات. تنجم تشوف التفاصيل لتحت باش تحضّر روحك."
   },
   "alternanceDetail": {
     "aboutOffer": "حول العرض هذا",

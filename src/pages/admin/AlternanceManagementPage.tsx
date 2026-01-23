@@ -60,6 +60,7 @@ const emptyAlternance: AlternanceFormData = {
     bannerImage: '',
     externalUrl: '',
     isActive: true,
+    isOpen: true,
     category: '',
     sector: '',
 };
@@ -205,6 +206,7 @@ const AlternanceManagementPage: React.FC = () => {
                 bannerImage: alternance.bannerImage || '',
                 externalUrl: alternance.externalUrl || '',
                 isActive: alternance.isActive ?? true,
+                isOpen: alternance.isOpen ?? true,
                 category: alternance.category || '',
                 sector: alternance.sector || '',
             },
@@ -710,6 +712,13 @@ const AlternanceManagementPage: React.FC = () => {
                                                                 {alternance.isActive ? 'Active' : 'Inactive'}
                                                             </button>
                                                         )}
+
+                                                        {/* Open Status Badge */}
+                                                        {alternance.isOpen === false && (
+                                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+                                                                🔒 Non encore ouvert
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -1148,16 +1157,56 @@ const AlternanceManagementPage: React.FC = () => {
                                 </div>
 
                                 {/* Active Toggle */}
-                                <div className="flex items-center gap-3">
-                                    <input
-                                        type="checkbox"
-                                        id="isActive"
-                                        checked={dialog.alternanceData.isActive ?? true}
-                                        onChange={(e) => handleInputChange('isActive', e.target.checked)}
-                                        className="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <label htmlFor="isActive" className="text-sm font-medium text-slate-900 dark:text-white">
-                                        Offre active (visible par les utilisateurs)
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg cursor-pointer border-2 border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            {dialog.alternanceData.isActive ? (
+                                                <Eye className="w-5 h-5 text-green-500" />
+                                            ) : (
+                                                <EyeOff className="w-5 h-5 text-slate-400" />
+                                            )}
+                                            <div>
+                                                <span className="text-sm font-semibold text-slate-900 dark:text-white block">
+                                                    Alternance Active
+                                                </span>
+                                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                                    Visible dans la liste publique
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={dialog.alternanceData.isActive ?? true}
+                                            onChange={(e) => handleInputChange('isActive', e.target.checked)}
+                                            className="w-5 h-5 text-blue-500 rounded"
+                                        />
+                                    </label>
+                                </div>
+
+                                {/* Open Toggle */}
+                                <div className="space-y-2">
+                                    <label className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg cursor-pointer border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-2xl">
+                                                {dialog.alternanceData.isOpen ? '🔓' : '🔒'}
+                                            </span>
+                                            <div>
+                                                <span className="text-sm font-semibold text-slate-900 dark:text-white block">
+                                                    Alternance Ouverte aux Candidatures
+                                                </span>
+                                                <span className="text-xs text-amber-700 dark:text-amber-300">
+                                                    {dialog.alternanceData.isOpen
+                                                        ? "L'alternance accepte actuellement les candidatures"
+                                                        : "Badge 'Non encore ouvert' affiché aux utilisateurs"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={dialog.alternanceData.isOpen ?? true}
+                                            onChange={(e) => handleInputChange('isOpen', e.target.checked)}
+                                            className="w-5 h-5 text-amber-500 rounded"
+                                        />
                                     </label>
                                 </div>
                             </div>

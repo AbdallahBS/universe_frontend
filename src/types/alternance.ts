@@ -32,6 +32,7 @@ export interface Alternance {
 
     status?: 'pending' | 'approved' | 'rejected';
     isActive?: boolean;
+    isOpen?: boolean;
     createdBy?: string;
     category?: string;
     sector?: string;
@@ -62,6 +63,7 @@ export interface AlternanceFormData {
     bannerImage?: string;
     externalUrl?: string;
     isActive?: boolean;
+    isOpen?: boolean;
     category?: string;
     sector?: string;
 }

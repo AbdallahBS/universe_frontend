@@ -366,6 +366,21 @@ const AlternanceDetail: React.FC = () => {
 
             {/* Main Content */}
             <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+                {/* Not Yet Open Notice - Compact */}
+                {alternance.isOpen === false && (
+                    <div className="mb-4 flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 rounded-lg">
+                        <span className="text-xl">🔒</span>
+                        <div className="flex-1">
+                            <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                                {t('alternance.notYetOpen')} -
+                            </span>
+                            <span className="text-sm text-amber-800 dark:text-amber-200 ml-1">
+                                {t('alternance.notYetOpenDescription')}
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
 
                     {/* Left Column - Main Content */}

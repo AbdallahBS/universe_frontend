@@ -287,7 +287,9 @@
     "other": "Other",
     "companyNotSpecified": "Company not specified",
     "alternanceOffer": "Alternance offer",
-    "startDate": "Start"
+    "startDate": "Start",
+    "notYetOpen": "Not Yet Open",
+    "notYetOpenDescription": "This alternance offer is not yet accepting applications. You can review the details below to prepare."
   },
   "alternanceDetail": {
     "aboutOffer": "About this Offer",

@@ -35,7 +35,17 @@ const AlternanceCard: React.FC<AlternanceCardProps> = ({ alternance, onClick, in
             style={{ animationDelay: `${index * 80}ms` }}
         >
             {/* Header with gradient accent */}
-            <div className="relative h-3 bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500"></div>
+            <div className="relative h-3 bg-gradient-to-r from-teal-500 via-emerald-500 to-green-500">
+                {/* Not Yet Open Corner Badge */}
+                {alternance.isOpen === false && (
+                    <div className="absolute -top-0 right-2 transform translate-y-0">
+                        <div className="flex items-center gap-1 px-2 py-0.5 bg-amber-500 dark:bg-amber-600 text-white text-xs font-semibold rounded-b-md shadow-md">
+                            <span>🔒</span>
+                            <span>{t('alternance.notYetOpen')}</span>
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* Content */}
             <div className="p-6">
