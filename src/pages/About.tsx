@@ -8,14 +8,14 @@ const developers = [
     id: 1,
     name: 'Mazen Jebali',
     position: 'Software Developer and a Hobbyist',
-    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4D03AQEW1D-kzawCsw/profile-displayphoto-crop_800_800/B4DZsjqIcRJkAM-/0/1765829818572?e=1769040000&v=beta&t=dv6jQyWC_8ozwdVZVvBmlKOfvKuNO9GiHm1QkHjHYTY")}`,
+    avatar: `/profile_photo/mazen.jfif`,
     contactLink: 'https://www.linkedin.com/in/jebali-mazen/'
   },
   {
     id: 2,
     name: 'Abdallah Ben Salem',
     position: 'Full Stack Developer and a Hobbyist',
-    avatar: `https://corsproxy.io/?url=${encodeURIComponent("https://media.licdn.com/dms/image/v2/D4D03AQEv22YCKwLafA/profile-displayphoto-crop_800_800/B4DZsPjsWMH4AI-/0/1765492611119?e=1769040000&v=beta&t=ko4oP3rS_BpoFbDAnai2wM8ZNDaefkH1DYm8n-TyKJI")}`,
+    avatar: `/profile_photo/abdallah.png`,
     contactLink: 'https://www.linkedin.com/in/abdallahbensalem/'
   },
 ];
