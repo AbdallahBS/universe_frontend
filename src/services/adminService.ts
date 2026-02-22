@@ -2,9 +2,9 @@ import { apiFetch } from './api';
 import { TokensResponse } from 'types/network';
 
 /** Users management **/
-export async function getUsers(): Promise<any> {
+export async function getUsers(page? : String): Promise<any> {
   try {
-    const data = await apiFetch<TokensResponse>(`/api/admin/users`, {
+    const data = await apiFetch<TokensResponse>(`/api/admin/users?page=${page}`, {
       requireAuth: true,
     });
     return data;

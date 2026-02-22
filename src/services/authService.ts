@@ -105,10 +105,21 @@ export async function googleLogin(idToken: string): Promise<TokensResponse> {
 
 export async function getStats() {
   try {
-    const data = await apiFetch<any>('/v1/auth/stats', { requireAuth: false });
+    const data = await apiFetch<any>('/v1/auth/public/stats', { requireAuth: false });
     return data;
   } catch (err: any) {
     const message = typeof err?.message === 'string' ? err.message : 'Cannot fetch stats';
+    throw new Error(message);
+  }
+}
+
+export async function getPrivateStats() {
+  try {
+    const data = await apiFetch<any>('/v1/auth/private/stats', { requireAuth: true });
+    console.log('Private stats data:', data);
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Cannot fetch private stats';
     throw new Error(message);
   }
 }

@@ -8,7 +8,7 @@ const developers = [
     id: 1,
     name: 'Mazen Jebali',
     position: 'Software Developer and a Hobbyist',
-    avatar: `/profile_photo/mazen.jfif`,
+    avatar: `/profile_photo/mazen.png`,
     contactLink: 'https://www.linkedin.com/in/jebali-mazen/'
   },
   {

@@ -33,3 +33,36 @@ export interface VerifyEmailPayload {
 export interface VerifyEmailResponse {
   message: string;
 }
+
+// Stats interfaces for AuthController responses
+
+// UsersCount stat structure
+interface UsersStat {
+  usersCount: number;
+  addedUsersPercentage: number;
+}
+
+// Sessions (active users) stat structure
+interface SessionsStat {
+  activeUsers: number;
+}
+
+// Contents stat structure
+interface ContentsStat {
+  internshipOffersCount: number;
+  totalDocumentsCount: number;
+}
+
+// getPublicStats response
+export interface PublicStatsResponse {
+  contentsCount: ContentsStat;
+  usersCount: number;
+}
+
+// getPrivateStats response
+export interface PrivateStatsResponse {
+  usersCount: UsersStat;
+  sessionsCount: SessionsStat;
+  contentsCount: ContentsStat;
+  dailyVisitors: number;
+}

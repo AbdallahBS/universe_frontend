@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Users,
   FileText,
@@ -14,8 +14,10 @@ import {
   MousePointerSquare,
   GraduationCap
 } from 'lucide-react';
-import { useAuth } from '@context/AuthContext';
+
 import { useNavigatePage } from './ui/useNavigatePage';
+import { getPrivateStats } from '@services/authService';
+import { PrivateStatsResponse } from 'types/auth';
 
 interface AdminOption {
   id: string;
@@ -30,7 +32,7 @@ interface AdminOption {
 }
 
 const AdminOptions: React.FC = () => {
-  const { stats } = useAuth();
+  const [stats, setStats] = useState<PrivateStatsResponse>();
   const navigate = useNavigatePage();
   const [hoveredOption, setHoveredOption] = useState<string | null>(null);
 
@@ -92,6 +94,20 @@ const AdminOptions: React.FC = () => {
     },
   ];
 
+  useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const response: any = await getPrivateStats();
+      console.log('Private stats data:', response);
+      setStats(response);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  fetchStats();
+}, []);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -118,7 +134,7 @@ const AdminOptions: React.FC = () => {
               <span
                 className="text-sm font-bold text-orange-600 dark:text-orange-400"
               >
-                {stats.dailyVisitors ?? "N/A"}
+                {stats?.dailyVisitors ?? "N/A"}
               </span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">Today's traffic</div>
@@ -126,19 +142,19 @@ const AdminOptions: React.FC = () => {
           <div className="text-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
               {
-                (stats.usersCount.addedUsersPercentage && stats.usersCount.addedUsersPercentage > 0) ? (
+                (stats?.usersCount?.addedUsersPercentage && stats?.usersCount?.addedUsersPercentage > 0) ? (
                   <TrendingUp className="w-4 h-4 text-green-500" />
                 ) : (
                   <TrendingDown className="w-4 h-4 text-red-500" />
                 )
               }
               <span
-                className={`text-sm font-bold ${stats.usersCount.addedUsersPercentage < 0
+                className={`text-sm font-bold ${stats?.usersCount?.addedUsersPercentage && stats?.usersCount?.addedUsersPercentage < 0
                   ? "text-red-600 dark:text-red-400"
                   : "text-green-600 dark:text-green-400"
                   }`}
               >
-                {stats.usersCount.addedUsersPercentage ?? "N/A"}%
+                {stats?.usersCount?.addedUsersPercentage ?? "N/A"}%
               </span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">This month traffic</div>
@@ -146,7 +162,7 @@ const AdminOptions: React.FC = () => {
           <div className="text-center px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{stats.sessionsCount.activeUsers ?? "N/A"}</span>
+              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{stats?.sessionsCount?.activeUsers ?? "N/A"}</span>
             </div>
             <div className="text-xs text-slate-500 dark:text-slate-400">Active users</div>
           </div>
