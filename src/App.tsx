@@ -34,6 +34,7 @@ import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
 import CustomToaster from '@components/customToaster';
 import VerificationBanner from '@components/VerificationBanner';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
+import ApplicationMonitoringPage from '@pages/admin/ApplicationMonotoringPage';
 
 // Main app content component
 function AppContent() {
@@ -192,6 +193,15 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <AlternanceManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/monitoring"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <ApplicationMonitoringPage />
             </ProtectedRoute>
           }
         />

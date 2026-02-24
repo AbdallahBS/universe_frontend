@@ -76,11 +76,11 @@ const AdminOptions: React.FC = () => {
     {
       id: 'monitoring',
       title: 'Application Monitoring',
-      description: 'Monitor server health and resources metrics',
+      description: 'Monitor server health and Visitor Base metrics',
       icon: Activity,
       gradient: 'from-green-500 to-teal-600',
       textColor: 'text-green-600 dark:text-green-400',
-      action: () => console.log('Navigate to monitoring'),
+      action: () => navigate('/admin/monitoring'),
     },
     {
       id: 'dangerzone',

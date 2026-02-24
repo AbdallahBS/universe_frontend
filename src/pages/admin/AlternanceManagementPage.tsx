@@ -400,7 +400,7 @@ const AlternanceManagementPage: React.FC = () => {
                         className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-4 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
-                        Retour au Dashboard
+                        Back to Dashboard
                     </button>
 
                     <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-slate-200/50 dark:border-slate-700/50">
