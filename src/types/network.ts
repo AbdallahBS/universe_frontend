@@ -6,3 +6,10 @@ export interface TokensResponse {
   refreshToken: string;
   user?: User;
 }
+
+export interface DBCollectionInfo {
+  name: string;
+  documentCount: number;
+  storageSize: number;
+  totalIndexSize: number;
+}

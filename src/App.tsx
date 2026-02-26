@@ -35,6 +35,7 @@ import CustomToaster from '@components/customToaster';
 import VerificationBanner from '@components/VerificationBanner';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 import ApplicationMonitoringPage from '@pages/admin/ApplicationMonotoringPage';
+import DangerZone from '@pages/admin/dangerZonePage';
 
 // Main app content component
 function AppContent() {
@@ -202,6 +203,15 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <ApplicationMonitoringPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/dangerzone"
+          element={
+            <ProtectedRoute requiredRoles={['super_admin']}>
+              <DangerZone />
             </ProtectedRoute>
           }
         />

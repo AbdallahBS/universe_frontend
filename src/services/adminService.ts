@@ -1,5 +1,5 @@
 import { apiFetch } from './api';
-import { TokensResponse } from 'types/network';
+import { DBCollectionInfo, TokensResponse } from 'types/network';
 
 /** Users management **/
 export async function getUsers(page? : String): Promise<any> {
@@ -123,6 +123,55 @@ export async function addScraper(scraper: any): Promise<any> {
       method: 'POST',
       requireAuth: true,
       json: scraper
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function getDBCollections(): Promise<any> {
+  try {
+    const data = await apiFetch<DBCollectionInfo>(`/api/admin/dangerzone/collections`, {
+      requireAuth: true
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function deleteDBCollectionByName(collectionName: string): Promise<any> {
+  try {
+    const data = await apiFetch<any>(`/api/admin/dangerzone/collections/${collectionName}`, {
+      method: 'DELETE',
+      requireAuth: true
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function backupDB(): Promise<any> {
+  try {
+    const data = await apiFetch<any>(`/api/admin/dangerzone/backupdb`, {
+      requireAuth: true
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function resetSessionsandAnalytics(): Promise<any> {
+  try {
+    const data = await apiFetch<any>(`/api/admin/dangerzone/resetsessionsanalytics`, {
+      requireAuth: true
     });
     return data;
   } catch (err: any) {

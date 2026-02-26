@@ -66,6 +66,8 @@ const UserManagementPage: React.FC = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
+      case 'super_admin':
+        return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300';
       case 'admin':
         return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300';
       case 'moderator':
@@ -336,7 +338,7 @@ const handleDowngradeToUser = async () => {
                             key={role}
                             className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${getRoleColor(role)}`}
                           >
-                            {role === 'admin' && <Shield className="w-3 h-3" />}
+                            {(role === 'admin' || role === 'super_admin') && <Shield className="w-3 h-3" />}
                             {role.charAt(0).toUpperCase() + role.slice(1)}
                           </span>
                         ))}
@@ -425,7 +427,7 @@ const handleDowngradeToUser = async () => {
                           key={role}
                           className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold ${getRoleColor(role)}`}
                         >
-                          {role === 'admin' && <Shield className="w-3 h-3" />}
+                          {(role === 'admin' || role === 'super_admin') && <Shield className="w-3 h-3" />}
                           {role.charAt(0).toUpperCase() + role.slice(1)}
                         </span>
                       ))}

@@ -631,7 +631,7 @@ export default function ApplicationMonitoringPage() {
               </svg>
             </div>
             <div>
-              <h2 className={`text-base font-bold tracking-wide ${isDark ? "text-slate-100" : "text-slate-900"}`}>VisitorBase Status</h2>
+              <h2 className={`text-base font-bold tracking-wide ${isDark ? "text-slate-100" : "text-slate-900"}`}>VisitorBase Status (Bots + Real Visitors)</h2>
               <p className={`text-xs ${isDark ? "text-slate-500" : "text-slate-600"}`}>Geographic distribution across Tunisia</p>
             </div>
           </div>
@@ -644,7 +644,7 @@ export default function ApplicationMonitoringPage() {
               </div>
             ) : (
               [
-                { label:"Total Visitors",   value:visitorsData.totalVisitors.toLocaleString(),  icon:"👥" },
+                { label:"Total Real Visitors",   value:visitorsData.totalVisitors.toLocaleString(),  icon:"👥" },
                 { label:"Today's Visitors",  value:visitorsData.activeToday.toLocaleString(), icon:"⚡" },
                 { label:"This Week Visitors", value:`+${visitorsData.newThisWeek}`,            icon:"🚀" },
               ].map((s) => (

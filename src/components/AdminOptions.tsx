@@ -90,7 +90,7 @@ const AdminOptions: React.FC = () => {
       gradient: 'from-rose-500 to-pink-600',
       textColor: 'text-rose-600 dark:text-rose-400',
       lock: true,
-      action: () => console.log('Navigate to security'),
+      action: () => navigate('/admin/dangerzone'),
     },
   ];
 
@@ -221,34 +221,6 @@ const AdminOptions: React.FC = () => {
             </button>
           );
         })}
-      </div>
-
-      {/* Danger Zone */}
-      <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-2xl p-6 border-2 border-red-200 dark:border-red-800/50 shadow-lg">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center shadow-lg flex-shrink-0">
-            <Trash2 className="w-6 h-6 text-white" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-red-900 dark:text-red-300 mb-2">
-              Danger Zone
-            </h3>
-            <p className="text-sm text-red-700 dark:text-red-400 mb-4">
-              Critical administrative actions that can permanently affect the platform. Use with extreme caution.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <button className="px-4 py-2 bg-white dark:bg-slate-800 border-2 border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg font-semibold hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors text-sm">
-                Clear Cache
-              </button>
-              <button className="px-4 py-2 bg-white dark:bg-slate-800 border-2 border-red-300 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg font-semibold hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors text-sm">
-                Reset Analytics
-              </button>
-              <button className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm shadow-lg">
-                Maintenance Mode
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
