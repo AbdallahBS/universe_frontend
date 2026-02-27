@@ -1,6 +1,6 @@
 import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, Trash2, RefreshCw, ShieldPlus, Key, ChevronDown, AlertTriangle, Eye, EyeOff, Copy, Check, Plus, X, Moon, Sun, HardDrive } from "lucide-react";
+import { ArrowLeft, Trash2, RefreshCw, ShieldPlus, Key, ChevronDown, AlertTriangle, Eye, EyeOff, Copy, Check, Plus, X, HardDrive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
 import { getDBCollections, deleteDBCollectionByName, backupDB, resetSessionsandAnalytics } from "../../services/adminService";

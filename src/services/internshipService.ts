@@ -41,3 +41,30 @@ export async function getInternship(urn : string): Promise<any> {
     throw new Error(message);
   }
 }
+
+export async function updateInternship(urn : string, internshipData: any): Promise<any> {  
+  try {
+    const data = await apiFetch<TokensResponse>(`/api/internships/${urn}`, {
+      method: 'PUT',
+      json: internshipData,
+      requireAuth: true,
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Failed to update internship';
+    throw new Error(message);
+  }
+}
+
+export async function deleteInternship(urn : string): Promise<any> {  
+  try {
+    const data = await apiFetch<TokensResponse>(`/api/internships/${urn}`, {
+      method: 'DELETE',
+      requireAuth: true,
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Failed to delete internship';
+    throw new Error(message);
+  }
+}

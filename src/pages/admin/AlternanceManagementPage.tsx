@@ -19,7 +19,9 @@ import {
     ChevronLeft,
     ChevronRight,
     Upload,
-    ImageIcon
+    ImageIcon,
+    CheckSquare,
+    Square
 } from 'lucide-react';
 import ModalPortal from '@components/ModalPortal';
 import {
@@ -106,6 +108,13 @@ const AlternanceManagementPage: React.FC = () => {
         isOpen: false,
         id: '',
         title: '',
+    });
+
+    // Multi-select state
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState<{ isOpen: boolean; count: number }>({
+        isOpen: false,
+        count: 0,
     });
 
     // File upload state
@@ -366,12 +375,86 @@ const AlternanceManagementPage: React.FC = () => {
         }
     };
 
+    // Selection handlers
+    const toggleSelectId = (id: string) => {
+        const newSelected = new Set(selectedIds);
+        if (newSelected.has(id)) {
+            newSelected.delete(id);
+        } else {
+            newSelected.add(id);
+        }
+        setSelectedIds(newSelected);
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedIds.size === alternances.length && alternances.length > 0) {
+            setSelectedIds(new Set());
+        } else {
+            const allIds = new Set(alternances.map(a => a._id).filter(Boolean) as string[]);
+            setSelectedIds(allIds);
+        }
+    };
+
+    const handleBulkApproveSelected = async () => {
+        const idsToApprove = Array.from(selectedIds);
+        if (idsToApprove.length === 0) return;
+
+        try {
+            setActionLoading('bulk-approve-selected');
+            await bulkApproveAlternances(idsToApprove);
+            setSelectedIds(new Set());
+            fetchAlternances();
+            fetchStats();
+        } catch (err: any) {
+            setError(err.message || 'Failed to approve selected alternances');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleBulkRejectSelected = async () => {
+        const idsToReject = Array.from(selectedIds);
+        if (idsToReject.length === 0) return;
+
+        try {
+            setActionLoading('bulk-reject-selected');
+            await bulkRejectAlternances(idsToReject);
+            setSelectedIds(new Set());
+            fetchAlternances();
+            fetchStats();
+        } catch (err: any) {
+            setError(err.message || 'Failed to reject selected alternances');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleBulkDeleteSelected = async () => {
+        const idsToDelete = Array.from(selectedIds);
+        if (idsToDelete.length === 0) return;
+
+        try {
+            setActionLoading('bulk-delete');
+            for (const id of idsToDelete) {
+                await deleteAlternance(id);
+            }
+            setSelectedIds(new Set());
+            setBulkDeleteConfirm({ isOpen: false, count: 0 });
+            fetchAlternances();
+            fetchStats();
+        } catch (err: any) {
+            setError(err.message || 'Failed to delete selected alternances');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
     const getTypeLabel = (type?: string) => {
         switch (type) {
-            case 'apprenticeship': return 'Apprentissage';
-            case 'professionalization_contract': return 'Contrat Pro';
-            case 'other': return 'Autre';
-            default: return 'Non défini';
+            case 'apprenticeship': return 'Apprenticeship';
+            case 'professionalization_contract': return 'Professional Contract';
+            case 'other': return 'Other';
+            default: return 'Undefined';
         }
     };
 
@@ -396,7 +479,7 @@ const AlternanceManagementPage: React.FC = () => {
                 {/* Header */}
                 <div className="mb-8 animate-fade-in-up">
                     <button
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => navigate('/admin/contents')}
                         className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white mb-4 transition-colors"
                     >
                         <ArrowLeft className="w-5 h-5" />
@@ -407,10 +490,10 @@ const AlternanceManagementPage: React.FC = () => {
                         <div className="flex items-start justify-between gap-6 flex-wrap">
                             <div>
                                 <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-2">
-                                    Gestion des Alternances
+                                    Manage Internship Offers
                                 </h1>
                                 <p className="text-slate-600 dark:text-slate-400">
-                                    Créer, modifier et gérer les offres d'alternance
+                                    Create, modify and manage internship opportunities
                                 </p>
                             </div>
                             <div className="flex gap-6">
@@ -419,20 +502,20 @@ const AlternanceManagementPage: React.FC = () => {
                                         <div className="text-3xl font-bold text-amber-600 dark:text-amber-400">
                                             {stats.pendingCount}
                                         </div>
-                                        <div className="text-sm text-amber-600 dark:text-amber-400 font-medium">⏳ En attente</div>
+                                        <div className="text-sm text-amber-600 dark:text-amber-400 font-medium">⏳ Pending</div>
                                     </div>
                                 )}
                                 <div className="text-right">
                                     <div className="text-3xl font-bold text-green-600 dark:text-green-400">
                                         {stats.activeCount}
                                     </div>
-                                    <div className="text-sm text-slate-600 dark:text-slate-400">Actives</div>
+                                    <div className="text-sm text-slate-600 dark:text-slate-400">Active</div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-3xl font-bold text-slate-500 dark:text-slate-400">
                                         {stats.inactiveCount}
                                     </div>
-                                    <div className="text-sm text-slate-600 dark:text-slate-400">Inactives</div>
+                                    <div className="text-sm text-slate-600 dark:text-slate-400">Inactive</div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
@@ -449,7 +532,7 @@ const AlternanceManagementPage: React.FC = () => {
                 {error && (
                     <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300">
                         {error}
-                        <button onClick={() => setError(null)} className="ml-4 underline">Fermer</button>
+                        <button onClick={() => setError(null)} className="ml-4 underline">Close</button>
                     </div>
                 )}
 
@@ -459,7 +542,7 @@ const AlternanceManagementPage: React.FC = () => {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                             type="text"
-                            placeholder="Rechercher par titre, entreprise, lieu..."
+                            placeholder="Search by title, company, location..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 backdrop-blur-sm"
@@ -475,7 +558,7 @@ const AlternanceManagementPage: React.FC = () => {
                                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                 }`}
                         >
-                            Toutes
+                            All
                         </button>
                         <button
                             onClick={() => setApprovalFilter('pending')}
@@ -484,7 +567,7 @@ const AlternanceManagementPage: React.FC = () => {
                                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                 }`}
                         >
-                            ⏳ En attente
+                            ⏳ Pending
                             {stats.pendingCount > 0 && (
                                 <span className="px-2 py-0.5 text-xs rounded-full bg-white/20">
                                     {stats.pendingCount}
@@ -498,7 +581,7 @@ const AlternanceManagementPage: React.FC = () => {
                                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                 }`}
                         >
-                            ✅ Approuvées
+                            ✅ Approved
                         </button>
                         <button
                             onClick={() => setApprovalFilter('rejected')}
@@ -507,7 +590,7 @@ const AlternanceManagementPage: React.FC = () => {
                                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                                 }`}
                         >
-                            ❌ Rejetées
+                            ❌ Rejected
                         </button>
                     </div>
 
@@ -515,7 +598,7 @@ const AlternanceManagementPage: React.FC = () => {
                     {approvalFilter === 'pending' && alternances.length > 0 && (
                         <div className="flex gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
                             <span className="text-amber-700 dark:text-amber-300 font-medium">
-                                {alternances.filter(a => a.status === 'pending').length} en attente d'approbation
+                                {alternances.filter(a => a.status === 'pending').length} pending approval
                             </span>
                             <div className="flex-1"></div>
                             <button
@@ -524,7 +607,7 @@ const AlternanceManagementPage: React.FC = () => {
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white rounded-lg font-medium transition-colors"
                             >
                                 {actionLoading === 'bulk-approve' && <Loader2 className="w-4 h-4 animate-spin" />}
-                                ✅ Tout approuver
+                                ✅ Approve All
                             </button>
                             <button
                                 onClick={handleBulkReject}
@@ -532,7 +615,42 @@ const AlternanceManagementPage: React.FC = () => {
                                 className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white rounded-lg font-medium transition-colors"
                             >
                                 {actionLoading === 'bulk-reject' && <Loader2 className="w-4 h-4 animate-spin" />}
-                                ❌ Tout rejeter
+                                ❌ Reject All
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Bulk Actions for Selected Items */}
+                    {selectedIds.size > 0 && (
+                        <div className="flex gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl items-center">
+                            <span className="text-blue-700 dark:text-blue-300 font-medium">
+                                {selectedIds.size} item(s) selected
+                            </span>
+                            <div className="flex-1"></div>
+                            <button
+                                onClick={handleBulkApproveSelected}
+                                disabled={actionLoading === 'bulk-approve-selected'}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white rounded-lg font-medium transition-colors"
+                            >
+                                {actionLoading === 'bulk-approve-selected' && <Loader2 className="w-4 h-4 animate-spin" />}
+                                ✅ Approve
+                            </button>
+                            <button
+                                onClick={handleBulkRejectSelected}
+                                disabled={actionLoading === 'bulk-reject-selected'}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-400 text-white rounded-lg font-medium transition-colors"
+                            >
+                                {actionLoading === 'bulk-reject-selected' && <Loader2 className="w-4 h-4 animate-spin" />}
+                                ⚠️ Reject
+                            </button>
+                            <button
+                                onClick={() => setBulkDeleteConfirm({ isOpen: true, count: selectedIds.size })}
+                                disabled={actionLoading === 'bulk-delete'}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white rounded-lg font-medium transition-colors"
+                            >
+                                {actionLoading === 'bulk-delete' && <Loader2 className="w-4 h-4 animate-spin" />}
+                                <Trash2 className="w-4 h-4" />
+                                Delete
                             </button>
                         </div>
                     )}
@@ -547,7 +665,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     : 'bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
                                     }`}
                             >
-                                Toutes
+                                All
                             </button>
                             <button
                                 onClick={() => setStatusFilter('active')}
@@ -556,7 +674,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     : 'bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
                                     }`}
                             >
-                                Actives
+                                Active
                             </button>
                             <button
                                 onClick={() => setStatusFilter('inactive')}
@@ -565,7 +683,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     : 'bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
                                     }`}
                             >
-                                Inactives
+                                Inactive
                             </button>
                         </div>
 
@@ -574,10 +692,10 @@ const AlternanceManagementPage: React.FC = () => {
                             onChange={(e) => setTypeFilter(e.target.value)}
                             className="px-4 py-2 rounded-lg bg-white/80 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 focus:outline-none focus:border-blue-500"
                         >
-                            <option value="all">Tous les types</option>
-                            <option value="apprenticeship">Apprentissage</option>
-                            <option value="professionalization_contract">Contrat Pro</option>
-                            <option value="other">Autre</option>
+                            <option value="all">All Types</option>
+                            <option value="apprenticeship">Apprenticeship</option>
+                            <option value="professionalization_contract">Professional Contract</option>
+                            <option value="other">Other</option>
                         </select>
 
                         <div className="flex-1"></div>
@@ -587,7 +705,7 @@ const AlternanceManagementPage: React.FC = () => {
                             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors shadow-lg"
                         >
                             <Plus className="w-4 h-4" />
-                            Ajouter une alternance
+                            Add Internship
                         </button>
                     </div>
                 </div>
@@ -597,20 +715,20 @@ const AlternanceManagementPage: React.FC = () => {
                     {loading ? (
                         <div className="p-12 text-center">
                             <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-500" />
-                            <p className="mt-4 text-slate-600 dark:text-slate-400">Chargement...</p>
+                            <p className="mt-4 text-slate-600 dark:text-slate-400">Loading...</p>
                         </div>
                     ) : alternances.length === 0 ? (
                         <div className="p-12 text-center">
                             <Briefcase className="w-12 h-12 mx-auto text-slate-400 mb-4" />
                             <p className="text-slate-600 dark:text-slate-400">
-                                Aucune alternance trouvée
+                                No internship offers found
                             </p>
                             <button
                                 onClick={openAddDialog}
                                 className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors"
                             >
                                 <Plus className="w-4 h-4" />
-                                Créer la première alternance
+                                Create First Internship
                             </button>
                         </div>
                     ) : (
@@ -619,20 +737,33 @@ const AlternanceManagementPage: React.FC = () => {
                                 <table className="w-full">
                                     <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200/50 dark:border-slate-700/50">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                                                Titre
+                                            <th className="px-4 py-4 text-left">
+                                                <button
+                                                    onClick={toggleSelectAll}
+                                                    className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                                    title={selectedIds.size === alternances.length && alternances.length > 0 ? 'Deselect all' : 'Select all'}
+                                                >
+                                                    {selectedIds.size === alternances.length && alternances.length > 0 ? (
+                                                        <CheckSquare className="w-5 h-5 text-blue-500" />
+                                                    ) : (
+                                                        <Square className="w-5 h-5" />
+                                                    )}
+                                                </button>
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                                                Entreprise
+                                                Title
+                                            </th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
+                                                Company
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
                                                 Type
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                                                Lieu
+                                                Location
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
-                                                Statut
+                                                Status
                                             </th>
                                             <th className="px-6 py-4 text-left text-sm font-semibold text-slate-900 dark:text-white">
                                                 Actions
@@ -643,8 +774,20 @@ const AlternanceManagementPage: React.FC = () => {
                                         {alternances.map((alternance) => (
                                             <tr
                                                 key={alternance._id}
-                                                className="border-b border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors"
+                                                className={`border-b border-slate-200/50 dark:border-slate-700/50 transition-colors ${selectedIds.has(alternance._id || '') ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-slate-50/50 dark:hover:bg-slate-700/30'}`}
                                             >
+                                                <td className="px-4 py-4">
+                                                    <button
+                                                        onClick={() => alternance._id && toggleSelectId(alternance._id)}
+                                                        className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                                    >
+                                                        {selectedIds.has(alternance._id || '') ? (
+                                                            <CheckSquare className="w-5 h-5 text-blue-500" />
+                                                        ) : (
+                                                            <Square className="w-5 h-5" />
+                                                        )}
+                                                    </button>
+                                                </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0">
@@ -652,7 +795,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                         </div>
                                                         <div>
                                                             <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                                                                {alternance.title || 'Sans titre'}
+                                                                {alternance.title || 'No title'}
                                                             </div>
                                                             {alternance.duration && (
                                                                 <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
@@ -666,7 +809,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2 text-sm text-slate-900 dark:text-white">
                                                         <Building2 className="w-4 h-4 text-slate-400" />
-                                                        {alternance.company || 'Non spécifié'}
+                                                        {alternance.company || 'Not specified'}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -677,7 +820,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                                                         <MapPin className="w-4 h-4" />
-                                                        {alternance.location || 'Non spécifié'}
+                                                        {alternance.location || 'Not specified'}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -685,12 +828,12 @@ const AlternanceManagementPage: React.FC = () => {
                                                         {/* Approval status badge */}
                                                         {alternance.status === 'pending' && (
                                                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
-                                                                ⏳ En attente
+                                                                ⏳ Pending
                                                             </span>
                                                         )}
                                                         {alternance.status === 'rejected' && (
                                                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
-                                                                ❌ Rejetée
+                                                                ❌ Rejected
                                                             </span>
                                                         )}
                                                         {(alternance.status === 'approved' || !alternance.status) && (
@@ -716,7 +859,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                         {/* Open Status Badge */}
                                                         {alternance.isOpen === false && (
                                                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
-                                                                🔒 Non encore ouvert
+                                                                🔒 Not yet open
                                                             </span>
                                                         )}
                                                     </div>
@@ -730,7 +873,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                                     onClick={() => alternance._id && handleApprove(alternance._id)}
                                                                     disabled={actionLoading === `approve-${alternance._id}`}
                                                                     className="inline-flex items-center gap-1 px-3 py-2 bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white rounded-lg text-sm font-medium transition-colors"
-                                                                    title="Approuver"
+                                                                    title="Approve"
                                                                 >
                                                                     {actionLoading === `approve-${alternance._id}` ? (
                                                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -742,7 +885,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                                     onClick={() => alternance._id && handleReject(alternance._id)}
                                                                     disabled={actionLoading === `reject-${alternance._id}`}
                                                                     className="inline-flex items-center gap-1 px-3 py-2 bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white rounded-lg text-sm font-medium transition-colors"
-                                                                    title="Rejeter"
+                                                                    title="Reject"
                                                                 >
                                                                     {actionLoading === `reject-${alternance._id}` ? (
                                                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -757,10 +900,10 @@ const AlternanceManagementPage: React.FC = () => {
                                                             className="inline-flex items-center gap-1 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
                                                         >
                                                             <Edit3 className="w-4 h-4" />
-                                                            Modifier
+                                                            Edit
                                                         </button>
                                                         <button
-                                                            onClick={() => alternance._id && setDeleteConfirm({ isOpen: true, id: alternance._id, title: alternance.title || 'Cette alternance' })}
+                                                            onClick={() => alternance._id && setDeleteConfirm({ isOpen: true, id: alternance._id, title: alternance.title || 'This internship' })}
                                                             className="inline-flex items-center gap-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
@@ -776,7 +919,7 @@ const AlternanceManagementPage: React.FC = () => {
                             {/* Pagination */}
                             <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200/50 dark:border-slate-700/50">
                                 <div className="text-sm text-slate-600 dark:text-slate-400">
-                                    Affichage de {((page - 1) * limit) + 1} à {Math.min(page * limit, total)} sur {total} résultats
+                                    Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} results
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
@@ -787,7 +930,7 @@ const AlternanceManagementPage: React.FC = () => {
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
                                     <span className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-white">
-                                        Page {page} sur {totalPages}
+                                        Page {page} of {totalPages}
                                     </span>
                                     <button
                                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
@@ -811,7 +954,7 @@ const AlternanceManagementPage: React.FC = () => {
                             {/* Header */}
                             <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white flex items-center justify-between">
                                 <h2 className="text-2xl font-bold">
-                                    {dialog.mode === 'add' ? 'Nouvelle Alternance' : 'Modifier l\'Alternance'}
+                                    {dialog.mode === 'add' ? 'New Internship' : 'Edit Internship'}
                                 </h2>
                                 <button
                                     onClick={closeDialog}
@@ -826,13 +969,13 @@ const AlternanceManagementPage: React.FC = () => {
                                 {/* Title */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                        Titre du poste
+                                        Job Title
                                     </label>
                                     <input
                                         type="text"
                                         value={dialog.alternanceData.title || ''}
                                         onChange={(e) => handleInputChange('title', e.target.value)}
-                                        placeholder="Ex: Développeur Full Stack"
+                                        placeholder="Ex: Full Stack Developer"
                                         className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                     />
                                 </div>
@@ -842,20 +985,20 @@ const AlternanceManagementPage: React.FC = () => {
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <Building2 className="w-4 h-4 inline mr-1" />
-                                            Entreprise
+                                            Company
                                         </label>
                                         <input
                                             type="text"
                                             value={dialog.alternanceData.company || ''}
                                             onChange={(e) => handleInputChange('company', e.target.value)}
-                                            placeholder="Nom de l'entreprise"
+                                            placeholder="Company name"
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <MapPin className="w-4 h-4 inline mr-1" />
-                                            Lieu
+                                            Location
                                         </label>
                                         <input
                                             type="text"
@@ -871,28 +1014,28 @@ const AlternanceManagementPage: React.FC = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                            Type de contrat
+                                            Contract Type
                                         </label>
                                         <select
                                             value={dialog.alternanceData.type || 'apprenticeship'}
                                             onChange={(e) => handleInputChange('type', e.target.value)}
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:border-blue-500 focus:outline-none transition-colors"
                                         >
-                                            <option value="apprenticeship">Apprentissage</option>
-                                            <option value="professionalization_contract">Contrat de Professionnalisation</option>
-                                            <option value="other">Autre</option>
+                                            <option value="apprenticeship">Apprenticeship</option>
+                                            <option value="professionalization_contract">Professional Contract</option>
+                                            <option value="other">Other</option>
                                         </select>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <Clock className="w-4 h-4 inline mr-1" />
-                                            Durée
+                                            Duration
                                         </label>
                                         <input
                                             type="text"
                                             value={dialog.alternanceData.duration || ''}
                                             onChange={(e) => handleInputChange('duration', e.target.value)}
-                                            placeholder="12 mois, 24 mois..."
+                                            placeholder="12 months, 24 months..."
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                         />
                                     </div>
@@ -906,7 +1049,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     <textarea
                                         value={dialog.alternanceData.description || ''}
                                         onChange={(e) => handleInputChange('description', e.target.value)}
-                                        placeholder="Description du poste, missions..."
+                                        placeholder="Job description, responsibilities..."
                                         rows={4}
                                         className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors resize-none"
                                     />
@@ -915,38 +1058,36 @@ const AlternanceManagementPage: React.FC = () => {
                                 {/* Requirements */}
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                        Prérequis
+                                        Requirements
                                     </label>
                                     <textarea
                                         value={dialog.alternanceData.requirements || ''}
                                         onChange={(e) => handleInputChange('requirements', e.target.value)}
-                                        placeholder="Compétences requises, formation..."
+                                        placeholder="Required skills, education..."
                                         rows={3}
                                         className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors resize-none"
                                     />
                                 </div>
-
-
 
                                 {/* Contact & Links */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <Mail className="w-4 h-4 inline mr-1" />
-                                            Email de contact
+                                            Contact Email
                                         </label>
                                         <input
                                             type="email"
                                             value={dialog.alternanceData.contactEmail || ''}
                                             onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                                            placeholder="recrutement@entreprise.com"
+                                            placeholder="recruitment@company.com"
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <LinkIcon className="w-4 h-4 inline mr-1" />
-                                            Lien externe
+                                            External Link
                                         </label>
                                         <input
                                             type="url"
@@ -964,7 +1105,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <ImageIcon className="w-4 h-4 inline mr-1" />
-                                            Logo de l'entreprise
+                                            Company Logo
                                         </label>
                                         <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
                                             {companyLogoPreview ? (
@@ -989,7 +1130,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                 <label className="cursor-pointer">
                                                     <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
                                                     <span className="text-sm text-slate-500 dark:text-slate-400">
-                                                        Cliquer pour télécharger
+                                                        Click to upload
                                                     </span>
                                                     <input
                                                         type="file"
@@ -1012,7 +1153,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                             <ImageIcon className="w-4 h-4 inline mr-1" />
-                                            Image Bannière
+                                            Banner Image
                                         </label>
                                         <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
                                             {bannerImagePreview ? (
@@ -1037,7 +1178,7 @@ const AlternanceManagementPage: React.FC = () => {
                                                 <label className="cursor-pointer">
                                                     <Upload className="w-8 h-8 mx-auto text-slate-400 mb-2" />
                                                     <span className="text-sm text-slate-500 dark:text-slate-400">
-                                                        Cliquer pour télécharger
+                                                        Click to upload
                                                     </span>
                                                     <input
                                                         type="file"
@@ -1061,7 +1202,7 @@ const AlternanceManagementPage: React.FC = () => {
                                 <div className="space-y-2">
                                     <label className="block text-sm font-semibold text-slate-900 dark:text-white">
                                         <ImageIcon className="w-4 h-4 inline mr-1" />
-                                        Images du contenu (max 10)
+                                        Content Images (max 10)
                                     </label>
                                     <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
                                         {/* Preview Grid */}
@@ -1098,7 +1239,7 @@ const AlternanceManagementPage: React.FC = () => {
                                             <label className="cursor-pointer flex flex-col items-center justify-center py-4">
                                                 <Upload className="w-8 h-8 text-slate-400 mb-2" />
                                                 <span className="text-sm text-slate-500 dark:text-slate-400">
-                                                    Cliquer pour ajouter des images
+                                                    Click to add images
                                                 </span>
                                                 <span className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                                                     {contentImageFiles.length}/10 images
@@ -1132,25 +1273,25 @@ const AlternanceManagementPage: React.FC = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                            Catégorie
+                                            Category
                                         </label>
                                         <input
                                             type="text"
                                             value={dialog.alternanceData.category || ''}
                                             onChange={(e) => handleInputChange('category', e.target.value)}
-                                            placeholder="IT, Marketing, RH..."
+                                            placeholder="IT, Marketing, HR..."
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                         />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="block text-sm font-semibold text-slate-900 dark:text-white">
-                                            Secteur
+                                            Sector
                                         </label>
                                         <input
                                             type="text"
                                             value={dialog.alternanceData.sector || ''}
                                             onChange={(e) => handleInputChange('sector', e.target.value)}
-                                            placeholder="Tech, Finance, Santé..."
+                                            placeholder="Tech, Finance, Health..."
                                             className="w-full px-4 py-2 rounded-lg border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none transition-colors"
                                         />
                                     </div>
@@ -1167,10 +1308,10 @@ const AlternanceManagementPage: React.FC = () => {
                                             )}
                                             <div>
                                                 <span className="text-sm font-semibold text-slate-900 dark:text-white block">
-                                                    Alternance Active
+                                                    Active Internship
                                                 </span>
                                                 <span className="text-xs text-slate-500 dark:text-slate-400">
-                                                    Visible dans la liste publique
+                                                    Visible in public listing
                                                 </span>
                                             </div>
                                         </div>
@@ -1192,12 +1333,12 @@ const AlternanceManagementPage: React.FC = () => {
                                             </span>
                                             <div>
                                                 <span className="text-sm font-semibold text-slate-900 dark:text-white block">
-                                                    Alternance Ouverte aux Candidatures
+                                                    Internship Open for Applications
                                                 </span>
                                                 <span className="text-xs text-amber-700 dark:text-amber-300">
                                                     {dialog.alternanceData.isOpen
-                                                        ? "L'alternance accepte actuellement les candidatures"
-                                                        : "Badge 'Non encore ouvert' affiché aux utilisateurs"}
+                                                        ? "This internship currently accepts applications"
+                                                        : "'Not yet open' badge displayed to users"}
                                                 </span>
                                             </div>
                                         </div>
@@ -1217,7 +1358,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     onClick={closeDialog}
                                     className="px-6 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium transition-colors"
                                 >
-                                    Annuler
+                                    Cancel
                                 </button>
                                 <button
                                     onClick={handleSave}
@@ -1225,7 +1366,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:bg-blue-400 text-white font-medium transition-colors inline-flex items-center gap-2"
                                 >
                                     {actionLoading === 'save' && <Loader2 className="w-4 h-4 animate-spin" />}
-                                    {dialog.mode === 'add' ? 'Créer' : 'Enregistrer'}
+                                    {dialog.mode === 'add' ? 'Create' : 'Save'}
                                 </button>
                             </div>
                         </div>
@@ -1243,10 +1384,10 @@ const AlternanceManagementPage: React.FC = () => {
                                     <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
                                 </div>
                                 <h3 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-2">
-                                    Supprimer l'alternance ?
+                                    Delete Internship?
                                 </h3>
                                 <p className="text-center text-slate-600 dark:text-slate-400">
-                                    Êtes-vous sûr de vouloir supprimer "{deleteConfirm.title}" ? Cette action est irréversible.
+                                    Are you sure you want to delete "{deleteConfirm.title}"? This action cannot be undone.
                                 </p>
                             </div>
                             <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200/50 dark:border-slate-700/50 flex justify-end gap-3">
@@ -1254,7 +1395,7 @@ const AlternanceManagementPage: React.FC = () => {
                                     onClick={() => setDeleteConfirm({ isOpen: false, id: '', title: '' })}
                                     className="px-6 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium transition-colors"
                                 >
-                                    Annuler
+                                    Cancel
                                 </button>
                                 <button
                                     onClick={handleDelete}
@@ -1262,7 +1403,44 @@ const AlternanceManagementPage: React.FC = () => {
                                     className="px-6 py-2 rounded-lg bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white font-medium transition-colors inline-flex items-center gap-2"
                                 >
                                     {actionLoading === 'delete' && <Loader2 className="w-4 h-4 animate-spin" />}
-                                    Supprimer
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ModalPortal>
+            )}
+
+            {/* Bulk Delete Confirmation Dialog */}
+            {bulkDeleteConfirm.isOpen && (
+                <ModalPortal>
+                    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200/50 dark:border-slate-700/50 overflow-hidden animate-in fade-in zoom-in-95 duration-300">
+                            <div className="p-6">
+                                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4">
+                                    <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+                                </div>
+                                <h3 className="text-xl font-bold text-center text-slate-900 dark:text-white mb-2">
+                                    Delete {bulkDeleteConfirm.count} Internship(s)?
+                                </h3>
+                                <p className="text-center text-slate-600 dark:text-slate-400">
+                                    Are you sure you want to delete {bulkDeleteConfirm.count} selected internship(s)? This action cannot be undone.
+                                </p>
+                            </div>
+                            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200/50 dark:border-slate-700/50 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setBulkDeleteConfirm({ isOpen: false, count: 0 })}
+                                    className="px-6 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 font-medium transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleBulkDeleteSelected}
+                                    disabled={actionLoading === 'bulk-delete'}
+                                    className="px-6 py-2 rounded-lg bg-red-500 hover:bg-red-600 disabled:bg-red-400 text-white font-medium transition-colors inline-flex items-center gap-2"
+                                >
+                                    {actionLoading === 'bulk-delete' && <Loader2 className="w-4 h-4 animate-spin" />}
+                                    Delete
                                 </button>
                             </div>
                         </div>

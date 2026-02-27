@@ -230,10 +230,6 @@ function HealthSection({ id, data, expanded, onToggle, isDark, loading }: { id: 
                   </div>
                 ))}
               </div>
-              <div className={`flex gap-4 text-[11px] ${ isDark ? "text-slate-500" : "text-slate-600"}`}>
-                <span>Region: <span className={isDark ? "text-slate-400" : "text-slate-700"}>{data.region}</span></span>
-                <span>Last deploy: <span className={isDark ? "text-slate-400" : "text-slate-700"}>{data.lastDeploy}</span></span>
-              </div>
             </>
           )}
         </div>
@@ -366,7 +362,7 @@ export default function ApplicationMonitoringPage() {
               ...updated.frontend,
               status: frontendStats.status === 'up' ? 'operational' : 'down',
               responseTime: `${frontendStats.latencyMs || 0}ms`,
-              uptime: "--",
+              uptime: "N/A",
               lastDeploy: "--",
               details: [
                 { label: "Response Code", value: String(frontendStats.statusCode), ok: frontendStats.statusCode === 200 },
@@ -390,14 +386,15 @@ export default function ApplicationMonitoringPage() {
             const cpuOk = systemStats.cpu.usagePercent < 80;
             const memOk = systemStats.memory.usagePercent < 85;
             const diskOk = systemStats.disk.usedPercent < 90;
-            const netOk = systemStats.network.speedMbps > 50;
+            const netDownOk = systemStats.network.downloadMbps < 10;
+            const netUpOk = systemStats.network.uploadMbps < 5;
             const TxRxTotalOk = systemStats.network.totalRxMb + systemStats.network.totalTxMb < 100;
             const overallOk = cpuOk && memOk && diskOk;
             updated.backend = {
               ...updated.backend,
               status: overallOk ? 'operational' : 'degraded',
               responseTime: `${systemStats.network.latencyMs || 0}ms`,
-              uptime: "--",
+              uptime: `${systemStats.uptime || 0}hrs`,
               lastDeploy: "--",
               details: [
                 { label: "CPU Usage", value: `${systemStats.cpu.usagePercent}%`, ok: cpuOk },
@@ -405,7 +402,9 @@ export default function ApplicationMonitoringPage() {
                 { label: "Disk Usage", value: `${systemStats.disk.usedPercent}%`, ok: diskOk },
                 { label: "Memory Total", value: `${systemStats.memory.totalMb}GB`, ok: true },
                 { label: "Disk Free", value: `${systemStats.disk.freeGb}GB`, ok: diskOk },
-                { label: "Network Speed", value: `${systemStats.network.speedMbps}Mbps`, ok: netOk },
+                { label: "Used Network Interface", value: `${systemStats.network.defaultNetwork}`, ok: true },
+                { label: "Network Download Speed", value: `${systemStats.network.downloadMbps}Mbps`, ok: netDownOk },
+                { label: "Network Upload Speed", value: `${systemStats.network.uploadMbps}Mbps`, ok: netUpOk },
                 { label: "Total MB received", value: `${systemStats.network.totalRxMb}MB`, ok: TxRxTotalOk },
                 { label: "Total MB transmitted", value: `${systemStats.network.totalTxMb}MB`, ok: TxRxTotalOk },
               ],
@@ -427,7 +426,7 @@ export default function ApplicationMonitoringPage() {
               ...updated.database,
               status: dbStats.status === 'up' ? 'operational' : 'down',
               responseTime: `${dbStats.latencyMs}ms`,
-              uptime: "--",
+              uptime: "N/A",
               lastDeploy: "--",
               details: [
                 { label: "Status", value: dbStats.status === 'up' ? 'Up' : 'Down', ok: dbStats.status === 'up' },

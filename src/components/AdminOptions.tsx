@@ -49,20 +49,11 @@ const AdminOptions: React.FC = () => {
     {
       id: 'content',
       title: 'Content Management',
-      description: 'Manage scrapped posts',
+      description: 'Manage all the platform content including internships, alternances, and more',
       icon: FileText,
       gradient: 'from-orange-500 to-red-600',
       textColor: 'text-orange-600 dark:text-orange-400',
       action: () => navigate('/admin/contents')
-    },
-    {
-      id: 'alternance',
-      title: 'Alternance Management',
-      description: 'Manage work-study and apprenticeship offers',
-      icon: GraduationCap,
-      gradient: 'from-teal-500 to-emerald-600',
-      textColor: 'text-teal-600 dark:text-teal-400',
-      action: () => navigate('/admin/alternances')
     },
     {
       id: 'scrapper',

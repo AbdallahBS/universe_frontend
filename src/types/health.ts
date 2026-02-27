@@ -19,7 +19,8 @@ export interface NetworkMetrics {
   latencyMs: number;
   totalRxMb: number;
   totalTxMb: number;
-  speedMbps: number;
+  downloadMbps: number;
+  uploadMbps: number;
 }
 
 export interface SystemMetricsResponse {
@@ -27,6 +28,7 @@ export interface SystemMetricsResponse {
   memory: MemoryMetrics;
   disk: DiskMetrics;
   network: NetworkMetrics;
+  uptime: number;
 }
 
 // Suspicious Activity Metrics Types

@@ -5,6 +5,7 @@
 export interface Alternance {
     _id?: string;
     title?: string;
+    type? : string;
     company?: string;
     location?: string;
     duration?: string;
@@ -54,6 +55,7 @@ export interface Alternance {
 export interface AlternanceFormData {
     title?: string;
     company?: string;
+    type? : string;
     location?: string;
     duration?: string;
     description?: string;
@@ -82,6 +84,7 @@ export interface AlternanceListResponse {
 
 export interface AlternanceFilters {
     search?: string;
+    type? : string;
     category?: string;
     status?: 'pending' | 'approved' | 'rejected';
     isActive?: boolean;

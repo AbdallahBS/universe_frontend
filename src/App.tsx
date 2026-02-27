@@ -28,7 +28,7 @@ import QuizHistoryPage from '@pages/QuizHistoryPage';
 import AttemptDetailPage from '@pages/AttemptDetailPage';
 import Footer from '@components/Footer';
 import UserManagementPage from '@pages/admin/UserManagementPage';
-import ContentManagementPage from '@pages/admin/ContentManagementPage';
+import InternshipManagementPage from '@pages/admin/InternshipManagementPage';
 import AlternanceManagementPage from '@pages/admin/AlternanceManagementPage';
 import ScrapperManagementPage from '@pages/admin/ScrapperManagementPage';
 import CustomToaster from '@components/customToaster';
@@ -36,6 +36,7 @@ import VerificationBanner from '@components/VerificationBanner';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 import ApplicationMonitoringPage from '@pages/admin/ApplicationMonotoringPage';
 import DangerZone from '@pages/admin/dangerZonePage';
+import ContentManagementPage from '@pages/admin/ContentManagementPage';
 
 // Main app content component
 function AppContent() {
@@ -190,7 +191,16 @@ function AppContent() {
         />
 
         <Route
-          path="/admin/alternances"
+          path="/admin/contents/internships"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <InternshipManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/contents/alternances"
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <AlternanceManagementPage />
