@@ -99,4 +99,6 @@ export interface AlternanceStats {
     pendingCount: number;
     approvedCount: number;
     rejectedCount: number;
+    apprenticeshipCount: number;
+    professionalContractCount: number;
 }

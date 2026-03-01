@@ -33,6 +33,7 @@ interface Region {
   x: number;
   y: number;
   users: number;
+  ISPs? : string[];
   radius: number;
 }
 
@@ -130,6 +131,7 @@ const getInitialVisitorBase = () => ({
     x: coord.x,
     y: coord.y,
     users: 0,
+    ISPs: [] as string[],
     radius: 6,
   })),
 });
@@ -475,6 +477,9 @@ export default function ApplicationMonitoringPage() {
                 const matchedRegion = updatedRegions.find(r => location.includes(r.name.toLowerCase()));
                 if (matchedRegion) {
                   matchedRegion.users += entry.users;
+                  if (entry.IPrecord.isp && !matchedRegion.ISPs.includes(entry.IPrecord.isp)) {
+                    matchedRegion.ISPs.push(entry.IPrecord.isp);
+                  }
                 }
               }
             });
@@ -673,6 +678,7 @@ export default function ApplicationMonitoringPage() {
                   <div className="space-y-2">
                     {[
                       { label:"Users", value:activeRegion.users.toLocaleString() },
+                      { label:"ISPs", value:activeRegion.ISPs.join(", ") || "Unknown" },
                       { label:"Share", value:`${visitorsData.totalVisitors > 0 ? ((activeRegion.users/visitorsData.totalVisitors)*100).toFixed(1) : 0}%` },
                     ].map((item) => (
                       <div key={item.label} className="flex justify-between text-xs">

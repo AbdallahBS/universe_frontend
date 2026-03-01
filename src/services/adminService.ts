@@ -1,3 +1,4 @@
+import { GetRolesResponse } from 'types/auth';
 import { apiFetch } from './api';
 import { DBCollectionInfo, TokensResponse } from 'types/network';
 
@@ -172,6 +173,46 @@ export async function resetSessionsandAnalytics(): Promise<any> {
   try {
     const data = await apiFetch<any>(`/api/admin/dangerzone/resetsessionsanalytics`, {
       requireAuth: true
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function getAppRoles(): Promise<any> {
+  try {
+    const data = await apiFetch<GetRolesResponse>(`/api/admin/dangerzone/roles`, {
+      requireAuth: true
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function addAppRole(roleName : string, description : string, color : string): Promise<any> {
+  try {
+    const data = await apiFetch<any>(`/api/admin/dangerzone/addrole`, {
+      method: 'POST',
+      requireAuth: true,
+      json: { roleName, description, color }
+    });
+    return data;
+  } catch (err: any) {
+    const message = typeof err?.message === 'string' ? err.message : 'Fetch failed';
+    throw new Error(message);
+  }
+}
+
+export async function deleteAppRole(roleName : string): Promise<any> {
+  try {
+    const data = await apiFetch<any>(`/api/admin/dangerzone/deleterole`, {
+      method: 'DELETE',
+      requireAuth: true,
+      json: { roleName }
     });
     return data;
   } catch (err: any) {

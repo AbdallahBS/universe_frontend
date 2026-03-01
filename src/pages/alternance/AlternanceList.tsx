@@ -3,16 +3,19 @@ import { GraduationCap, Sparkles, TrendingUp, Loader2 } from 'lucide-react';
 import ScrollButtons from '@components/ui/ScrollButtons';
 import AlternanceCard from '../../components/alternance/AlternanceCard';
 import AlternanceFilters from '../../components/alternance/AlternanceFilters';
-import { Alternance, AlternanceFilters as IAlternanceFilters } from '../../types/alternance';
+import { Alternance, AlternanceStats, AlternanceFilters as IAlternanceFilters } from '../../types/alternance';
 import { getAlternances, getAlternanceStats } from '../../services/alternanceService';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import AuthGuardedListItem from '@components/AuthGuardedListItem';
+import { useAuth } from '@context/AuthContext';
 
 const AlternanceList: React.FC = () => {
     const navigate = useNavigatePage();
     const { page: pageParam } = useParams();
     const { t } = useTranslation();
+    const { isAuthenticated } = useAuth();
 
     // Data state
     const [alternances, setAlternances] = useState<Alternance[]>([]);
@@ -30,11 +33,15 @@ const AlternanceList: React.FC = () => {
     const [typeFilter, setTypeFilter] = useState('all');
 
     // Stats state
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState<AlternanceStats>({
         totalCount: 0,
         activeCount: 0,
         apprenticeshipCount: 0,
         professionalContractCount: 0,
+        inactiveCount: 0,
+        pendingCount: 0,
+        approvedCount: 0,
+        rejectedCount: 0,
     });
 
     // Fetch alternances from API
@@ -211,63 +218,46 @@ const AlternanceList: React.FC = () => {
                                 <>
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {alternances.map((alternance, index) => (
-                                            <AlternanceCard
-                                                key={alternance._id}
-                                                alternance={alternance}
-                                                index={index}
-                                                onClick={() => navigate(`/alternance/${alternance._id}?prevPage=${page}`)}
-                                            />
+                                            <AuthGuardedListItem key={alternance._id} redirectUrl={`/alternance/${alternance._id}`}>
+                                                <AlternanceCard
+                                                    alternance={alternance}
+                                                    index={index}
+                                                    onClick={() => navigate(`/alternance/${alternance._id}?prevPage=${page}`)}
+                                                />
+                                            </AuthGuardedListItem>
+                                        ))}
+
+                                        {/* Dummy Cards for Unauthenticated Users */}
+                                        {!isAuthenticated && [1, 2, 3].map((dummy) => (
+                                            <AuthGuardedListItem key={`dummy-${dummy}`} redirectUrl="/alternance" isDummy={true}>
+                                                <div className="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden cursor-auto transform transition-all duration-300">
+                                                    {/* Placeholder Image */}
+                                                    <div className="relative w-full h-64 overflow-hidden bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center">
+                                                        <GraduationCap className="w-20 h-20 text-slate-400 dark:text-slate-500 opacity-50" />
+                                                    </div>
+
+                                                    {/* Content Section */}
+                                                    <div className="p-6">
+                                                        {/* Title Placeholder */}
+                                                        <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+
+                                                        {/* Type Placeholder */}
+                                                        <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-1/2 mb-4"></div>
+
+                                                        {/* Description Placeholder */}
+                                                        <div className="space-y-2 mb-4">
+                                                            <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-full"></div>
+                                                            <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-5/6"></div>
+                                                            <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-4/6"></div>
+                                                        </div>
+
+                                                        {/* Location Placeholder */}
+                                                        <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-1/3"></div>
+                                                    </div>
+                                                </div>
+                                            </AuthGuardedListItem>
                                         ))}
                                     </div>
-
-                                    {/* Pagination */}
-                                    {totalPages > 1 && (
-                                        <div className="flex items-center justify-center gap-2 mt-12">
-                                            <button
-                                                onClick={() => handlePageChange(page - 1)}
-                                                disabled={page === 1}
-                                                className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                {t('alternance.previous')}
-                                            </button>
-
-                                            <div className="flex items-center gap-1">
-                                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                                    let pageNum;
-                                                    if (totalPages <= 5) {
-                                                        pageNum = i + 1;
-                                                    } else if (page <= 3) {
-                                                        pageNum = i + 1;
-                                                    } else if (page >= totalPages - 2) {
-                                                        pageNum = totalPages - 4 + i;
-                                                    } else {
-                                                        pageNum = page - 2 + i;
-                                                    }
-
-                                                    return (
-                                                        <button
-                                                            key={pageNum}
-                                                            onClick={() => handlePageChange(pageNum)}
-                                                            className={`w-10 h-10 rounded-lg font-medium transition-colors ${page === pageNum
-                                                                ? 'bg-teal-500 text-white'
-                                                                : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
-                                                                }`}
-                                                        >
-                                                            {pageNum}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-
-                                            <button
-                                                onClick={() => handlePageChange(page + 1)}
-                                                disabled={page === totalPages}
-                                                className="px-4 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                {t('alternance.next')}
-                                            </button>
-                                        </div>
-                                    )}
                                 </>
                             ) : (
                                 <div className="text-center py-20 animate-fade-in-up">

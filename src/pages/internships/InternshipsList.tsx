@@ -13,6 +13,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
 import AuthToaster from '@components/AuthToaster';
+import AuthGuardedListItem from '@components/AuthGuardedListItem';
 
 // Thumbnail component with error handling
 const ThumbnailImage: React.FC<{ src: string | null; alt: string; className?: string }> = ({ src, alt, className = "" }) => {
@@ -51,11 +52,6 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
   const {isAuthenticated , isLoading} = useAuth();
   const { page } = useParams();
   const {t} = useTranslation();
-
-  const [askForLogin, setAskForLogin] = useState(
-    !isAuthenticated && Math.random() > 0.5
-  );
-  /****************** */
 
   /** Internships and pagination */
   const [internships, setInternships] = useState<LinkedInPost[]>([]);
@@ -213,12 +209,12 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {internships.map((internship, index) => (
-        <Link to={`/internship/${internship.urn.activity_urn}?prevPage=${currentPage}`} className="no-underline text-inherit block">
-        <div
-          key={internship.urn}
-          className="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 animate-fade-in-up"
-          style={{ animationDelay: `${index * 100}ms` }}
-        >
+        <AuthGuardedListItem key={internship.urn} redirectUrl={`/internship/${internship.urn.activity_urn}`}>
+          <Link to={`/internship/${internship.urn.activity_urn}?prevPage=${currentPage}`} className="no-underline text-inherit block">
+          <div
+            className="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden cursor-pointer transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 animate-fade-in-up"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
           {/* Large Featured Image */}
           <div className="relative w-full h-64 md:h-72 overflow-hidden bg-gradient-to-br from-teal-100 via-blue-100 to-purple-100 dark:from-teal-900/50 dark:via-blue-900/50 dark:to-purple-900/50">
             <ThumbnailImage
@@ -283,8 +279,51 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
                 </div>
               </div>
             </div>
-            </Link>
-          ))}
+          </Link>
+        </AuthGuardedListItem>
+      ))}
+      
+      {/* Dummy Cards for Unauthenticated Users */}
+      {!isAuthenticated && [1, 2, 3].map((dummy) => (
+        <AuthGuardedListItem key={`dummy-${dummy}`} redirectUrl="/internships" isDummy={true}>
+          <div className="group bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 overflow-hidden cursor-auto transform transition-all duration-300">
+            {/* Placeholder Image */}
+            <div className="relative w-full h-64 md:h-72 overflow-hidden bg-gradient-to-br from-slate-200 via-slate-100 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 flex items-center justify-center">
+              <Briefcase className="w-20 h-20 text-slate-400 dark:text-slate-500 opacity-50" />
+            </div>
+
+            {/* Content Section */}
+            <div className="p-6">
+              {/* Author Info Placeholder */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 dark:from-slate-600 dark:to-slate-700"></div>
+                <div className="flex-1">
+                  <div className="h-4 bg-slate-300 dark:bg-slate-700 rounded w-32 mb-2"></div>
+                  <div className="h-3 bg-slate-200 dark:bg-slate-600 rounded w-24"></div>
+                </div>
+              </div>
+
+              {/* Title Placeholder */}
+              <div className="h-6 bg-slate-300 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+
+              {/* Category Placeholder */}
+              <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-1/2 mb-4"></div>
+
+              {/* Description Placeholder */}
+              <div className="space-y-2 mb-4">
+                <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-full"></div>
+                <div className="h-4 bg-slate-200 dark:bg-slate-600 rounded w-5/6"></div>
+              </div>
+
+              {/* Footer Placeholder */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
+                <div className="h-3 bg-slate-200 dark:bg-slate-600 rounded w-20"></div>
+                <div className="h-5 bg-slate-300 dark:bg-slate-700 rounded w-24"></div>
+              </div>
+            </div>
+          </div>
+        </AuthGuardedListItem>
+      ))}
         </div>
 
         {internships.length === 0 && !loading && (
@@ -307,7 +346,6 @@ const InternshipsList: React.FC<InternshipsListProps> = () => {
   </div>
   </div>
  </div>
- <AuthToaster isOpen={askForLogin} onClose={() => setAskForLogin(false)} />
 </>
 )};
 

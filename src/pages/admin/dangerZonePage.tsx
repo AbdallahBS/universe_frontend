@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { ArrowLeft, Trash2, RefreshCw, ShieldPlus, Key, ChevronDown, AlertTriangle, Eye, EyeOff, Copy, Check, Plus, X, HardDrive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/ThemeContext";
-import { getDBCollections, deleteDBCollectionByName, backupDB, resetSessionsandAnalytics } from "../../services/adminService";
+import { getDBCollections, deleteDBCollectionByName, backupDB, resetSessionsandAnalytics, getAppRoles, addAppRole, deleteAppRole } from "../../services/adminService";
+import { Role } from "../../types/auth";
 import LoadingSpinner from "@components/ui/LoadingSpinner";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -15,12 +16,12 @@ const INITIAL_COLLECTIONS = [
   { name: "api_events", documentCount: 41000,  storageSize: 22800000, totalIndexSize: 4560000 },
 ];
 
-const INITIAL_ROLES = [
-  { id: "superadmin", label: "Super Admin", color: "#ef4444", desc: "Full system access"    },
-  { id: "admin",      label: "Admin",       color: "#f97316", desc: "Administrative access" },
-  { id: "moderator",  label: "Moderator",   color: "#eab308", desc: "Content moderation"    },
-  { id: "analyst",    label: "Analyst",     color: "#3b82f6", desc: "Read-only analytics"   },
-  { id: "viewer",     label: "Viewer",      color: "#6b7280", desc: "Basic read access"     },
+const INITIAL_ROLES: Role[] = [
+  { roleName: "Super Admin", color: "#ef4444", description: "Full system access"    },
+  { roleName: "Admin",       color: "#f97316", description: "Administrative access" },
+  { roleName: "Moderator",   color: "#eab308", description: "Content moderation"    },
+  { roleName: "Analyst",     color: "#3b82f6", description: "Read-only analytics"   },
+  { roleName: "Viewer",      color: "#6b7280", description: "Basic read access"     },
 ];
 
 const INITIAL_KEYS = [
@@ -41,17 +42,18 @@ async function fetchCollections(): Promise<typeof INITIAL_COLLECTIONS> {
 
 /**
  * Fetch roles data from the admin API
- * Replace with actual API endpoint call
  */
 async function fetchRoles(): Promise<typeof INITIAL_ROLES> {
-  // TODO: Replace with actual API call
-  // const response = await fetch('/api/admin/roles');
-  // if (!response.ok) throw new Error('Failed to fetch roles');
-  // return response.json();
-  
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(INITIAL_ROLES), 500);
-  });
+  try {
+    const data = await getAppRoles();
+    // Handle response that might be an array or wrapped in an object
+    const rolesList = Array.isArray(data) ? data : (data?.data || data?.roles || []);
+    return rolesList;
+  } catch (err) {
+    console.error('Error fetching roles:', err);
+    // Return empty array on error instead of mock data
+    return [];
+  }
 }
 
 /**
@@ -468,41 +470,94 @@ function ResetAnalytics({ isDark }: { isDark: boolean }) {
 
 // ─── ManageRoles ──────────────────────────────────────────────────────────────
 function ManageRoles({ isDark }: { isDark: boolean }) {
-  const [roles,       setRoles]       = useState(INITIAL_ROLES);
+  const [roles,       setRoles]       = useState<Role[]>(INITIAL_ROLES);
+  const [loading,     setLoading]     = useState(true);
+  const [error,       setError]       = useState<string | null>(null);
   const [showForm,    setShowForm]    = useState(false);
-  const [form,        setForm]        = useState({ label: "", desc: "", color: "#6366f1" });
-  const [deleteModal, setDeleteModal] = useState<typeof INITIAL_ROLES[0] | null>(null);
+  const [form,        setForm]        = useState({ roleName: "", description: "", color: "#6366f1" });
+  const [deleteModal, setDeleteModal] = useState<Role | null>(null);
   const [addModal,    setAddModal]    = useState(false);
   const [removing,    setRemoving]    = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const confirmDelete = () => {
+  // Load roles on mount
+  useEffect(() => {
+    const loadRoles = async () => {
+      try {
+        setLoading(true);
+        const data = await getAppRoles();
+        const rolesList = Array.isArray(data) ? data : (data?.data || data?.roles || []);
+        setRoles(rolesList);
+        setError(null);
+      } catch (err) {
+        console.error('Error loading roles:', err);
+        setError('Failed to load roles');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadRoles();
+  }, []);
+
+  const confirmDelete = async () => {
     if (!deleteModal) return;
-    setRemoving(deleteModal.id);
-    setTimeout(() => { setRoles(r => r.filter(x => x.id !== deleteModal.id)); setRemoving(null); }, 400);
+    setIsSubmitting(true);
+    setRemoving(deleteModal.roleName);
+    try {
+      await deleteAppRole(deleteModal.roleName);
+      setTimeout(() => { 
+        setRoles(r => r.filter(x => x.roleName !== deleteModal.roleName)); 
+        setRemoving(null); 
+      }, 400);
+    } catch (err) {
+      console.error('Failed to delete role:', err);
+      setError('Failed to delete role');
+      setRemoving(null);
+    } finally {
+      setIsSubmitting(false);
+    }
     setDeleteModal(null);
   };
-  const confirmAdd = () => {
-    setRoles(r => [...r, { id: Date.now().toString(), ...form }]);
-    setForm({ label: "", desc: "", color: "#6366f1" });
-    setShowForm(false);
-    setAddModal(false);
+
+  const confirmAdd = async () => {
+    setIsSubmitting(true);
+    try {
+      await addAppRole(form.roleName, form.description, form.color);
+      setRoles(r => [...r, { roleName: form.roleName, description: form.description, color: form.color }]);
+      setForm({ roleName: "", description: "", color: "#6366f1" });
+      setShowForm(false);
+      setAddModal(false);
+    } catch (err) {
+      console.error('Failed to add role:', err);
+      setError('Failed to add role');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (loading) {
+    return <LoadingSpinner loading={loading} />;
+  }
+
+  if (error) {
+    return <div style={{ textAlign: "center", padding: "1rem 0", color: "#ef4444", fontSize: "0.85rem" }}>{error}</div>;
+  }
 
   return (
     <>
-      {deleteModal && <ConfirmModal isDark={isDark} title={`Remove role "${deleteModal.label}"`} message="Users with this role will lose their associated permissions immediately." confirmLabel="Remove Role" requireTyping={false} onConfirm={confirmDelete} onCancel={() => setDeleteModal(null)} />}
-      {addModal    && <ConfirmModal isDark={isDark} title={`Create role "${form.label}"`} message={`A new "${form.label}" role will be created and can be assigned to users.`} confirmLabel="Create Role" requireTyping={false} onConfirm={confirmAdd} onCancel={() => setAddModal(false)} />}
+      {deleteModal && <ConfirmModal isDark={isDark} title={`Remove role "${deleteModal.roleName}"`} message="Users with this role will lose their associated permissions immediately." confirmLabel="Remove Role" requireTyping={false} onConfirm={confirmDelete} onCancel={() => setDeleteModal(null)} />}
+      {addModal    && <ConfirmModal isDark={isDark} title={`Create role "${form.roleName}"`} message={`A new "${form.roleName}" role will be created and can be assigned to users.`} confirmLabel="Create Role" requireTyping={false} onConfirm={confirmAdd} onCancel={() => setAddModal(false)} />}
 
       <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
         {/* Badges */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
           {roles.map(role => (
-            <FadeSlideRow key={role.id} isRemoving={removing === role.id}>
+            <FadeSlideRow key={role.roleName} isRemoving={removing === role.roleName}>
               <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.3rem 0.55rem 0.3rem 0.45rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: 600, background: `${role.color}12`, border: `1px solid ${role.color}28`, color: role.color }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: role.color, flexShrink: 0 }} />
-                {role.label}
-                <span style={{ fontSize: "0.6rem", opacity: 0.5 }}>— {role.desc}</span>
-                <button onClick={() => setDeleteModal(role)} style={{ background: "none", border: "none", cursor: "pointer", padding: "0 0 0 2px", display: "flex", alignItems: "center", opacity: 0.45, transition: "opacity 0.15s ease" }} onMouseEnter={e => e.currentTarget.style.opacity="1"} onMouseLeave={e => e.currentTarget.style.opacity="0.45"}>
+                {role.roleName}
+                <span style={{ fontSize: "0.6rem", opacity: 0.5 }}>— {role.description}</span>
+                <button onClick={() => !isSubmitting && setDeleteModal(role)} disabled={isSubmitting} style={{ background: "none", border: "none", cursor: isSubmitting ? "not-allowed" : "pointer", padding: "0 0 0 2px", display: "flex", alignItems: "center", opacity: isSubmitting ? 0.5 : 0.45, transition: "opacity 0.15s ease" }} onMouseEnter={e => !isSubmitting && (e.currentTarget.style.opacity="1")} onMouseLeave={e => !isSubmitting && (e.currentTarget.style.opacity="0.45")}>
                   <X style={{ width: 9, height: 9, color: role.color }} />
                 </button>
               </div>
@@ -515,7 +570,7 @@ function ManageRoles({ isDark }: { isDark: boolean }) {
           <div style={{ borderRadius: "0.8rem", padding: "0.9rem 1rem", background: isDark ? "rgba(30,41,59,0.55)" : "rgba(248,250,252,0.85)", border: isDark ? "1px solid rgba(51,65,85,0.4)" : "1px solid rgba(203,213,225,0.4)", display: "flex", flexDirection: "column", gap: "0.7rem" }}>
             <p style={{ fontSize: "0.6rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.09em", color: isDark ? "#475569" : "#94a3b8", margin: 0 }}>New Role</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.55rem" }}>
-              {([{k:"label",label:"Role Name",ph:"e.g. Support Agent"},{k:"desc",label:"Description",ph:"Brief description"}] as { k: keyof typeof form; label: string; ph: string }[]).map(f => (
+              {([{k:"roleName",label:"Role Name",ph:"e.g. Support Agent"},{k:"description",label:"Description",ph:"Brief description"}] as { k: keyof typeof form; label: string; ph: string }[]).map(f => (
                 <div key={f.k}>
                   <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.08em", color: isDark ? "#475569" : "#94a3b8", margin: "0 0 0.25rem" }}>{f.label}</p>
                   <input value={form[f.k]} onChange={e => setForm(v => ({ ...v, [f.k]: e.target.value }))} placeholder={f.ph} style={{ width: "100%", padding: "0.42rem 0.6rem", borderRadius: "0.5rem", fontSize: "0.73rem", outline: "none", background: isDark ? "rgba(15,23,42,0.6)" : "#fff", border: isDark ? "1px solid rgba(51,65,85,0.5)" : "1px solid rgba(203,213,225,0.5)", color: isDark ? "#f1f5f9" : "#0f172a", boxSizing: "border-box" }} />
@@ -526,19 +581,19 @@ function ManageRoles({ isDark }: { isDark: boolean }) {
               <p style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.08em", color: isDark ? "#475569" : "#94a3b8", margin: "0 0 0.35rem" }}>Badge Color</p>
               <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap" }}>
                 {ROLE_COLORS.map(c => (
-                  <button key={c} onClick={() => setForm(v => ({ ...v, color: c }))} style={{ width: 20, height: 20, borderRadius: "50%", background: c, border: "none", cursor: "pointer", outline: form.color === c ? `2.5px solid ${c}` : "none", outlineOffset: 2, transform: form.color === c ? "scale(1.22)" : "scale(1)", transition: "transform 0.18s ease, outline 0.15s ease" }} />
+                  <button key={c} onClick={() => setForm(v => ({ ...v, color: c }))} disabled={isSubmitting} style={{ width: 20, height: 20, borderRadius: "50%", background: c, border: "none", cursor: isSubmitting ? "not-allowed" : "pointer", outline: form.color === c ? `2.5px solid ${c}` : "none", outlineOffset: 2, transform: form.color === c ? "scale(1.22)" : "scale(1)", transition: "transform 0.18s ease, outline 0.15s ease", opacity: isSubmitting ? 0.6 : 1 }} />
                 ))}
               </div>
             </div>
             <div style={{ display: "flex", gap: "0.45rem" }}>
-              <button onClick={() => form.label.trim() && setAddModal(true)} style={{ padding: "0.42rem 0.9rem", borderRadius: "0.55rem", fontSize: "0.72rem", fontWeight: 600, cursor: form.label.trim() ? "pointer" : "not-allowed", background: form.label.trim() ? "rgba(20,184,166,0.11)" : isDark ? "rgba(51,65,85,0.3)" : "rgba(203,213,225,0.4)", border: `1px solid ${form.label.trim() ? "rgba(20,184,166,0.35)" : "transparent"}`, color: form.label.trim() ? "#14b8a6" : isDark ? "#475569" : "#94a3b8", transition: "all 0.18s ease" }}>Add Role</button>
-              <button onClick={() => setShowForm(false)} style={{ padding: "0.42rem 0.9rem", borderRadius: "0.55rem", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", background: isDark ? "rgba(51,65,85,0.4)" : "rgba(241,245,249,0.8)", border: isDark ? "1px solid rgba(51,65,85,0.3)" : "1px solid rgba(203,213,225,0.3)", color: isDark ? "#94a3b8" : "#64748b" }}>Cancel</button>
+              <button onClick={() => form.roleName.trim() && !isSubmitting && setAddModal(true)} disabled={!form.roleName.trim() || isSubmitting} style={{ padding: "0.42rem 0.9rem", borderRadius: "0.55rem", fontSize: "0.72rem", fontWeight: 600, cursor: (form.roleName.trim() && !isSubmitting) ? "pointer" : "not-allowed", background: (form.roleName.trim() && !isSubmitting) ? "rgba(20,184,166,0.11)" : isDark ? "rgba(51,65,85,0.3)" : "rgba(203,213,225,0.4)", border: `1px solid ${(form.roleName.trim() && !isSubmitting) ? "rgba(20,184,166,0.35)" : "transparent"}`, color: (form.roleName.trim() && !isSubmitting) ? "#14b8a6" : isDark ? "#475569" : "#94a3b8", transition: "all 0.18s ease", opacity: isSubmitting ? 0.6 : 1 }}>Add Role</button>
+              <button onClick={() => !isSubmitting && setShowForm(false)} disabled={isSubmitting} style={{ padding: "0.42rem 0.9rem", borderRadius: "0.55rem", fontSize: "0.72rem", fontWeight: 600, cursor: isSubmitting ? "not-allowed" : "pointer", background: isDark ? "rgba(51,65,85,0.4)" : "rgba(241,245,249,0.8)", border: isDark ? "1px solid rgba(51,65,85,0.3)" : "1px solid rgba(203,213,225,0.3)", color: isDark ? "#94a3b8" : "#64748b", opacity: isSubmitting ? 0.6 : 1 }}>Cancel</button>
             </div>
           </div>
         </AnimatedHeight>
 
         {!showForm && (
-          <button onClick={() => setShowForm(true)} style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.48rem 0.9rem", borderRadius: "0.7rem", fontSize: "0.72rem", fontWeight: 600, cursor: "pointer", background: isDark ? "rgba(20,184,166,0.07)" : "rgba(20,184,166,0.05)", border: "1px dashed rgba(20,184,166,0.35)", color: "#14b8a6", transition: "all 0.18s ease" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(20,184,166,0.13)"} onMouseLeave={e => e.currentTarget.style.background = isDark ? "rgba(20,184,166,0.07)" : "rgba(20,184,166,0.05)"}>
+          <button onClick={() => !isSubmitting && setShowForm(true)} disabled={isSubmitting} style={{ alignSelf: "flex-start", display: "inline-flex", alignItems: "center", gap: "0.35rem", padding: "0.48rem 0.9rem", borderRadius: "0.7rem", fontSize: "0.72rem", fontWeight: 600, cursor: isSubmitting ? "not-allowed" : "pointer", background: isDark ? "rgba(20,184,166,0.07)" : "rgba(20,184,166,0.05)", border: "1px dashed rgba(20,184,166,0.35)", color: "#14b8a6", transition: "all 0.18s ease", opacity: isSubmitting ? 0.6 : 1 }} onMouseEnter={e => !isSubmitting && (e.currentTarget.style.background = "rgba(20,184,166,0.13)")} onMouseLeave={e => !isSubmitting && (e.currentTarget.style.background = isDark ? "rgba(20,184,166,0.07)" : "rgba(20,184,166,0.05)")}>
             <Plus style={{ width: 12, height: 12 }} /> Add New Role
           </button>
         )}
@@ -775,9 +830,7 @@ export default function DangerZone() {
         <div className="afu d3" style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
           <SectionCard icon={Trash2}     accentColor="#ef4444" title="Database Collections & Backup" subtitle="Permanently remove a collection or create a backup for the DB"  isDark={isDark}><DeleteCollections isDark={isDark} /></SectionCard>
           <SectionCard icon={RefreshCw}  accentColor="#f97316" title="Reset Sessions & Analytics"             subtitle="Wipe all historical analytics data & user sessions from the DB."      isDark={isDark}><ResetAnalytics    isDark={isDark} /></SectionCard>
-          <div style={{ opacity: 0.5, pointerEvents: "none" }}>
-            <SectionCard icon={ShieldPlus} accentColor="#8b5cf6" title="Manage Roles"                subtitle="Create or remove permission roles system-wide"         isDark={isDark}><ManageRoles       isDark={isDark} /></SectionCard>
-          </div>
+          <SectionCard icon={ShieldPlus} accentColor="#8b5cf6" title="Manage Roles"                subtitle="Create or remove permission roles system-wide"         isDark={isDark}><ManageRoles       isDark={isDark} /></SectionCard>
           <div style={{ opacity: 0.5, pointerEvents: "none" }}>
             <SectionCard icon={Key}        accentColor="#eab308" title="API Key Management"          subtitle="Edit, toggle, or permanently revoke API keys"           isDark={isDark}><ManageApiKeys     isDark={isDark} /></SectionCard>
           </div>

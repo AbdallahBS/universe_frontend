@@ -66,3 +66,15 @@ export interface PrivateStatsResponse {
   contentsCount: ContentsStat;
   dailyVisitors: number;
 }
+
+export interface Role {
+  roleName: string;
+  description: string;
+  color: string;
+}
+
+// API response structure
+export interface GetRolesResponse {
+  success: boolean;
+  data: Role[];
+}
