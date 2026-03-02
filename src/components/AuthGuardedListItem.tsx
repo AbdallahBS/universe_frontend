@@ -31,12 +31,24 @@ const AuthGuardedListItem: React.FC<AuthGuardedListItemProps> = ({
     return <>{children}</>;
   }
 
-  // For real items: Show content but disable clicks
+  // For real items: Show content with clickable overlay to trigger auth modal
   if (!isDummy) {
     return (
       <>
-        <div className="pointer-events-none">
-          {children}
+        <div className="relative group">
+          {/* Content wrapper with disabled interactions */}
+          <div className="pointer-events-none">
+            {children}
+          </div>
+
+          {/* Clickable overlay */}
+          <div className="absolute inset-0 bg-transparent rounded-3xl transition-all duration-300 pointer-events-auto hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsAuthModalOpen(true);
+            }}
+          />
         </div>
 
         {/* Auth Modal */}
