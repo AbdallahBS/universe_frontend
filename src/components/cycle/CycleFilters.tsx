@@ -1,19 +1,20 @@
 import React from 'react';
 import { Search, BookOpen } from 'lucide-react';
-import { availableSpecialties } from '@data/cycleIngenieurData';
 
 interface CycleFiltersProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   selectedSpecialty: string;
   onSpecialtyChange: (specialty: string) => void;
+  availableSpecialties: string[];
 }
 
 const CycleFilters: React.FC<CycleFiltersProps> = ({
   searchQuery,
   onSearchChange,
   selectedSpecialty,
-  onSpecialtyChange
+  onSpecialtyChange,
+  availableSpecialties
 }) => {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-8 shadow-sm">

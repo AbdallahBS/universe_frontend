@@ -11,7 +11,8 @@ import {
     Mail,
     BarChart3,
     Shield,
-    ChevronRight
+    ChevronRight,
+    GraduationCap
 } from 'lucide-react';
 
 interface ContentOption {
@@ -40,12 +41,21 @@ const ContentManagementPage: React.FC = () => {
         },
         {
             id: 'Alternances',
-            title: 'Manage alternances',
+            title: 'Manage Alternances',
             description: 'Create and manage alternance posts',
             icon: <FileText className="w-8 h-8" />,
             path: '/admin/contents/alternances',
             color: 'from-purple-500 to-purple-600',
             bgColor: 'bg-purple-50 dark:bg-purple-900/20'
+        },
+        {
+            id: 'Schools',
+            title: 'Manage Schools',
+            description: 'Add, edit and manage Cycle Ingénieur schools',
+            icon: <GraduationCap className="w-8 h-8" />,
+            path: '/admin/contents/schools',
+            color: 'from-emerald-500 to-emerald-600',
+            bgColor: 'bg-emerald-50 dark:bg-emerald-900/20'
         },
     ];
 

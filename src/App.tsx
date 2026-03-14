@@ -37,6 +37,7 @@ import { useNavigatePage } from '@components/ui/useNavigatePage';
 import ApplicationMonitoringPage from '@pages/admin/ApplicationMonotoringPage';
 import DangerZone from '@pages/admin/dangerZonePage';
 import ContentManagementPage from '@pages/admin/ContentManagementPage';
+import SchoolManagementPage from '@pages/admin/SchoolManagementPage';
 
 // Main app content component
 function AppContent() {
@@ -204,6 +205,15 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <AlternanceManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/contents/schools"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <SchoolManagementPage />
             </ProtectedRoute>
           }
         />

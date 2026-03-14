@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Calculator, TrendingUp, X, AlertCircle } from 'lucide-react';
-import { getUniversitiesByLicense, availableSpecialties, University, universitiesData } from '@data/cycleIngenieurData';
+import { School } from '../../types/school';
 import TransText from '@components/TransText';
 import { useTranslation } from 'react-i18next';
 
-const ScoreCalculator: React.FC = () => {
+const ScoreCalculator: React.FC<{ schools?: School[] }> = ({ schools = [] }) => {
   const {t} = useTranslation();
   const [scores, setScores] = useState({
     // First Year
@@ -41,7 +41,7 @@ const ScoreCalculator: React.FC = () => {
 
   // Add new state for comparison
   const [showComparison, setShowComparison] = useState(false);
-  const [selectedUniversity, setSelectedUniversity] = useState<University | null>(null);
+  const [selectedUniversity, setSelectedUniversity] = useState<School | null>(null);
   const [comparisonSpecialty, setComparisonSpecialty] = useState('');
 
   // Add new state for video modal
@@ -167,7 +167,7 @@ const ScoreCalculator: React.FC = () => {
   };
 
   // Get specialties for selected university
-  const getUniversitySpecialties = (university: University) => {
+  const getUniversitySpecialties = (university: School) => {
     return university.detailedSpecialties.map(spec => ({
       name: spec.name,
       code: spec.code,
@@ -504,17 +504,17 @@ const ScoreCalculator: React.FC = () => {
               Choose School
             </label>
             <select
-              value={selectedUniversity?.id || ''}
+              value={selectedUniversity?.schoolId || ''}
               onChange={(e) => {
-                const uni = universitiesData.find(u => u.id === e.target.value);
+                const uni = schools.find(u => u.schoolId === e.target.value);
                 setSelectedUniversity(uni || null);
                 setComparisonSpecialty('');
               }}
               className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">-- Choose School --</option>
-              {universitiesData.map((uni) => (
-                <option key={uni.id} value={uni.id}>
+              {schools.map((uni) => (
+                  <option key={uni.schoolId} value={uni.schoolId}>
                   {uni.name} - {uni.fullName}
                 </option>
               ))}

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Users, Calendar, Award, ExternalLink, Download, X, Phone, Mail, MapPin as LocationIcon, Navigation } from 'lucide-react';
-import { University } from '@data/cycleIngenieurData';
+import { School } from '../../types/school';
+
+// Alias for backward compatibility within this component
+type University = School;
 
 interface UniversityCardProps {
   university: University;
@@ -176,7 +179,7 @@ const UniversityCard: React.FC<UniversityCardProps> = ({ university, license }) 
             </a>
             <Link
               to={{
-                pathname: `/university/${university.id}`,
+                pathname: `/university/${university.schoolId}`,
                 search: license ? `?specialty=${encodeURIComponent(license)}` : ''
               }}
               state={{ selectedSpecialty: license || "All Specialties" }}

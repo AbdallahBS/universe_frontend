@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, GraduationCap, Calculator, TrendingUp, Users, MapPin, Calendar, Award, ExternalLink, FileText, Download, AlertCircle } from 'lucide-react';
-import { universitiesData, University, scoreCalculationInfo, getUniversitiesBySpecialty } from '@data/cycleIngenieurData';
+import { getSchools, getSchoolConfig } from '../../services/schoolService';
+import { School } from '../../types/school';
 import UniversityCard from '@components/cycle/UniversityCard';
 import CycleFilters from '@components/cycle/CycleFilters';
 import ScoreCalculator from '@components/cycle/ScoreCalculator';
@@ -18,53 +19,69 @@ const CycleIngenieurPage: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   const {t} = useTranslation();
-  const initialType = (searchParams.get('type') as University['type']) || 'all';
+  const initialType = (searchParams.get('type') as School['type']) || 'all';
 
-  const [selectedType, setSelectedType] = useState<University['type'] | 'all'>(initialType);
+  const [schools, setSchools] = useState<School[]>([]);
+  const [availableSpecialties, setAvailableSpecialties] = useState<string[]>(['All Specialties']);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [selectedType, setSelectedType] = useState<School['type'] | 'all'>(initialType);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('All Specialties');
   const [activeTab, setActiveTab] = useState<'universities' | 'calculator' | 'annexes' | 'guide' | 'requirements'>('universities');
 
-  // Filter universities based on selected criteria
+  // Fetch schools and config from API
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const [schoolsRes, configRes] = await Promise.all([
+          getSchools(),
+          getSchoolConfig(),
+        ]);
+        setSchools(schoolsRes.data);
+        setAvailableSpecialties(configRes.data.availableSpecialties);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load schools');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  // Filter schools based on selected criteria (client-side)
   const filteredUniversities = useMemo(() => {
-    let filtered = universitiesData;
+    let filtered = schools;
 
     // Filter by type
     if (selectedType !== 'all') {
-      filtered = filtered.filter(university => university.type === selectedType);
+      filtered = filtered.filter(school => school.type === selectedType);
     }
 
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(university =>
-        university.name.toLowerCase().includes(query) ||
-        university.fullName.toLowerCase().includes(query) ||
-        university.location.toLowerCase().includes(query) ||
-        university.specialties.some(specialty => specialty.toLowerCase().includes(query))
+      filtered = filtered.filter(school =>
+        school.name.toLowerCase().includes(query) ||
+        school.fullName.toLowerCase().includes(query) ||
+        school.location.toLowerCase().includes(query) ||
+        school.specialties.some(specialty => specialty.toLowerCase().includes(query))
       );
     }
 
     // Filter by specialty
     if (selectedSpecialty !== 'All Specialties') {
-      filtered = filtered.filter(university =>
-        university.specialties.includes(selectedSpecialty)
+      filtered = filtered.filter(school =>
+        school.specialties.includes(selectedSpecialty)
       );
     }
 
     return filtered.sort((a, b) => (a.ranking || 999) - (b.ranking || 999));
-  }, [selectedType, searchQuery, selectedSpecialty]);
+  }, [schools, selectedType, searchQuery, selectedSpecialty]);
 
-  // Statistics
-  const stats = {
-    total: universitiesData.length,
-    specifique: universitiesData.filter(u => u.type === 'specifique').length,
-    independant: universitiesData.filter(u => u.type === 'independant').length,
-    ressourcePedagogique: universitiesData.filter(u => u.type === 'ressource-pedagogique').length,
-    launched: universitiesData.filter(u => u.concoursStatus === 'launched').length
-  };
-
-  const getStatusColor = (status: University['concoursStatus']) => {
+  const getStatusColor = (status: School['concoursStatus']) => {
     switch (status) {
       case 'launched':
         return 'bg-green-100 text-green-800';
@@ -79,7 +96,7 @@ const CycleIngenieurPage: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: University['concoursStatus']) => {
+  const getStatusLabel = (status: School['concoursStatus']) => {
     switch (status) {
       case 'launched':
         return 'Contest Open';
@@ -93,6 +110,32 @@ const CycleIngenieurPage: React.FC = () => {
         return status;
     }
   };
+
+  // Loading / error states
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading schools...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+          <button onClick={() => window.location.reload()} className="px-4 py-2 bg-indigo-600 text-white rounded-lg">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20">
@@ -202,6 +245,7 @@ const CycleIngenieurPage: React.FC = () => {
               onSearchChange={setSearchQuery}
               selectedSpecialty={selectedSpecialty}
               onSpecialtyChange={setSelectedSpecialty}
+              availableSpecialties={availableSpecialties}
             />
 
             {/* Results */}
@@ -230,7 +274,7 @@ const CycleIngenieurPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredUniversities.map((university) => (
                   <UniversityCard
-                    key={university.id}
+                    key={university.schoolId}
                     university={university}
                     license={selectedSpecialty !== 'All Specialties' ? selectedSpecialty : undefined}
                   />
@@ -260,7 +304,7 @@ const CycleIngenieurPage: React.FC = () => {
           </>
         )}
 
-        {activeTab === 'calculator' && <ScoreCalculator />}
+        {activeTab === 'calculator' && <ScoreCalculator schools={schools} />}
 
         {activeTab === 'annexes' && (
           <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 mb-8 shadow-sm">

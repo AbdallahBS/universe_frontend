@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, MapPin, Phone, Mail, ExternalLink, Download, Calendar, Users, Award, Navigation, Star } from 'lucide-react';
-import { getUniversityById, University } from '@data/cycleIngenieurData';
+import { ArrowLeft, MapPin, Phone, Mail, ExternalLink, Download, Calendar, Navigation } from 'lucide-react';
+import { getSchoolById } from '../../services/schoolService';
+import { School } from '../../types/school';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -19,32 +20,38 @@ L.Icon.Default.mergeOptions({
 
 const UniversityDetailsPage: React.FC = () => {
 
-    useEffect(() => {
-      document.title = 'Universe | Cycle Ingénieur';
-    }, []);
-  
-  const {t} = useTranslation();
+  useEffect(() => {
+    document.title = 'Universe | Cycle Ingénieur';
+  }, []);
+
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigatePage();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [university, setUniversity] = useState<University | null>(null);
+  const [university, setUniversity] = useState<School | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'specialties' | 'location'>('overview');
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
 
   // Get the selected specialty from URL search params or location state
   const selectedSpecialty = searchParams.get('specialty') || location.state?.selectedSpecialty || "All Specialties";
 
+  // Fetch school by id (schoolId like "ENIT" or MongoDB _id)
   useEffect(() => {
     if (id) {
-      const uni = getUniversityById(id);
-      if (uni) {
-        setUniversity(uni);
-      } else {
-        navigate('/cycle-ingenieur');
-      }
+      setLoading(true);
+      setError(null);
+      getSchoolById(id)
+        .then((res) => setUniversity(res.data))
+        .catch((err) => {
+          console.error('Failed to load school:', err);
+          setError(err.message || 'School not found');
+        })
+        .finally(() => setLoading(false));
     }
-  }, [id, navigate]);
+  }, [id]); // navigate intentionally excluded — useNavigatePage returns new ref each render
 
   // Filter specialties based on selected license
   const getFilteredSpecialties = () => {
@@ -107,7 +114,7 @@ const UniversityDetailsPage: React.FC = () => {
     );
   };
 
-  if (!university) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20 flex items-center justify-center">
         <div className="text-center">
@@ -118,7 +125,24 @@ const UniversityDetailsPage: React.FC = () => {
     );
   }
 
-  const getTypeColor = (type: University['type']) => {
+  if (error || !university) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-2xl font-bold text-slate-800 dark:text-white mb-4">School not found</div>
+          <p className="text-slate-500 dark:text-slate-400 mb-6 text-sm">{error}</p>
+          <button
+            onClick={() => navigate('/cycle-ingenieur')}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Back to Schools
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const getTypeColor = (type: School['type']) => {
     switch (type) {
       case 'specifique':
         return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
@@ -131,7 +155,7 @@ const UniversityDetailsPage: React.FC = () => {
     }
   };
 
-  const getTypeLabel = (type: University['type']) => {
+  const getTypeLabel = (type: School['type']) => {
     switch (type) {
       case 'specifique':
         return 'Specific';
@@ -144,7 +168,7 @@ const UniversityDetailsPage: React.FC = () => {
     }
   };
 
-  const getStatusColor = (status: University['concoursStatus']) => {
+  const getStatusColor = (status: School['concoursStatus']) => {
     switch (status) {
       case 'launched':
         return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700';
@@ -159,7 +183,7 @@ const UniversityDetailsPage: React.FC = () => {
     }
   };
 
-  const getStatusLabel = (status: University['concoursStatus']) => {
+  const getStatusLabel = (status: School['concoursStatus']) => {
     switch (status) {
       case 'launched':
         return 'Contest Open';
@@ -359,17 +383,12 @@ const UniversityDetailsPage: React.FC = () => {
                                 e.preventDefault();
                                 setIsDownloading(specialty.code);
                                 const fileName = specialty.planEtudeUrl.split('/').pop();
-                                // Create a temporary link with the correct base URL
                                 const link = document.createElement('a');
-                                // Use the full URL path from the public directory
                                 link.href = `${window.location.origin}${specialty.planEtudeUrl}`;
                                 link.setAttribute('download', fileName || 'plan-etude.pdf');
                                 link.setAttribute('type', 'application/pdf');
                                 document.body.appendChild(link);
-
-                                // Add a small delay to show loading state
                                 await new Promise(resolve => setTimeout(resolve, 800));
-
                                 link.click();
                                 document.body.removeChild(link);
                                 setIsDownloading(null);

@@ -1,14 +1,16 @@
 import React from 'react';
-import { getUniversitiesByLicense, University } from '@data/cycleIngenieurData';
+import { School } from '../../types/school';
+import { getSchoolsByLicense } from '../../services/schoolService';
 
 interface ScoreComparisonProps {
   scoreG: number;
   selectedLicense: string;
   onClose: () => void;
+  schools: School[];
 }
 
-const ScoreComparison: React.FC<ScoreComparisonProps> = ({ scoreG, selectedLicense, onClose }) => {
-  const matchingUniversities = getUniversitiesByLicense(selectedLicense);
+const ScoreComparison: React.FC<ScoreComparisonProps> = ({ scoreG, selectedLicense, onClose, schools }) => {
+  const matchingUniversities = getSchoolsByLicense(schools, selectedLicense);
 
   const getAcceptanceChance = (lastScore: number): {
     label: string;
@@ -69,8 +71,8 @@ const ScoreComparison: React.FC<ScoreComparisonProps> = ({ scoreG, selectedLicen
 
         <div className="p-6">
           <div className="grid gap-6">
-            {matchingUniversities.map(({ university, specialties }) => (
-              <div key={university.id} className="border border-slate-200 rounded-lg p-4">
+            {matchingUniversities.map(({ school: university, specialties }) => (
+              <div key={university.schoolId} className="border border-slate-200 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-slate-800">{university.name}</h3>
