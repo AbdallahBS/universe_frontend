@@ -16,8 +16,8 @@ function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const RAW_BASE = import.meta.env.VITE_API_URL;
-const BASE_URL = (RAW_BASE ?? "").replace(/\/$/, "");
+const RAW_BASE = import.meta.env.VITE_API_URL || "https://universe-backend-2.onrender.com";
+const BASE_URL = (RAW_BASE ?? "https://universe-backend-2.onrender.com").replace(/\/$/, "");
 
 // ---------- GLOBAL REFRESH CONTROL ----------
 let isRefreshing = false;
