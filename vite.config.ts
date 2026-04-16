@@ -8,6 +8,14 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        examCertificates: path.resolve(__dirname, 'exam-certificates/index.html'),
+      },
+    },
+  },
   server: {
     headers: {
       // Allow Google OAuth popup to communicate back to the parent window.
@@ -28,3 +36,4 @@ export default defineConfig({
     }
   }
 });
+
