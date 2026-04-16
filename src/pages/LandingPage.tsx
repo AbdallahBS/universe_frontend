@@ -113,14 +113,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ }) => {
 
               {/* Main Headline */}
               <div className="space-y-4">
-                <TransText as="h1" className="text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-tight animate-fade-in-up animation-delay-400">
-                  {t('hero.titleLine1')}
-                  <br />
+                <TransText as="h1" className=" text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400 text-5xl lg:text-7xl font-bold text-slate-900 dark:text-white leading-tight animate-fade-in-up animation-delay-400 dark:to-purple-400">
+                
+              
                   <TransText className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600 dark:from-teal-400 dark:via-blue-400 dark:to-purple-400">
                     {t('hero.titleLine2')}
                   </TransText>
                   <br />
-                  <TransText>{t('hero.titleLine3')}</TransText>
+                  
                 </TransText>
 
                 <TransText as='p' className='text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg animate-fade-in-up animation-delay-500'>{t('hero.description')}</TransText>

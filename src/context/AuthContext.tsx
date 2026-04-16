@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
-import CookieManager from '../utils/cookies';
+import { apiFetch } from '../services/api';
 import { User } from 'types/resource';
 import { getStats } from '../services/authService';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Types
+// ─────────────────────────────────────────────────────────────────────────────
 type AuthContextValue = {
   user: User | null;
   userRoles: string[];
@@ -19,6 +22,22 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: fetch the current session from the server
+// Single source of truth — reads httpOnly cookies, returns fresh user data.
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchCurrentUser(): Promise<User | null> {
+  try {
+    const data: any = await apiFetch('/v1/auth/me', { requireAuth: true });
+    return data?.user ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Provider
+// ─────────────────────────────────────────────────────────────────────────────
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userRoles, setUserRoles] = useState<string[]>([]);
@@ -27,23 +46,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAuthenticated = useMemo(() => !!user, [user]);
 
-  // Initialize auth state from cookies on mount
+  // ── Restore session on app mount ──────────────────────────────────────────
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const response: any = await getStats();
-        setStats(response);
+        // Auth and stats are independent — run in parallel for performance
+        const [freshUser, statsResponse] = await Promise.allSettled([
+          fetchCurrentUser(),
+          getStats(),
+        ]);
 
-        const me: any = await CookieManager.isAuthenticated();
-        const isAuth = !!me;
-
-        const CookieUser = CookieManager.getUser();
-
-        if (isAuth && CookieUser) {
-          setUser(CookieUser);
-          setUserRoles(me.user.roles || []);
+        if (statsResponse.status === 'fulfilled') {
+          setStats(statsResponse.value);
         }
 
+        if (freshUser.status === 'fulfilled' && freshUser.value) {
+          setUser(freshUser.value);
+          setUserRoles((freshUser.value as any).roles || []);
+        }
       } catch (error) {
         console.error('Failed to initialize auth state:', error);
       } finally {
@@ -54,61 +74,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const signup = async (payload: { firstname: string; lastname: string; email: string; password: string }) => {
-    try {
-      const { signup: signupService } = await import('../services/authService');
-      const response = await signupService(payload);
+  // ── Helpers to update state after login ───────────────────────────────────
+  const applyUser = (newUser: User | null) => {
+    setUser(newUser);
+    setUserRoles((newUser as any)?.roles || []);
+  };
 
-      // Store user data in cookie (tokens are already set by backend)
-      if (response.user) {
-        response.user.rememberMe = true; // rememberMe auto checked
-        CookieManager.set('user', JSON.stringify(response.user), 30);
-        setUser(response.user);
-      }
-    } catch (error) {
-      console.error('Signup failed:', error);
-      throw error;
-    }
+  // ── Auth actions ──────────────────────────────────────────────────────────
+  const signup = async (payload: { firstname: string; lastname: string; email: string; password: string }) => {
+    const { signup: signupService } = await import('../services/authService');
+    const response = await signupService(payload);
+    // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
+    const freshUser = await fetchCurrentUser();
+    applyUser(freshUser ?? (response.user as any));
   };
 
   const login = async (email: string, password: string, rememberMe: boolean = false) => {
-    try {
-      const { login: loginService } = await import('../services/authService');
-      const response = await loginService({ email, password, rememberMe });
-
-      // Store user data in cookie (tokens are already set by backend)
-      if (response.user) {
-        response.user.rememberMe = rememberMe;
-        CookieManager.set('user', JSON.stringify(response.user), 30);
-        setUser(response.user);
-
-        const me: any = await CookieManager.isAuthenticated();
-        setUserRoles(me.user.roles || []);
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    }
+    const { login: loginService } = await import('../services/authService');
+    await loginService({ email, password, rememberMe });
+    // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
+    const freshUser = await fetchCurrentUser();
+    applyUser(freshUser);
   };
 
   const loginWithGoogle = async (idToken: string) => {
-    try {
-      const { googleLogin } = await import('../services/authService');
-      const response = await googleLogin(idToken);
-
-      // Store user data in cookie (tokens are already set by backend)
-      if (response.user) {
-        response.user.rememberMe = true; // rememberMe auto checked
-        CookieManager.set('user', JSON.stringify(response.user), 30);
-        setUser(response.user);
-
-        const me: any = await CookieManager.isAuthenticated();
-        setUserRoles(me.user.roles || []);
-      }
-    } catch (error) {
-      console.error('Google login failed:', error);
-      throw error;
-    }
+    const { googleLogin } = await import('../services/authService');
+    await googleLogin(idToken);
+    // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
+    const freshUser = await fetchCurrentUser();
+    applyUser(freshUser);
   };
 
   const logout = async () => {
@@ -118,24 +112,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      // Clear cookies and local state
-      CookieManager.clearAuth();
-      setUser(null);
-      setUserRoles([]);
+      applyUser(null);
     }
   };
 
-  // Refresh user data from backend
+  // Refresh user data from server (e.g. after profile update)
   const refreshUser = async () => {
-    try {
-      const me: any = await CookieManager.isAuthenticated();
-      if (me && me.user) {
-        CookieManager.set('user', JSON.stringify(me.user), 30);
-        setUser(me.user);
-        setUserRoles(me.user.roles || []);
-      }
-    } catch (error) {
-      console.error('Failed to refresh user:', error);
+    const freshUser = await fetchCurrentUser();
+    if (freshUser) {
+      applyUser(freshUser);
     }
   };
 
@@ -150,12 +135,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loginWithGoogle,
     logout,
     setUser,
-    refreshUser
-  }), [user, userRoles, isAuthenticated, isLoading]);
+    refreshUser,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [user, userRoles, stats, isAuthenticated, isLoading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Hook
+// ─────────────────────────────────────────────────────────────────────────────
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) {

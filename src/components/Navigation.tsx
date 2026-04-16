@@ -20,7 +20,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
     return localStorage.getItem('language') || 'tn';
   });
   const { isDark, toggleTheme } = useTheme();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const profileRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -174,7 +174,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
               )}
             </button>
 
-            {isAuthenticated && user ? (
+            {isLoading ? (
+              /* Auth skeleton — prevents flash of login button during session restore */
+              <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
+            ) : isAuthenticated && user ? (
               /* Profile Dropdown */
               <div className="relative" ref={profileRef}>
                 <button
@@ -368,7 +371,18 @@ const Navigation: React.FC<NavigationProps> = ({ currentPage }) => {
 
           {/* Mobile Auth Section */}
           <div className="pt-4 pb-3 border-t border-slate-200 dark:border-slate-700 space-y-2">
-            {isAuthenticated && user ? (
+            {isLoading ? (
+              /* Mobile auth skeleton */
+              <div className="px-3 py-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                    <div className="h-2 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ) : isAuthenticated && user ? (
               <>
                 {/* User Info */}
                 <div className="px-3 py-2">

@@ -8,7 +8,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
 import StatusSelectionModal from '../../components/StatusSelectionModal';
-import CookieManager from '../../utils/cookies';
+
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface LoginPageProps {
@@ -18,7 +18,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   const navigate = useNavigatePage();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const { login, loginWithGoogle, setUser } = useAuth();
+  const { login, loginWithGoogle, setUser, user } = useAuth();
 
   // Get redirect URL from params (for post-auth navigation)
   const redirectUrl = searchParams.get('redirect') || '/dashboard';
@@ -47,8 +47,6 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
   };
 
   const handleUserUpdate = (updatedUser: any) => {
-    // Update user in context and cookies
-    CookieManager.set('user', JSON.stringify(updatedUser), 30);
     setUser(updatedUser);
   };
 
@@ -59,16 +57,12 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
 
     try {
       await login(formData.email, formData.password, formData.rememberMe);
-      // Check if user has status - we need to get fresh user data
-      const cookieUser = CookieManager.getUser();
-      // Check if status is null, undefined, or doesn't exist
-      const hasNoStatus = !cookieUser || cookieUser.status === null || cookieUser.status === undefined;
+      // 'user' is updated in context by login() — check status from there
+      const hasNoStatus = !user || user.status === null || user.status === undefined;
       if (hasNoStatus) {
-        // Show status modal for users without status
         setPendingNavigation(redirectUrl);
         setShowStatusModal(true);
       } else {
-        // Redirect to intended URL or dashboard
         navigate(redirectUrl);
       }
     } catch (err: any) {
@@ -85,10 +79,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
       setError(null);
       try {
         await loginWithGoogle(tokenResponse.access_token);
-        // Check if user has status
-        const cookieUser = CookieManager.getUser();
-        if (cookieUser && !cookieUser.status) {
-          // Show status modal for users without status
+        // 'user' is updated in context by loginWithGoogle() — check status from there
+        if (!user || !user.status) {
           setPendingNavigation(redirectUrl);
           setShowStatusModal(true);
         } else {

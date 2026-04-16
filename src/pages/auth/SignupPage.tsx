@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import TransText from '@components/TransText';
 import { useTranslation } from 'react-i18next';
 import StatusSelectionModal from '../../components/StatusSelectionModal';
-import CookieManager from '../../utils/cookies';
+
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface SignupPageProps {
@@ -53,8 +53,6 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
   };
 
   const handleUserUpdate = (updatedUser: any) => {
-    // Update user in context and cookies
-    CookieManager.set('user', JSON.stringify(updatedUser), 30);
     setUser(updatedUser);
   };
 

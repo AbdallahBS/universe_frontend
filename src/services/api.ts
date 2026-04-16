@@ -16,8 +16,8 @@ function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const RAW_BASE = import.meta.env.VITE_API_URL || "https://universe-backend-2.onrender.com";
-const BASE_URL = (RAW_BASE ?? "https://universe-backend-2.onrender.com").replace(/\/$/, "");
+const RAW_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const BASE_URL = (RAW_BASE ?? "http://localhost:3000").replace(/\/$/, "");
 
 // ---------- GLOBAL REFRESH CONTROL ----------
 let isRefreshing = false;
@@ -116,8 +116,8 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
     errorCode === "INVALID_TOKEN" ||
     errorCode === "TOKEN_EXPIRED" ||
     errorCode === "AUTH_EXPIRED" ||
-    response.status === 401 ||
-    response.status === 400;
+    response.status === 401;
+    // Note: 400 (Bad Request) is NOT an auth failure — do not trigger refresh on it.
 
   //if (opts.requireAuth && tokenExpired) {
   if (tokenExpired && opts.requireAuth) {

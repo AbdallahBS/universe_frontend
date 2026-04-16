@@ -4,7 +4,7 @@ import InputField from '../../components/ui/InputField';
 import Button from '../../components/ui/Button';
 import { verifyEmail, requestEmailVerification } from '../../services/authService';
 import { useAuth } from '../../context/AuthContext';
-import CookieManager from '../../utils/cookies';
+
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface VerifyEmailPageProps {
@@ -54,11 +54,9 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
         try {
           await verifyEmail({ token: tokenFromUrl });
 
-          // Update user verification status in context and cookie
+          // Update user verification status in context (server is source of truth)
           if (user) {
-            const updatedUser = { ...user, isVerified: true };
-            setUser(updatedUser);
-            CookieManager.set('user', JSON.stringify(updatedUser), 30);
+            setUser({ ...user, isVerified: true });
           }
 
           setSuccess(true);
@@ -94,11 +92,9 @@ const VerifyEmailPage: React.FC<VerifyEmailPageProps> = ({ userEmail }) => {
     try {
       await verifyEmail({ code: verificationCode });
 
-      // Update user verification status in context and cookie
+      // Update user verification status in context (server is source of truth)
       if (user) {
-        const updatedUser = { ...user, isVerified: true };
-        setUser(updatedUser);
-        CookieManager.set('user', JSON.stringify(updatedUser), 30);
+        setUser({ ...user, isVerified: true });
       }
 
       setSuccess(true);

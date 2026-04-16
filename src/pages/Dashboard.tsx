@@ -10,7 +10,7 @@ import { timeAgo } from '@utils/helpers';
 import { useTranslation } from 'react-i18next';
 import TransText from '@components/TransText';
 import StatusSelectionModal from '@components/StatusSelectionModal';
-import CookieManager from '@utils/cookies';
+
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 
 interface DashboardProps {
@@ -52,8 +52,6 @@ const Dashboard: React.FC<DashboardProps> = ({ }) => {
   };
 
   const handleUserUpdate = (updatedUser: any) => {
-    // Update user in context and cookies
-    CookieManager.set('user', JSON.stringify(updatedUser), 30);
     setUser(updatedUser);
   };
 

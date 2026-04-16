@@ -257,9 +257,9 @@ const ModuleCarousel: React.FC<ModuleCarouselProps> = ({ modules, onClose, onSta
                                         <button
                                             key={count}
                                             onClick={() => setSelectedQuestionCount(count)}
-                                            className={`flex-1 py-3 rounded-xl font-bold text-base transition-all ${selectedQuestionCount === count
-                                                ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30 scale-105'
-                                                : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
+                                            className={`flex-1 py-2 rounded-lg font-medium text-sm transition-all ${selectedQuestionCount === count
+                                                ? 'bg-blue-600 text-white shadow-md ring-1 ring-blue-500/50'
+                                                : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
                                                 }`}
                                         >
                                             {count}
@@ -280,9 +280,9 @@ const ModuleCarousel: React.FC<ModuleCarouselProps> = ({ modules, onClose, onSta
                                         <button
                                             key={option.label}
                                             onClick={() => setSelectedTimeLimit(option.value)}
-                                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all ${selectedTimeLimit === option.value
-                                                ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/30 scale-105'
-                                                : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
+                                            className={`px-3 py-1.5 rounded-lg font-medium text-sm transition-all ${selectedTimeLimit === option.value
+                                                ? 'bg-orange-500 text-white shadow-md ring-1 ring-orange-500/50'
+                                                : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'
                                                 }`}
                                         >
                                             {option.label}
@@ -312,19 +312,19 @@ const ModuleCarousel: React.FC<ModuleCarouselProps> = ({ modules, onClose, onSta
                             <button
                                 onClick={handleStartQuiz}
                                 disabled={isStarting}
-                                className={`w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold text-lg rounded-xl shadow-xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-3 group ${isStarting ? 'scale-95 opacity-75' : ''
+                                className={`w-full py-3 px-5 bg-blue-600 text-white font-medium text-base rounded-lg shadow hover:bg-blue-500 transition-all duration-300 flex items-center justify-center gap-2 group ${isStarting ? 'scale-95 opacity-75' : ''
                                     }`}
                             >
-                                <Play className={`w-6 h-6 transition-transform ${isStarting ? 'scale-150' : 'group-hover:scale-110'}`} />
+                                <Play className={`w-5 h-5 transition-transform ${isStarting ? 'scale-125' : 'group-hover:translate-x-0.5'}`} />
                                 {isStarting ? 'Loading...' : 'Start Quiz'}
-                                <ArrowRight className={`w-5 h-5 transition-transform ${isStarting ? 'translate-x-4 opacity-0' : 'group-hover:translate-x-1'}`} />
+                                <ArrowRight className={`w-4 h-4 transition-transform ${isStarting ? 'translate-x-4 opacity-0' : 'group-hover:translate-x-1'}`} />
                             </button>
                         ) : (
                             <button
                                 disabled
-                                className="w-full py-4 px-6 bg-slate-700/50 text-slate-500 font-bold text-lg rounded-xl cursor-not-allowed flex items-center justify-center gap-3 border border-slate-600/50"
+                                className="w-full py-3 px-5 bg-slate-800 text-slate-500 font-medium text-base rounded-lg cursor-not-allowed flex items-center justify-center gap-2 border border-slate-700"
                             >
-                                <Clock className="w-6 h-6" />
+                                <Clock className="w-5 h-5" />
                                 Coming Soon
                             </button>
                         )}

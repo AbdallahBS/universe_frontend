@@ -8,6 +8,13 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    headers: {
+      // Allow Google OAuth popup to communicate back to the parent window.
+      // Vite defaults to 'same-origin' which blocks window.closed on cross-origin popups.
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
+  },
   resolve: {
     alias: {
       '@context': path.resolve(__dirname, 'src/context'),
