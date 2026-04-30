@@ -13,8 +13,8 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   isLoading: boolean;
   signup: (payload: { firstname: string; lastname: string; email: string; password: string }) => Promise<void>;
-  login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
-  loginWithGoogle: (idToken: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe: boolean) => Promise<User | null>;
+  loginWithGoogle: (idToken: string) => Promise<User | null>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
   refreshUser: () => Promise<void>;
@@ -89,20 +89,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     applyUser(freshUser ?? (response.user as any));
   };
 
-  const login = async (email: string, password: string, rememberMe: boolean = false) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false): Promise<User | null> => {
     const { login: loginService } = await import('../services/authService');
     await loginService({ email, password, rememberMe });
     // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
     const freshUser = await fetchCurrentUser();
     applyUser(freshUser);
+    return freshUser;
   };
 
-  const loginWithGoogle = async (idToken: string) => {
+  const loginWithGoogle = async (idToken: string): Promise<User | null> => {
     const { googleLogin } = await import('../services/authService');
     await googleLogin(idToken);
     // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
     const freshUser = await fetchCurrentUser();
     applyUser(freshUser);
+    return freshUser;
   };
 
   const logout = async () => {

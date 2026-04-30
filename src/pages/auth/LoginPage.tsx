@@ -56,9 +56,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
     setIsLoading(true);
 
     try {
-      await login(formData.email, formData.password, formData.rememberMe);
-      // 'user' is updated in context by login() — check status from there
-      const hasNoStatus = !user || user.status === null || user.status === undefined;
+      const freshUser = await login(formData.email, formData.password, formData.rememberMe);
+      // Use the freshUser returned by login() — never read stale context `user` state here
+      const hasNoStatus = !freshUser || freshUser.status === null || freshUser.status === undefined;
       if (hasNoStatus) {
         setPendingNavigation(redirectUrl);
         setShowStatusModal(true);
@@ -78,9 +78,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ }) => {
       setIsLoading(true);
       setError(null);
       try {
-        await loginWithGoogle(tokenResponse.access_token);
-        // 'user' is updated in context by loginWithGoogle() — check status from there
-        if (!user || !user.status) {
+        const freshUser = await loginWithGoogle(tokenResponse.access_token);
+        // Use the freshUser returned by loginWithGoogle() — never read stale context `user` state here
+        if (!freshUser || !freshUser.status) {
           setPendingNavigation(redirectUrl);
           setShowStatusModal(true);
         } else {
