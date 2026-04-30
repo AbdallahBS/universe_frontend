@@ -38,6 +38,7 @@ import ApplicationMonitoringPage from '@pages/admin/ApplicationMonotoringPage';
 import DangerZone from '@pages/admin/dangerZonePage';
 import ContentManagementPage from '@pages/admin/ContentManagementPage';
 import SchoolManagementPage from '@pages/admin/SchoolManagementPage';
+import QuestionManagementPage from '@pages/admin/QuestionManagementPage';
 
 // Main app content component
 function AppContent() {
@@ -214,6 +215,15 @@ function AppContent() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <SchoolManagementPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/contents/questions"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <QuestionManagementPage />
             </ProtectedRoute>
           }
         />

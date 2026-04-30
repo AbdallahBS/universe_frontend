@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
-import { ccna2Questions } from './data/ccna2QuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
 import FeedbackCard from '../components/quiz/FeedbackCard';
 import { useAuth } from '../context/AuthContext';
-import { saveQuizAttempt } from '../services/quizService';
+import { saveQuizAttempt, getAdminQuestions, CertificateQuestion } from '../services/quizService';
 import { QuestionResult, SaveAttemptPayload } from '../types/quiz';
 import { useNavigatePage } from '@components/ui/useNavigatePage';
 
@@ -38,6 +37,11 @@ export default function QuizPage() {
     const timerRef = useRef<number | null>(null);
     const hasAutoSubmittedRef = useRef(false);
 
+    // CCNA2 questions loaded from DB
+    const [ccna2QuestionsDB, setCcna2QuestionsDB] = useState<CCNAQuestion[]>([]);
+    const [ccna2Loading, setCcna2Loading] = useState(false);
+    const [ccna2Error, setCcna2Error] = useState<string | null>(null);
+
     // Save attempt state
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
@@ -56,12 +60,57 @@ export default function QuizPage() {
             const time = timeLimitParam ? parseInt(timeLimitParam) * 60 : null; // Convert minutes to seconds
             const module = (moduleParam === 'ccna1' || moduleParam === 'ccna2') ? moduleParam : 'ccna1';
 
+            // For CCNA2: wait until questions are loaded from the backend
+            if (module === 'ccna2') {
+                // If fetch failed, stay on start screen to show error
+                if (ccna2Error) {
+                    setSelectedModule(module);
+                    setScreen('start');
+                    return;
+                }
+                // Still loading or not loaded yet — wait
+                if (ccna2Loading || ccna2QuestionsDB.length === 0) {
+                    setSelectedModule(module);
+                    return; // Will re-run when ccna2QuestionsDB or ccna2Loading changes
+                }
+            }
+
             // Set the selected module before starting
             setSelectedModule(module);
             startQuiz(count, time, module);
         }
-    }, [searchParams]);
+    }, [searchParams, ccna2QuestionsDB, ccna2Loading, ccna2Error]);
 
+
+    // Fetch CCNA2 questions from DB on mount
+    useEffect(() => {
+        const fetchCcna2 = async () => {
+            setCcna2Loading(true);
+            setCcna2Error(null);
+            try {
+                // Fetch all pages (max 200 to cover all questions)
+                const result = await getAdminQuestions('ccna2', 1, 200);
+                const mapped: CCNAQuestion[] = result.questions.map((q: CertificateQuestion) => ({
+                    id: q.questionId,
+                    question: q.question,
+                    type: q.type,
+                    options: q.options,
+                    correctAnswers: q.correctAnswers,
+                    explanation: q.explanation,
+                    imageUrl: q.imageUrl || undefined,
+                    leftItems: q.leftItems,
+                    rightItems: q.rightItems,
+                    correctMatches: q.correctMatches as any,
+                }));
+                setCcna2QuestionsDB(mapped);
+            } catch (e: any) {
+                setCcna2Error(e.message || 'Impossible de charger les questions CCNA2');
+            } finally {
+                setCcna2Loading(false);
+            }
+        };
+        fetchCcna2();
+    }, []);
 
     useEffect(() => {
         document.title = 'Universe | Quiz';
@@ -176,7 +225,10 @@ export default function QuizPage() {
     const startQuiz = (questionCount?: number, timeLimitSeconds?: number | null, module?: QuizModule) => {
         // Use selected module or default
         const currentModule = module || selectedModule;
-        const sourceQuestions = currentModule === 'ccna2' ? ccna2Questions : ccnaQuestions;
+        // Use DB questions for ccna2, fallback to static if DB not loaded
+        const sourceQuestions = currentModule === 'ccna2'
+            ? (ccna2QuestionsDB.length > 0 ? ccna2QuestionsDB : [])
+            : ccnaQuestions;
 
         // Shuffle questions
         let quizQuestions = [...sourceQuestions].sort(() => Math.random() - 0.5);
@@ -292,7 +344,30 @@ export default function QuizPage() {
 
     // Start Screen
     if (screen === 'start') {
-        const currentModuleQuestions = selectedModule === 'ccna2' ? ccna2Questions : ccnaQuestions;
+        const currentModuleQuestions = selectedModule === 'ccna2' ? ccna2QuestionsDB : ccnaQuestions;
+
+        // Loading state for CCNA2
+        if (selectedModule === 'ccna2' && ccna2Loading) {
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12 flex items-center justify-center">
+                    <div className="text-center">
+                        <div className="inline-block w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4" />
+                        <p className="text-slate-600 dark:text-slate-400 font-medium">Chargement des questions CCNA 2...</p>
+                    </div>
+                </div>
+            );
+        }
+
+        if (selectedModule === 'ccna2' && ccna2Error) {
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12 flex items-center justify-center">
+                    <div className="text-center bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-xl max-w-md">
+                        <p className="text-red-600 dark:text-red-400 font-semibold mb-4">⚠️ {ccna2Error}</p>
+                        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition-colors">Réessayer</button>
+                    </div>
+                </div>
+            );
+        }
 
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12">
@@ -813,5 +888,13 @@ export default function QuizPage() {
         );
     }
 
-    return null;
+    // Fallback: loading state (e.g. waiting for CCNA2 questions to load before auto-starting)
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pt-24 pb-12 flex items-center justify-center">
+            <div className="text-center">
+                <div className="inline-block w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4" />
+                <p className="text-slate-600 dark:text-slate-400 font-medium">Chargement du quiz...</p>
+            </div>
+        </div>
+    );
 }

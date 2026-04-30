@@ -1,0 +1,139 @@
+
+<p><strong>33. Quel est l&rsquo;effet de la saisie de la commande de configuration spanning-tree portfast sur un commutateur ?</strong></p>
+<ul>
+<li>Cela désactive un port inutilisé.</li>
+<li>Cela désactive tous les ports de jonction.</li>
+<li class="correct_answer">Il active le portfast sur une interface de commutateur spécifique.</li>
+<li>Il vérifie l&rsquo;adresse L2 source dans l&rsquo;en-tête Ethernet par rapport à l&rsquo;adresse L2 de l&rsquo;expéditeur dans le corps ARP.</li>
+</ul>
+<p><strong>34. Quel est le préfixe IPv6 utilisé pour les adresses lien-local ?</strong></p>
+<ul>
+<li>FF01::/8</li>
+<li>2001 : :/3</li>
+<li>FC00 : :/7</li>
+<li class="correct_answer">FE80::/10</li>
+</ul>
+<div class="message_box announce"><p><b>Explication :</b> Le préfixe lien-local IPv6 est FE80::/10 et est utilisé pour créer une adresse IPv6 lien-local sur une interface.</p></div>
+<p>&nbsp;</p>
+<p><strong>49. Quelles sont les deux fonctions exécutées par un WLC lors de l&rsquo;utilisation du contrôle d&rsquo;accès aux médias (MAC) ? (Choisissez deux réponses.)</strong></p>
+<ul>
+<li>accusés de réception et retransmissions de paquets</li>
+<li>Mise en file d&rsquo;attente des trames et priorisation des paquets</li>
+<li>balises et réponses des sondes</li>
+<li class="correct_answer">traduction du cadre vers d&rsquo;autres protocoles</li>
+<li class="correct_answer">association et réassociation de clients itinérants</li>
+</ul>
+<p><strong>55. Un administrateur réseau configure un nouveau commutateur Cisco pour l&rsquo;accès à la gestion à distance. Quels sont les trois éléments à configurer sur le commutateur pour la tâche ? (Choisissez trois réponses.)</strong></p>
+<ul>
+<li class="correct_answer">Adresse IP</li>
+<li>Domaine VTP</li>
+<li class="correct_answer">lignes vty</li>
+<li>VLAN par défaut</li>
+<li class="correct_answer">passerelle par défaut</li>
+<li>adresse de bouclage</li>
+</ul>
+<div class="message_box announce"><p><strong>Expliquez :</strong> Pour activer l&rsquo;accès de gestion à distance, le commutateur Cisco doit être configuré avec une adresse IP et une passerelle par défaut. De plus, les lignes vty doivent être configurées pour activer les connexions Telnet ou SSH. Une adresse de bouclage, un VLAN par défaut et des configurations de domaine VTP ne sont pas nécessaires pour la gestion des commutateurs à distance.</p></div>
+<p>&nbsp;</p>
+<p><strong>59. Une entreprise vient de passer à un nouveau FAI. Le FAI a terminé et vérifié la connexion de son site à l&rsquo;entreprise. Cependant, les employés de l&rsquo;entreprise ne peuvent pas accéder à Internet. Que faut-il faire ou vérifier ?</strong></p>
+<ul>
+<li>Vérifiez que la route statique vers le serveur est présente dans la table de routage.</li>
+<li>Vérifiez la configuration sur la route statique flottante et ajustez l&rsquo;AD.</li>
+<li class="correct_answer">Assurez-vous que l&rsquo;ancienne route par défaut a été supprimée des routeurs périphériques de l&rsquo;entreprise.</li>
+<li>Créez une route statique flottante vers ce réseau.</li>
+</ul>
+<p><strong>83. Un technicien configure un routeur pour une petite entreprise avec plusieurs WLAN et n&rsquo;a pas besoin de la complexité d&rsquo;un protocole de routage dynamique. Qu&rsquo;est-ce que doitêtre fait ou vérifié ?</strong></p>
+<ul>
+<li>Vérifiez qu&rsquo;il n&rsquo;y a pas de route par défaut dans les tables de routage du routeur Edge.</li>
+<li class="correct_answer">Créez des routes statiques vers tous les réseaux internes et une route par défaut vers Internet.</li>
+<li>Créez des routes statiques supplémentaires vers le même emplacement avec un AD de 1.</li>
+<li>Vérifiez les statistiques sur la route par défaut pour la sursaturation.</li>
+</ul>
+<p><strong>88. Quel plan d&rsquo;atténuation est le meilleur pour contrecarrer une attaque DoS qui crée un débordement de table d&rsquo;adresses MAC ?</strong></p>
+<ul>
+<li>Désactiver la DTP.</li>
+<li>Désactiver STP.</li>
+<li class="correct_answer">Activer la sécurité des ports.</li>
+<li>Placez les ports inutilisés dans un VLAN inutilisé.</li>
+</ul>
+<div class="message_box announce"><p><b>Explique:</b> Une attaque par débordement de table d&rsquo;adresse MAC (CAM), un débordement de tampon et une usurpation d&rsquo;adresse MAC peuvent tous être atténués en configurant la sécurité des ports. Un administrateur réseau ne souhaite généralement pas désactiver STP car il empêche les boucles de couche 2. Le DTP est désactivé pour empêcher le saut de VLAN. Placer des ports inutilisés dans un VLAN inutilisé empêche la connectivité filaire non autorisée.</p></div>
+<p><strong>90. Quel message DHCPv4 un client enverra-t-il pour accepter une adresse IPv4 proposée par un serveur DHCP ?</strong></p>
+<ul>
+<li>diffusion DHCPACK</li>
+<li class="correct_answer">diffusion DHCPREQUEST</li>
+<li>DHCPACK monodiffusion</li>
+<li>DHCPREQUEST en monodiffusion</li>
+</ul>
+<div class="message_box announce"><p><b>Explique:</b> Lorsqu&rsquo;un client DHCP reçoit des messages DHCPOFFER, il enverra un message DHCPREQUEST de diffusion à deux fins. Tout d&rsquo;abord, il indique au serveur DHCP d&rsquo;offre qu&rsquo;il souhaite accepter l&rsquo;offre et lier l&rsquo;adresse IP. Deuxièmement, il informe tous les autres serveurs DHCP qui répondent que leurs offres sont refusées.</p></div>
+
+<p><strong>95. Examinez l&rsquo;illustration. Un administrateur réseau vérifie la configuration du routage inter-VLAN. Les utilisateurs se plaignent que PC2 ne peut pas communiquer avec PC1. Sur la base de la sortie, quelle est la cause possible du problème ?</strong><br />
+<img loading="lazy" decoding="async" class="aligncenter size-full wp-image-2755" src="https://ccnareponses.com/wp-content/uploads/2021/12/CCNA2-v7-Modules-1-4-Switching-Concepts-VLANs-and-InterVLAN-Routing-Exam-Answers-44.png" alt="" width="448" height="392" srcset="https://ccnareponses.com/wp-content/uploads/2021/12/CCNA2-v7-Modules-1-4-Switching-Concepts-VLANs-and-InterVLAN-Routing-Exam-Answers-44.png 448w, https://ccnareponses.com/wp-content/uploads/2021/12/CCNA2-v7-Modules-1-4-Switching-Concepts-VLANs-and-InterVLAN-Routing-Exam-Answers-44-300x263.png 300w, https://ccnareponses.com/wp-content/uploads/2021/12/CCNA2-v7-Modules-1-4-Switching-Concepts-VLANs-and-InterVLAN-Routing-Exam-Answers-44-70x60.png 70w" sizes="auto"  fetchpriority="low"/></p>
+<ul>
+<li>Gi0/0 n&rsquo;est pas configuré comme port de jonction.</li>
+<li>L&rsquo;interface de commande GigabitEthernet0/0.5 a été saisie de manière incorrecte.</li>
+<li>Aucune adresse IP n&rsquo;est configurée sur l&rsquo;interface Gi0/0.</li>
+<li>La commande no shutdown n&rsquo;est pas entrée sur les sous-interfaces.</li>
+<li class="correct_answer">Le eLa commande ncapsulation dot1Q 5 contient le mauvais VLAN.</li>
+</ul>
+
+<p></p></div></p>
+<p><strong>98. Quelle attaque réseau cherche à créer un DoS pour les clients en les empêchant d&rsquo;obtenir un bail DHCP ?</strong></p>
+<ul>
+<li>Usurpation d&rsquo;adresse IP</li>
+<li class="correct_answer">Famine DHCP</li>
+<li>Attaque de table CAM</li>
+<li>Spoofing DHCP</li>
+</ul>
+<div class="message_box announce"><p><strong>Explication : </strong>Les attaques de famine DHCP sont lancées par un attaquant avec l&rsquo;intention de créer un DoS pour les clients DHCP. Pour atteindre cet objectif, l&rsquo;attaquant utilise un outil qui envoie de nombreux messages DHCPDISCOVER afin de louer l&rsquo;intégralité du pool d&rsquo;adresses IP disponibles, les refusant ainsi aux hôtes légitimes.</p></div>
+<p><strong>105. Quelle commande permettra à un routeur de commencer à envoyer des messages lui permettant de configurer une adresse lien-local sans utiliser de serveur DHCP IPv6 ?</strong></p>
+<ul>
+<li>un itinéraire statique</li>
+<li>la route ipv6 ::/0 commande</li>
+<li class="correct_answer">la commande ipv6 unicast-routing</li>
+<li>la commande de routage ip</li>
+</ul>
+<div class="message_box announce"><p><b>Explique:</b> Pour activer IPv6 sur un routeur, vous devez utiliser la commande de configuration globale ipv6 unicast-routing ou utiliser la commande de configuration d&rsquo;interface ipv6 enable. Cela équivaut à saisir le routage IP pour activer le routage IPv4 sur un routeur lorsqu&rsquo;il a été désactivé. Gardez à l&rsquo;esprit qu&rsquo;IPv4 est activé sur un routeur par défaut. IPv6 n&rsquo;est pas activé par défaut.</p></div>
+<p><b>119. Les utilisateurs se plaignent d&rsquo;un accès sporadique à Internet chaque après-midi. Que faut-il faire ou vérifier ?</b></p>
+<ul>
+<li>Créez des routes statiques vers tous les réseaux internes et une route par défaut vers Internet.</li>
+<li>Vérifiez qu&rsquo;il n&rsquo;y a pas de route par défaut dans les tables de routage du routeur Edge.</li>
+<li>Créez une route statique flottante vers ce réseau.</li>
+<li class="correct_answer">Vérifiez les statistiques sur la route par défaut pour la sursaturation.</li>
+</ul>
+<p><b>122. Un nouveau commutateur de couche 3 est connecté à un routeur et est en cours de configuration pour le routage interVLAN. Quelles sont trois des cinq étapes requises pour la configuration ? (Choisissez trois réponses.)</b><br />
+<b>Cas 1 :</b></p>
+<ul>
+<li>modifier le VLAN par défaut</li>
+<li>installer une route statique</li>
+<li>ajustement de la métrique d&rsquo;itinéraire</li>
+<li class="correct_answer">création de VLAN</li>
+<li class="correct_answer">attribution de ports aux VLAN</li>
+<li class="correct_answer">création d&rsquo;interfaces SVI</li>
+<li>implémenter un protocole de routage</li>
+</ul>
+<p><b>Cas 2 :</b></p>
+<ul>
+<li class="correct_answer">activation du routage IP</li>
+<li class="correct_answer">en saisissant « pas de port de commutation » sur le port connecté au routeur</li>
+<li>ajustement de la métrique d&rsquo;itinéraire</li>
+<li>installer une route statique</li>
+<li>attribution des ports au VLAN natif</li>
+<li>modifier le VLAN par défaut</li>
+<li class="correct_answer">attribution de ports aux VLAN</li>
+</ul>
+<p><b>Cas 3 :</b></p>
+<ul>
+<li class="correct_answer">activation du routage IP</li>
+<li>modifier le VLAN par défaut</li>
+<li class="correct_answer">en saisissant « pas de port de commutation » sur le port connecté au routeur</li>
+<li class="correct_answer">établissement de contiguïtés</li>
+<li>attribution de ports aux VLAN</li>
+<li>ajustement de la métrique d&rsquo;itinéraire</li>
+<li>attribution des ports au VLAN natif</li>
+</ul>
+<div class="message_box announce"><p><b>Explication :</b><br />
+Étape 1. Créez les VLAN.<br />
+Étape 2. Créez les interfaces SVI VLAN.<br />
+Étape 3. Configurez les ports d&rsquo;accès.<br />
+Attribuez-les à leurs VLAN respectifs.<br />
+Étape 4. Activez le routage IP.</p></div>
+<p>&nbsp;</p>

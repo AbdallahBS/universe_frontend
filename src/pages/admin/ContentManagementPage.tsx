@@ -57,7 +57,17 @@ const ContentManagementPage: React.FC = () => {
             color: 'from-emerald-500 to-emerald-600',
             bgColor: 'bg-emerald-50 dark:bg-emerald-900/20'
         },
+        {
+            id: 'Questions',
+            title: 'Manage Questions',
+            description: 'View, add and remove CCNA quiz questions in the database',
+            icon: <BookOpen className="w-8 h-8" />,
+            path: '/admin/contents/questions',
+            color: 'from-teal-500 to-cyan-600',
+            bgColor: 'bg-teal-50 dark:bg-teal-900/20'
+        },
     ];
+
 
     const handleNavigate = (path: string) => {
         navigate(path);
