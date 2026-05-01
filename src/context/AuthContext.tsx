@@ -91,20 +91,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string, rememberMe: boolean = false): Promise<User | null> => {
     const { login: loginService } = await import('../services/authService');
-    await loginService({ email, password, rememberMe });
-    // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
-    const freshUser = await fetchCurrentUser();
-    applyUser(freshUser);
-    return freshUser;
+    // The login response already contains the user — use it immediately.
+    // This avoids a second /me round-trip whose cookie may not be ready yet
+    // in cross-origin production deployments (Netlify → Render).
+    const response = await loginService({ email, password, rememberMe });
+    const responseUser = (response?.user ?? null) as User | null;
+    applyUser(responseUser);
+    // Re-sync from server in background for full canonical data (roles, sub…)
+    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
+    return responseUser;
   };
 
   const loginWithGoogle = async (idToken: string): Promise<User | null> => {
     const { googleLogin } = await import('../services/authService');
-    await googleLogin(idToken);
-    // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
-    const freshUser = await fetchCurrentUser();
-    applyUser(freshUser);
-    return freshUser;
+    const response = await googleLogin(idToken);
+    const responseUser = (response?.user ?? null) as User | null;
+    applyUser(responseUser);
+    // Re-sync from server in background for full canonical data
+    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
+    return responseUser;
   };
 
   const logout = async () => {
