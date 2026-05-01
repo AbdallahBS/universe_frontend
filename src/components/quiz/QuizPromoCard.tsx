@@ -292,3 +292,8 @@ export function hasSeenPromoCard(): boolean {
     return false;
   }
 }
+
+/** Clears the promo-seen flag (call on logout so the next session sees the card) */
+export function clearPromoCard(): void {
+  try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+}

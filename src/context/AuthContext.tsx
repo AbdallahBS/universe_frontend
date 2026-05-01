@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useMemo, useEffect } from '
 import { apiFetch, setSessionTokens, clearSessionTokens } from '../services/api';
 import { User } from 'types/resource';
 import { getStats } from '../services/authService';
+import { clearPromoCard } from '../components/quiz/QuizPromoCard';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -140,7 +141,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
-      clearSessionTokens(); // wipe storage + memory
+      clearSessionTokens(); // wipe auth tokens from storage + memory
+      clearPromoCard();     // wipe promo-seen flag so next login shows the card
       applyUser(null);
     }
   };
