@@ -26,16 +26,15 @@ export default function FeedbackCard({ onClose }: FeedbackCardProps) {
         setError('');
 
         try {
-            const data = await apiFetch<any> (`/api/feedback`, {
+            const data = await apiFetch<any>(`/api/feedback`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 json: {
                     rating,
                     message,
-                    userEmail: user?.email ?? 'Quiz User'
+                    userEmail: user?.email ?? 'anonymous',
+                    userName: user ? `${user.firstname ?? ''} ${user.lastname ?? ''}`.trim() : 'Anonymous',
                 },
+                signal: AbortSignal.timeout(15_000),
             });
 
             if (data.success) {

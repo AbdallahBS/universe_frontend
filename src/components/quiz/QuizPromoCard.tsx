@@ -57,6 +57,7 @@ export default function QuizPromoCard({ onClose, isAuthenticated, user }: QuizPr
       await apiFetch('/api/feedback', {
         method: 'POST',
         json: { rating, message: review.trim(), userName, userEmail },
+        signal: AbortSignal.timeout(15_000),
       });
       setSubmitted(true);
     } catch (err: any) {
