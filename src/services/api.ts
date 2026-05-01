@@ -7,7 +7,7 @@ interface ApiFetchOptions {
   headers?: Record<string, string>;
   credentials?: RequestCredentials;
   json?: unknown;
-  body?: FormData; // For file uploads
+  body?: FormData;
   signal?: AbortSignal;
   requireAuth?: boolean;
 }
@@ -19,21 +19,73 @@ function delay(ms: number): Promise<void> {
 const RAW_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const BASE_URL = (RAW_BASE ?? "http://localhost:3000").replace(/\/$/, "");
 
-// ---------- IN-MEMORY TOKEN STORE ----------
-// Holds the access token right after login while the cross-origin httpOnly
-// cookie is being committed by the browser (Netlify → Render race window).
-// Cleared as soon as /auth/me confirms the cookie-based session is working.
-let inMemoryAccessToken: string | null = null;
+// ─────────────────────────────────────────────────────────────────────────────
+// TOKEN STORE
+// Tokens are kept in memory AND persisted to storage so they survive page
+// refreshes in cross-origin deployments (Netlify → Render) where httpOnly
+// cookies are not sent by the browser on cross-site fetch requests.
+// ─────────────────────────────────────────────────────────────────────────────
+const STORAGE_KEY_AT = "_universe_at";
+const STORAGE_KEY_RT = "_universe_rt";
 
-export function setInMemoryAccessToken(token: string | null) {
-  inMemoryAccessToken = token;
+let _accessToken: string | null = null;
+let _refreshToken: string | null = null;
+
+/** Load persisted tokens into memory on module init (page refresh recovery). */
+function loadTokensFromStorage() {
+  try {
+    _accessToken = sessionStorage.getItem(STORAGE_KEY_AT) || localStorage.getItem(STORAGE_KEY_AT) || null;
+    _refreshToken = sessionStorage.getItem(STORAGE_KEY_RT) || localStorage.getItem(STORAGE_KEY_RT) || null;
+  } catch {
+    // storage blocked (private browsing edge-cases)
+  }
 }
 
-// ---------- GLOBAL REFRESH CONTROL ----------
+function persistTokens(at: string | null, rt: string | null, rememberMe = false) {
+  _accessToken = at;
+  _refreshToken = rt;
+  try {
+    const store = rememberMe ? localStorage : sessionStorage;
+    if (at) store.setItem(STORAGE_KEY_AT, at); else { sessionStorage.removeItem(STORAGE_KEY_AT); localStorage.removeItem(STORAGE_KEY_AT); }
+    if (rt) store.setItem(STORAGE_KEY_RT, rt); else { sessionStorage.removeItem(STORAGE_KEY_RT); localStorage.removeItem(STORAGE_KEY_RT); }
+  } catch { /* ignore */ }
+}
+
+function clearTokenStorage() {
+  _accessToken = null;
+  _refreshToken = null;
+  try {
+    sessionStorage.removeItem(STORAGE_KEY_AT);
+    sessionStorage.removeItem(STORAGE_KEY_RT);
+    localStorage.removeItem(STORAGE_KEY_AT);
+    localStorage.removeItem(STORAGE_KEY_RT);
+  } catch { /* ignore */ }
+}
+
+// Load on import (catches page refreshes)
+loadTokensFromStorage();
+
+/** Called by AuthContext after login/signup to persist both tokens. */
+export function setSessionTokens(accessToken: string, refreshToken: string, rememberMe = false) {
+  persistTokens(accessToken, refreshToken, rememberMe);
+}
+
+/** Called by AuthContext on logout. */
+export function clearSessionTokens() {
+  clearTokenStorage();
+}
+
+/** Legacy shim used in AuthContext — maps to setSessionTokens. */
+export function setInMemoryAccessToken(token: string | null) {
+  if (token) { _accessToken = token; } else { _accessToken = null; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REFRESH CONTROL
+// ─────────────────────────────────────────────────────────────────────────────
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 
-// Refresh function
 async function refreshTokens(): Promise<void> {
   if (!refreshPromise) {
     isRefreshing = true;
@@ -41,11 +93,16 @@ async function refreshTokens(): Promise<void> {
     refreshPromise = (async () => {
       const uuid = await getOrCreateDeviceUUID();
 
+      // Send the persisted refresh token in the body as a fallback when
+      // the httpOnly cookie is not delivered cross-origin (Netlify → Render).
+      const body: Record<string, string> = { UUID: uuid };
+      if (_refreshToken) body.refreshToken = _refreshToken;
+
       const response = await fetch(`${BASE_URL}/v1/auth/refresh`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ UUID: uuid })
+        body: JSON.stringify(body)
       });
 
       const contentType = response.headers.get("content-type") ?? "";
@@ -53,20 +110,21 @@ async function refreshTokens(): Promise<void> {
       const responseData = isJson ? await response.json().catch(() => null) : await response.text();
 
       if (!response.ok) {
-        const errorCode =
-          responseData?.error?.code ||
-          responseData?.code ||
-          responseData?.message ||
-          response.statusText;
-
         isRefreshing = false;
         refreshPromise = null;
-        console.log("REFRESH_FAILED");
-        console.log(errorCode);
+        clearTokenStorage();
         throw new Error("REFRESH_FAILED");
       }
 
-      // Wait until refreshed successfully
+      // Store the new tokens returned by the refresh endpoint.
+      if (responseData?.accessToken || responseData?.refreshToken) {
+        persistTokens(
+          responseData.accessToken ?? _accessToken,
+          responseData.refreshToken ?? _refreshToken,
+          !!localStorage.getItem(STORAGE_KEY_AT) // keep rememberMe preference
+        );
+      }
+
       isRefreshing = false;
       refreshPromise = null;
     })();
@@ -75,55 +133,53 @@ async function refreshTokens(): Promise<void> {
   return refreshPromise;
 }
 
-// ---------- MAIN FETCH WRAPPER ----------
+// ─────────────────────────────────────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildHeaders(
+  contentTypeHeader: Record<string, string>,
+  extraHeaders: Record<string, string> = {},
+  requireAuth = false
+): Record<string, string> {
+  const bearerHeader: Record<string, string> =
+    requireAuth && _accessToken ? { Authorization: `Bearer ${_accessToken}` } : {};
+  return { ...contentTypeHeader, ...bearerHeader, ...extraHeaders };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN FETCH WRAPPER
+// ─────────────────────────────────────────────────────────────────────────────
 export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Promise<T> {
   const url = `${BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
 
-  // Determine body and headers
   let bodyToSend: BodyInit | undefined;
   let contentTypeHeader: Record<string, string> = {};
 
   if (opts.body instanceof FormData) {
-    // FormData: let browser set Content-Type with boundary
     bodyToSend = opts.body;
   } else if (opts.json !== undefined) {
-    // JSON: set Content-Type and stringify
     bodyToSend = JSON.stringify(opts.json);
     contentTypeHeader = { "Content-Type": "application/json" };
   }
 
-  // If we have an in-memory token (set right after login before the cross-origin
-  // cookie is committed), inject it as Authorization: Bearer for auth requests.
-  const bearerHeaders: Record<string, string> =
-    opts.requireAuth && inMemoryAccessToken
-      ? { Authorization: `Bearer ${inMemoryAccessToken}` }
-      : {};
-
-  const requestInit: RequestInit = {
+  const makeInit = (): RequestInit => ({
     method: opts.method ?? "GET",
     credentials: opts.credentials ?? "include",
-    headers: {
-      ...contentTypeHeader,
-      ...bearerHeaders,
-      ...(opts.headers ?? {})
-    },
+    headers: buildHeaders(contentTypeHeader, opts.headers, opts.requireAuth),
     body: bodyToSend,
     signal: opts.signal
-  };
+  });
 
-  let response = await fetch(url, requestInit);
+  let response = await fetch(url, makeInit());
 
-  // Extract response body
   const contentType = response.headers.get("content-type") ?? "";
   const isJson = contentType.includes("application/json");
   const responseData = isJson ? await response.json().catch(() => null) : await response.text();
 
-  // ---------- FIRST VALIDATION ----------
   if (response.ok) {
-    return (isJson ? responseData : (responseData as unknown)) as T;
+    return (isJson ? responseData : responseData as unknown) as T;
   }
 
-  // If request requires auth & token invalid → try refresh
   const errorCode =
     responseData?.error?.code ||
     responseData?.code ||
@@ -135,26 +191,18 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
     errorCode === "TOKEN_EXPIRED" ||
     errorCode === "AUTH_EXPIRED" ||
     response.status === 401;
-    // Note: 400 (Bad Request) is NOT an auth failure — do not trigger refresh on it.
 
-  //if (opts.requireAuth && tokenExpired) {
   if (tokenExpired && opts.requireAuth) {
-    // ---------- TOKEN REFRESH LOGIC ----------
     try {
       if (!isRefreshing) {
-        console.log("start refreshing...");
-
-        // Start refresh
         await refreshTokens();
       } else {
-        // Wait for the refresh already in progress
         await refreshPromise;
       }
-
       await delay(300);
-      // After successful refresh → retry original request once
-      const retryResponse = await fetch(url, requestInit);
 
+      // Retry with freshly-updated Bearer token (rebuilt via makeInit).
+      const retryResponse = await fetch(url, makeInit());
       const retryContentType = retryResponse.headers.get("content-type") ?? "";
       const retryIsJson = retryContentType.includes("application/json");
       const retryData = retryIsJson
@@ -168,14 +216,12 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
             : "Request failed after refresh"
         );
       }
-
       return retryData as T;
     } catch (err: any) {
       throw new Error(err ?? "AUTH_EXPIRED");
     }
   }
 
-  // ---------- NON-AUTH ERRORS ----------
   const errorMessage =
     (responseData?.error?.message ??
       responseData?.message ??

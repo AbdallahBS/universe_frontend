@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
-import { apiFetch, setInMemoryAccessToken } from '../services/api';
+import { apiFetch, setSessionTokens, clearSessionTokens } from '../services/api';
 import { User } from 'types/resource';
 import { getStats } from '../services/authService';
 
@@ -23,8 +23,9 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helper: fetch the current session from the server
-// Single source of truth — reads httpOnly cookies, returns fresh user data.
+// Helper: validate the current session with the server.
+// Sends the in-memory Bearer token (loaded from storage on page refresh) so
+// this works in cross-origin deployments where httpOnly cookies are blocked.
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchCurrentUser(): Promise<User | null> {
   try {
@@ -46,11 +47,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAuthenticated = useMemo(() => !!user, [user]);
 
-  // ── Restore session on app mount ──────────────────────────────────────────
+  // ── Restore session on app mount (including page refresh) ─────────────────
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Auth and stats are independent — run in parallel for performance
+        // api.ts already loaded the persisted tokens from storage into memory,
+        // so fetchCurrentUser() will send them as Bearer → works cross-origin.
         const [freshUser, statsResponse] = await Promise.allSettled([
           fetchCurrentUser(),
           getStats(),
@@ -74,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  // ── Helpers to update state after login ───────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
   const applyUser = (newUser: User | null) => {
     setUser(newUser);
     setUserRoles((newUser as any)?.roles || []);
@@ -84,45 +86,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (payload: { firstname: string; lastname: string; email: string; password: string }) => {
     const { signup: signupService } = await import('../services/authService');
     const response = await signupService(payload);
-    // Store access token in memory immediately so requests made before the cross-origin
-    // cookie is committed (Netlify → Render) can still authenticate via Bearer.
-    if (response?.accessToken) setInMemoryAccessToken(response.accessToken);
+
+    // Persist tokens immediately — survives page refresh in cross-origin envs.
+    if (response?.accessToken && response?.refreshToken) {
+      setSessionTokens(response.accessToken, response.refreshToken, false);
+    }
+
     const responseUser = (response?.user ?? null) as User | null;
     applyUser(responseUser);
-    // Re-sync from server in background; clear in-memory token once cookie is confirmed.
-    fetchCurrentUser().then(freshUser => {
-      setInMemoryAccessToken(null);
-      if (freshUser) applyUser(freshUser);
-    });
+
+    // Sync canonical user data in background (non-blocking).
+    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
   };
 
-  const login = async (email: string, password: string, rememberMe: boolean = false): Promise<User | null> => {
+  const login = async (email: string, password: string, rememberMe = false): Promise<User | null> => {
     const { login: loginService } = await import('../services/authService');
     const response = await loginService({ email, password, rememberMe });
+
+    // Persist tokens — use localStorage for rememberMe, sessionStorage otherwise.
+    if (response?.accessToken && response?.refreshToken) {
+      setSessionTokens(response.accessToken, response.refreshToken, rememberMe);
+    }
+
     const responseUser = (response?.user ?? null) as User | null;
     applyUser(responseUser);
-    // Store the access token in memory so any request fired before the cross-origin
-    // cookie is committed (Netlify → Render) can still authenticate via Bearer.
-    if (response?.accessToken) setInMemoryAccessToken(response.accessToken);
-    // Re-sync from server in background for full canonical data (roles, sub…)
-    // Once /me succeeds the cookie is confirmed working — clear the in-memory token.
-    fetchCurrentUser().then(freshUser => {
-      setInMemoryAccessToken(null); // cookie is now committed, no longer needed
-      if (freshUser) applyUser(freshUser);
-    });
+
+    // Sync canonical user data in background (roles, sub, etc. from DB).
+    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
+
     return responseUser;
   };
 
   const loginWithGoogle = async (idToken: string): Promise<User | null> => {
     const { googleLogin } = await import('../services/authService');
     const response = await googleLogin(idToken);
+
+    if (response?.accessToken && response?.refreshToken) {
+      setSessionTokens(response.accessToken, response.refreshToken, true); // Google = always rememberMe
+    }
+
     const responseUser = (response?.user ?? null) as User | null;
     applyUser(responseUser);
-    if (response?.accessToken) setInMemoryAccessToken(response.accessToken);
-    fetchCurrentUser().then(freshUser => {
-      setInMemoryAccessToken(null);
-      if (freshUser) applyUser(freshUser);
-    });
+
+    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
+
     return responseUser;
   };
 
@@ -133,11 +140,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
+      clearSessionTokens(); // wipe storage + memory
       applyUser(null);
     }
   };
 
-  // Refresh user data from server (e.g. after profile update)
   const refreshUser = async () => {
     const freshUser = await fetchCurrentUser();
     if (freshUser) {
