@@ -143,71 +143,7 @@ export default function QuizPromoCard({ onClose, isAuthenticated, user }: QuizPr
             {/* ── Two columns (stacks on mobile) ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-5 sm:mb-8">
 
-              {/* Review box */}
-              <div className="flex flex-col gap-3">
-                <label className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                  <span>💬</span> Your feedback
-                </label>
-                {submitted ? (
-                  <div
-                    className="flex flex-col items-center justify-center h-28 rounded-2xl gap-2 text-center"
-                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(52,211,153,0.3)' }}
-                  >
-                    <span className="text-2xl">🎉</span>
-                    <p className="text-emerald-300 font-semibold text-sm">Thank you! Your feedback really matters.</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* ── Star rating ── */}
-                    <div className="flex items-center gap-1" role="group" aria-label="Star rating">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <button
-                          key={star}
-                          type="button"
-                          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
-                          onClick={() => setRating(star)}
-                          onMouseEnter={() => setHovered(star)}
-                          onMouseLeave={() => setHovered(0)}
-                          className="text-2xl transition-transform duration-100 hover:scale-125 focus:outline-none"
-                          style={{ color: star <= (hovered || rating) ? '#fbbf24' : 'rgba(255,255,255,0.25)', lineHeight: 1 }}
-                        >
-                          ★
-                        </button>
-                      ))}
-                      {rating > 0 && (
-                        <span className="ml-1 text-xs text-white/50">{rating}/5</span>
-                      )}
-                    </div>
-
-                    <textarea
-                      value={review}
-                      onChange={e => setReview(e.target.value)}
-                      placeholder="write here ..."
-                      rows={3}
-                      className="w-full px-4 py-3 rounded-2xl text-sm text-white placeholder-white/40 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
-                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
-                    />
-
-                    {submitError && (
-                      <p className="text-red-400 text-xs">{submitError}</p>
-                    )}
-
-                    <button
-                      onClick={handleSubmitReview}
-                      disabled={review.trim().length < 3 || rating === 0 || submitting}
-                      className="w-full py-2.5 px-6 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
-                      style={{
-                        background: review.trim().length >= 3 && rating > 0 && !submitting
-                          ? 'linear-gradient(90deg,#059669,#0891b2)'
-                          : 'rgba(255,255,255,0.1)',
-                        color: '#fff',
-                      }}
-                    >
-                      {submitting ? 'Sending…' : 'Send my review ✨'}
-                    </button>
-                  </>
-                )}
-              </div>
+              
 
               {/* Facebook CTA */}
               <div className="flex flex-col gap-3">
