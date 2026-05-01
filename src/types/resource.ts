@@ -16,6 +16,7 @@ export interface User {
   oauthProviders?: OAuthProvider[];
   status?: UserStatus | null;
   rememberMe?: boolean;
+  quizPromoDismissed?: boolean;
 }
 
 /** internship object **/

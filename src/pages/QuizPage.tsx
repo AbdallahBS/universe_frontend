@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ccnaQuestions, CCNAQuestion } from './data/ccnaQuizData';
 import MatchingQuestion from '../components/quiz/MatchingQuestion';
 import FeedbackCard from '../components/quiz/FeedbackCard';
+import QuizPromoCard, { hasSeenPromoCard } from '../components/quiz/QuizPromoCard';
 import { useAuth } from '../context/AuthContext';
 import { saveQuizAttempt, getAdminQuestions, CertificateQuestion } from '../services/quizService';
 import { QuestionResult, SaveAttemptPayload } from '../types/quiz';
@@ -15,7 +16,7 @@ type QuizScreen = 'start' | 'quiz' | 'results';
 export default function QuizPage() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigatePage();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const [screen, setScreen] = useState<QuizScreen>('start');
     const [selectedModule, setSelectedModule] = useState<QuizModule>('ccna1');
     const [questions, setQuestions] = useState<CCNAQuestion[]>([]);
@@ -29,6 +30,10 @@ export default function QuizPage() {
     // Feedback card state - show after question 3
     const [showFeedbackCard, setShowFeedbackCard] = useState(false);
     const [feedbackDismissed, setFeedbackDismissed] = useState(false);
+
+    // Promo card state - shown once per account at question 5
+    const [showPromoCard, setShowPromoCard] = useState(false);
+    const promoShownRef = useRef(false);
 
     // Timer state
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -302,8 +307,14 @@ export default function QuizPage() {
     const nextQuestion = () => {
         if (currentIndex < questions.length - 1) {
             // Show feedback card after completing question 3 (index 2)
-            if (currentIndex === 2 && !feedbackDismissed) {
-                setShowFeedbackCard(true);
+           
+            // Show promo card once per account when user completes question 5 (index 4)
+            // Primary check: backend field user.quizPromoDismissed
+            // Fallback: localStorage (for unauthenticated / offline)
+            const alreadySeen = user?.quizPromoDismissed || hasSeenPromoCard();
+            if (currentIndex === 4 && !promoShownRef.current && !alreadySeen) {
+                promoShownRef.current = true;
+                setShowPromoCard(true);
             }
             setCurrentIndex(prev => prev + 1);
             setSelectedAnswers([]);
@@ -676,6 +687,15 @@ export default function QuizPage() {
                             setShowFeedbackCard(false);
                             setFeedbackDismissed(true);
                         }}
+                    />
+                )}
+
+                {/* Promo Card - appears once per account at question 5 */}
+                {showPromoCard && (
+                    <QuizPromoCard
+                        onClose={() => setShowPromoCard(false)}
+                        isAuthenticated={isAuthenticated}
+                        user={user}
                     />
                 )}
             </div>
