@@ -114,7 +114,18 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
     },
     onError: (error) => {
       console.error('Google signup error:', error);
-      setServerError('Google sign up failed. Please try again.');
+      // Brave / Firefox with strict shields blocks the OAuth popup
+      const isPopupBlocked =
+        !error.error ||
+        error.error === 'popup_closed_by_user' ||
+        error.error === 'access_denied';
+      if (isPopupBlocked) {
+        setServerError(
+          '⚠️ Popup blocked by your browser. If you use Brave, click the Shields icon (🦁) in the address bar → "Allow all cookies" or enable popups for this site, then try again.'
+        );
+      } else {
+        setServerError('Google sign up failed. Please try again.');
+      }
     },
     flow: 'implicit',
   });
@@ -284,6 +295,9 @@ const SignupPage: React.FC<SignupPageProps> = ({ onSignupSuccess }) => {
                 </svg>
                 <TransText>{t("auth.signInWithGoogle")}</TransText>
               </Button>
+              <p className="text-center text-xs text-slate-400 dark:text-slate-500 -mt-2">
+                🦁 Using Brave? Allow popups for this site in Shields settings.
+              </p>
 
               <div className="text-center">
                 <p className="text-slate-600 dark:text-slate-400">
