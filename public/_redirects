@@ -1,1 +1,3 @@
-/*    /index.html   200
+# This file is kept for reference only.
+# Redirects are now handled by netlify.toml in the project root.
+# netlify.toml takes precedence over this file.
