@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useMemo, useEffect } from 'react';
-import { apiFetch } from '../services/api';
+import { apiFetch, setInMemoryAccessToken } from '../services/api';
 import { User } from 'types/resource';
 import { getStats } from '../services/authService';
 
@@ -84,21 +84,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (payload: { firstname: string; lastname: string; email: string; password: string }) => {
     const { signup: signupService } = await import('../services/authService');
     const response = await signupService(payload);
-    // Backend sets httpOnly cookies. Fetch fresh user from server as source of truth.
-    const freshUser = await fetchCurrentUser();
-    applyUser(freshUser ?? (response.user as any));
+    // Store access token in memory immediately so requests made before the cross-origin
+    // cookie is committed (Netlify → Render) can still authenticate via Bearer.
+    if (response?.accessToken) setInMemoryAccessToken(response.accessToken);
+    const responseUser = (response?.user ?? null) as User | null;
+    applyUser(responseUser);
+    // Re-sync from server in background; clear in-memory token once cookie is confirmed.
+    fetchCurrentUser().then(freshUser => {
+      setInMemoryAccessToken(null);
+      if (freshUser) applyUser(freshUser);
+    });
   };
 
   const login = async (email: string, password: string, rememberMe: boolean = false): Promise<User | null> => {
     const { login: loginService } = await import('../services/authService');
-    // The login response already contains the user — use it immediately.
-    // This avoids a second /me round-trip whose cookie may not be ready yet
-    // in cross-origin production deployments (Netlify → Render).
     const response = await loginService({ email, password, rememberMe });
     const responseUser = (response?.user ?? null) as User | null;
     applyUser(responseUser);
+    // Store the access token in memory so any request fired before the cross-origin
+    // cookie is committed (Netlify → Render) can still authenticate via Bearer.
+    if (response?.accessToken) setInMemoryAccessToken(response.accessToken);
     // Re-sync from server in background for full canonical data (roles, sub…)
-    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
+    // Once /me succeeds the cookie is confirmed working — clear the in-memory token.
+    fetchCurrentUser().then(freshUser => {
+      setInMemoryAccessToken(null); // cookie is now committed, no longer needed
+      if (freshUser) applyUser(freshUser);
+    });
     return responseUser;
   };
 
@@ -107,8 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const response = await googleLogin(idToken);
     const responseUser = (response?.user ?? null) as User | null;
     applyUser(responseUser);
-    // Re-sync from server in background for full canonical data
-    fetchCurrentUser().then(freshUser => { if (freshUser) applyUser(freshUser); });
+    if (response?.accessToken) setInMemoryAccessToken(response.accessToken);
+    fetchCurrentUser().then(freshUser => {
+      setInMemoryAccessToken(null);
+      if (freshUser) applyUser(freshUser);
+    });
     return responseUser;
   };
 

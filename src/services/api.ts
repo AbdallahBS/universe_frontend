@@ -19,6 +19,16 @@ function delay(ms: number): Promise<void> {
 const RAW_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const BASE_URL = (RAW_BASE ?? "http://localhost:3000").replace(/\/$/, "");
 
+// ---------- IN-MEMORY TOKEN STORE ----------
+// Holds the access token right after login while the cross-origin httpOnly
+// cookie is being committed by the browser (Netlify → Render race window).
+// Cleared as soon as /auth/me confirms the cookie-based session is working.
+let inMemoryAccessToken: string | null = null;
+
+export function setInMemoryAccessToken(token: string | null) {
+  inMemoryAccessToken = token;
+}
+
 // ---------- GLOBAL REFRESH CONTROL ----------
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
@@ -82,11 +92,19 @@ export async function apiFetch<T>(path: string, opts: ApiFetchOptions = {}): Pro
     contentTypeHeader = { "Content-Type": "application/json" };
   }
 
+  // If we have an in-memory token (set right after login before the cross-origin
+  // cookie is committed), inject it as Authorization: Bearer for auth requests.
+  const bearerHeaders: Record<string, string> =
+    opts.requireAuth && inMemoryAccessToken
+      ? { Authorization: `Bearer ${inMemoryAccessToken}` }
+      : {};
+
   const requestInit: RequestInit = {
     method: opts.method ?? "GET",
     credentials: opts.credentials ?? "include",
     headers: {
       ...contentTypeHeader,
+      ...bearerHeaders,
       ...(opts.headers ?? {})
     },
     body: bodyToSend,
