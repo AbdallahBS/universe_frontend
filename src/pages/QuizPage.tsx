@@ -35,6 +35,13 @@ export default function QuizPage() {
     const [showPromoCard, setShowPromoCard] = useState(false);
     const promoShownRef = useRef(false);
 
+    // Random image for failing score
+    const randomHekkaImage = useRef(`/hekka${Math.floor(Math.random() * 5) + 1}.jpeg`);
+
+    // Random media for passing score
+    const passingMediaFiles = ['/nice1.jpeg', '/nice2.mp4'];
+    const randomPassingMedia = useRef(passingMediaFiles[Math.floor(Math.random() * passingMediaFiles.length)]);
+
     // Timer state
     const [elapsedTime, setElapsedTime] = useState(0);
     const [timeLimit, setTimeLimit] = useState<number | null>(null); // in seconds
@@ -55,6 +62,19 @@ export default function QuizPage() {
 
     // Check for direct start from URL params
     useEffect(() => {
+        const forceScore = searchParams.get('forceScore');
+        if (forceScore) {
+            setScreen('results');
+            setScore(parseInt(forceScore));
+            // Add dummy answers to make totalAnswered = 100 so score = percentage
+            setAnswers(Array.from({ length: 100 }, (_, i) => ({
+                questionId: i,
+                selected: [0],
+                correct: i < parseInt(forceScore)
+            })));
+            return;
+        }
+
         const autoStart = searchParams.get('start');
         const questionCount = searchParams.get('count');
         const timeLimitParam = searchParams.get('time');
@@ -741,25 +761,49 @@ export default function QuizPage() {
 
                             {/* Celebration or Encouragement Message */}
                             {finalScorePercentage >= 70 ? (
-                                <div className="animate-bounce">
+                                <div>
                                     <h2 className="text-3xl font-bold bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent mb-2">
                                         🎉 YEPPPIIIII! 🎉
                                     </h2>
                                     <p className="text-xl font-semibold text-green-600 dark:text-green-400 mb-2">
                                         Félicitations ! Tu es prêt(e) pour l'examen final Cisco !
                                     </p>
-
+                                    <div className="flex justify-center mt-4 mb-4">
+                                        {randomPassingMedia.current.endsWith('.mp4') ? (
+                                            <video 
+                                                src={randomPassingMedia.current} 
+                                                autoPlay 
+                                                loop 
+                                                muted 
+                                                playsInline
+                                                className="max-w-full h-auto rounded-xl shadow-md border-2 border-green-200 dark:border-green-800"
+                                                style={{ maxHeight: '250px' }}
+                                            />
+                                        ) : (
+                                            <img 
+                                                src={randomPassingMedia.current} 
+                                                alt="Félicitations" 
+                                                className="max-w-full h-auto rounded-xl shadow-md border-2 border-green-200 dark:border-green-800"
+                                                style={{ maxHeight: '250px' }}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             ) : (
                                 <div>
 
 
-                                    <p className="text-xl font-semibold text-purple-600 dark:text-purple-400 animate-pulse">
+                                    <p className="text-xl font-semibold text-purple-600 dark:text-purple-400 animate-pulse mb-4">
                                         Heekkkka Tawww 😭,
                                     </p>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                        Avant l'examen final, révise encore !
-                                    </p>
+                                    <div className="flex justify-center mt-4">
+                                        <img 
+                                            src={randomHekkaImage.current} 
+                                            alt="Révise encore" 
+                                            className="max-w-full h-auto rounded-xl shadow-md border-2 border-purple-200 dark:border-purple-800"
+                                            style={{ maxHeight: '250px' }}
+                                        />
+                                    </div>
                                 </div>
                             )}
 
